@@ -50,7 +50,6 @@ class TicTacToe
       when "yes", "y"
         new_players
         @board.new_board
-        p @board.game_spots
         start
       when "no", "n" then exit
       else play_again
