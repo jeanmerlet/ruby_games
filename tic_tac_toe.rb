@@ -3,11 +3,11 @@ class TicTacToe
   def initialize
     puts "\nWelcome to Ruby-Powered, Command-Line Tic-Tac-Toe!"
     puts "Type 1-9 to place, (r)ules for rules or (q)uit to quit."
-    new_board
-    new_players
   end
 
   def start
+    new_board
+    new_players
     @current_player = @player_two
     play
   end
@@ -71,10 +71,7 @@ class TicTacToe
     loop do
       answer = gets.chomp
       case answer
-        when "yes", "y"
-          new_board
-          new_players
-          start
+        when "yes", "y" then start
         when "no", "n" then exit
       end
     end
