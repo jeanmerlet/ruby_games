@@ -112,7 +112,7 @@ class TicTacToe
           when ("1".."9") then return player_input
           when "rules", "r" then see_rules
           when "quit", "q" then quit
-          when "cheat"
+          when "Jean is awesome"
             cheat
             return
         end
