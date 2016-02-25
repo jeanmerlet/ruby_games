@@ -5,8 +5,8 @@ class TicTacToe
   end
 
   def start
-    new_board
     new_players
+    new_board
     @current_player = @player_two
     play
   end
@@ -29,21 +29,40 @@ class TicTacToe
           puts "Please type a number 1-9:"
       end
     end
-    @board = Board.new(side_length)
+    colors = [@player_one.color, @player_two.color]
+    @board = Board.new(side_length, colors)
   end
 
   def new_players
-    @player_one = Player.new(name_player(1), "X", @board.side_length)
-    @player_two = Player.new(name_player(2), "O", @board.side_length)
+    @player_one = Player.new(name_player(1), choose_symbol(1))
+    @player_two = Player.new(name_player(2), choose_symbol(2))
   end
 
   def name_player(number)
-    puts "\nEnter a name for player #{number}:"
-    name = gets.chomp
+    puts "\nEnter a name for player #{number} or ENTER to skip:"
+    loop do
+      input = gets.chomp
+      case input
+        when "" then return "#{number}"
+        else return input
+      end
+    end
+  end
+
+  def choose_symbol(number)
+    puts "Pick a symbol for player #{number} or ENTER to skip:"
+    loop do
+      input = gets.chomp
+      case input
+        when "" then return number == 1 ? "X" : "O"
+        when /^[\D]$/ then return input
+        else puts "Enter any non-digit single character, please:"
+      end
+    end
   end
 
   def play
-    puts "\nType 1-9 to place, (r)ules for rules or (q)uit to quit."
+    puts "\nType 1-#{@board.side_length**2} to place, (r)ules for rules or (q)uit to quit."
     until @board.has_win? || @board.is_full? || @current_player.cheats
       @board.display
       switch_player
@@ -51,7 +70,7 @@ class TicTacToe
 
       chosen_spot = 0
       until (1..@board.side_length**2) === @board.spots[chosen_spot.to_i] || @current_player.cheats
-        puts "Spot taken!\n\n" unless chosen_spot == 0
+        puts "Type an open spot 1-#{@board.side_length**2}, please:\n\n" unless chosen_spot == 0
         chosen_spot = @current_player.input
       end
 
@@ -86,20 +105,20 @@ class TicTacToe
 
     attr_reader :side_length, :spots
 
-    def initialize(number)
+    def initialize(number, colors)
       @side_length = number.to_i
       @spots = (0..@side_length**2).to_a
+      @space_fixer = (1..9).to_a << colors[0] << colors[1]
     end
 
     def display
       n = @side_length
-      spot_fixer = (1..9).to_a << "X" << "O"
       puts ""
       n.times do |j|
         print "----"
         (n-1).times { print "---" }
         puts ""
-        n.times { |i| print "|#{" " if spot_fixer.include?(@spots[(i+1)+(j*n)])}#{@spots[(i+1)+(j*n)]}" }
+        n.times { |i| print "|#{" " if @space_fixer.include?(@spots[(i+1)+(j*n)])}#{@spots[(i+1)+(j*n)]}" }
         puts "|"
       end
       print "----"
@@ -134,12 +153,11 @@ class TicTacToe
 
   class Player
 
-    attr_reader :color, :name, :cheats
+    attr_reader :name, :color, :cheats
 
-    def initialize(name, color, side_length)
+    def initialize(name, color)
       @name = name
       @color = color
-      @end_range = side_length**2
       @cheats = false
     end
 
@@ -147,12 +165,12 @@ class TicTacToe
       loop do
         player_input = gets.chomp
         case player_input
-          when ("1".."#{@end_range}") then return player_input
           when "rules", "r" then see_rules
           when "quit", "q" then quit
           when "cheat"
             cheat
             return
+          else return player_input
         end
       end
     end
@@ -160,7 +178,7 @@ class TicTacToe
     private
 
     def see_rules
-      puts "The goal of Tic-Tac-Toe is to get three of your 'color' in a row, the traditional Xs and Os in this case. You and your opponent alternate turns, placing one token on any unoccupied spot. The game ends with either a win for one of the players, or in a tie if no spots are left and neither player has won."
+      puts "The goal of Super Tic-Tac-Toe is to get a board length of your 'color' in a row. The traditional board length is 3 and colors Xs and Os. You and your opponent alternate turns, placing one token on any unoccupied spot. The game ends with either a win for one of the players, or in a tie if no spots are left and neither player has won."
       puts "\nAvailable commands:"
       puts "  1-9       places one of your tokens in the corresponding spot"
       puts "  (r)ules   show these rules"
