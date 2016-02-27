@@ -29,32 +29,33 @@ class TicTacToe
           puts "Please type a number 1-9:"
       end
     end
-    colors = [@player_one.color, @player_two.color]
-    @board = Board.new(side_length, colors)
+    @board = Board.new(side_length, @player_one.color, @player_two.color)
   end
 
   def new_players
     @player_one = Player.new(name_player(1), choose_symbol(1))
-    @player_two = Player.new(name_player(2), choose_symbol(2))
+    @player_two = Player.new(name_player(2, @player_one.name), choose_symbol(2, @player_one.color))
   end
 
-  def name_player(number)
+  def name_player(number, name = nil)
     puts "\nEnter a name for player #{number} or ENTER to skip:"
     loop do
       input = gets.chomp
       case input
-        when "" then return "#{number}"
+        when "" then return "Player #{number}"
+        when /^#{name}\s*$/ then puts "Please pick a different name from Player 1:"
         else return input
       end
     end
   end
 
-  def choose_symbol(number)
+  def choose_symbol(number, color = nil)
     puts "Pick a symbol for player #{number} or ENTER to skip:"
     loop do
       input = gets.chomp
       case input
         when "" then return number == 1 ? "X" : "O"
+        when /^#{color}\s*$/ then puts "Please pick a different color from Player 1:"
         when /^[\D]$/ then return input
         else puts "Enter any non-digit single character, please:"
       end
@@ -69,7 +70,7 @@ class TicTacToe
       puts "It's #{@current_player.name}'s turn - place an #{@current_player.color}."
 
       chosen_spot = 0
-      until (1..@board.side_length**2) === @board.spots[chosen_spot.to_i] || @current_player.cheats
+      until @board.is_open?(chosen_spot) || @current_player.cheats
         puts "Type an open spot 1-#{@board.side_length**2}, please:\n\n" unless chosen_spot == 0
         chosen_spot = @current_player.input
       end
@@ -105,10 +106,18 @@ class TicTacToe
 
     attr_reader :side_length, :spots
 
-    def initialize(number, colors)
+    def initialize(number, *colors)
       @side_length = number.to_i
       @spots = (0..@side_length**2).to_a
       @space_fixer = (1..9).to_a << colors[0] << colors[1]
+      @win_set = Array.new(2) { [] }
+      (@side_length * 2).times do |i|
+         i < @side_length ? @win_set[0] << colors[0] : @win_set[1] << colors[1]
+      end
+    end
+
+    def is_open?(chosen_spot)
+      (1..@side_length**2) === @spots[chosen_spot.to_i] 
     end
 
     def display
@@ -132,9 +141,8 @@ class TicTacToe
 
     def has_win?
       n = @side_length
-      win_set = Array.new(2) { [] }
-      n.times { 2.times { |i| win_set[i] << (i == 0 ? "X" : "O") } }
       test = Array.new(n*2+2) { [] }
+
       n.times do |j|
         n.times { |i| test[j] << @spots[(i+1)+(j*n)] }      #horizontal
         n.times { |i| test[j+n] << @spots[(i*n+1)+j] }      #vertical
@@ -142,7 +150,7 @@ class TicTacToe
       n.times { |i| test[n*2] << @spots[(i*(n+1)+1)] }      #diagonal
       n.times { |i| test[n*2+1] << @spots[(i*(n-1)+n)] }    #other diagonal
 
-      test.any? { |x| win_set.include?(x) }
+      test.any? { |x| @win_set.include?(x) }
     end
 
     def is_full?
