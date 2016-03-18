@@ -1,18 +1,24 @@
 class Mastermind
 
   def initialize
-    @board = Board.new
     @player = Player.new
-    @turn = 0
   end
 
   def play
-    until @turn = 12 || @board.solved?
+    @board = Board.new
+    @turn = 0
+
+    @board.display
+    puts "\nIntro"
+
+    until @turn == 12 || @board.solved?
+      guess = @player.guess
+      @board.update_guess_history(guess, @turn)
       @board.display
-      @player.guess
       @turn += 1
     end
-    @turn == 12 ? lose || win
+
+    @turn == 12 ? lose : win
   end
 
   def lose
@@ -30,7 +36,7 @@ class Mastermind
     loop do
       input = gets.chomp
       case input
-        when "y", "yes" then start
+        when "y", "yes" then play
         when "n", "no" then exit
       end
     end
@@ -39,16 +45,28 @@ class Mastermind
   class Board
 
     def initialize
-      @code = Array.new(4) { rand(6) }
+      @colors = ["B", "G", "O", "P", "R", "W"]
+      @code = Array.new(4) { @colors[rand(6)] }
+      @guess_history = Array.new(12) { [" ", " ", " ", " "] }
     end
 
     def display
+      12.times do |i|
+        print "\n ---------\n"
+        print "| "
+        4.times { |j| print "#{@guess_history[i][j]} " }
+        print "|"
+      end
+      print "\n ---------\n"
     end
 
-    def feedback
+    def update_guess_history(guess, turn)
+      @guess_history[turn] = guess.split("").to_a
     end
 
     def solved?
+      puts "in solved"
+      @guess_history.last == @code
     end
 
   end
@@ -56,10 +74,11 @@ class Mastermind
   class Player
 
     def guess
+      puts "in guess"
       loop do
         input = gets.chomp
         case input
-          when (0..5) then return input
+          when /^[B, G, O, P, R, W]{4}$/ then return input
         end
       end
     end
@@ -67,3 +86,6 @@ class Mastermind
   end
 
 end
+
+game = Mastermind.new
+game.play
