@@ -4,18 +4,6 @@ class Mastermind
     @player = Player.new
   end
 
-  def intro
-    @board = Board.new
-    @turn = 0
-
-    puts "Welcome to Mastermind!\n\n"
-    @board.display
-    puts "\nYour goal is to guess the secret code consisting of 4 ordered colors within 12 turns."
-    puts "Each guess will receive one + each time both color and spot are guessed correctly, and one - per correctly guessed color in the wrong spot."
-    puts "\nType your guess as 4 capital letters in a row. The options are:"
-    puts "(B)lue, (G)reen, (O)range, (P)urple, (R)ed, and (W)hite\n\n"
-  end
-
   def play
     intro
 
@@ -32,6 +20,8 @@ class Mastermind
 
     @turn == 12 ? lose : win
   end
+
+  private
 
   def lose
     puts "You're out of turns - you lose! :<"
@@ -52,6 +42,18 @@ class Mastermind
         when "n", "no" then exit
       end
     end
+  end
+
+  def intro
+    @board = Board.new
+    @turn = 0
+
+    puts "Welcome to Mastermind!\n\n"
+    @board.display
+    puts "\nYour goal is to guess the secret code consisting of 4 ordered colors within 12 turns."
+    puts "Each guess will receive one + each time both color and spot are guessed correctly, and one - per correctly guessed color in the wrong spot."
+    puts "\nType your guess as 4 capital letters in a row. The options are:"
+    puts "(B)lue, (G)reen, (O)range, (P)urple, (R)ed, and (W)hite\n\n"
   end
 
   class Board
@@ -77,22 +79,20 @@ class Mastermind
 
     def update_feedback_history(turn)
       @feedback_history[turn] = []
-      code = @code
+      code = @code.dup
 
       4.times do |i|
-        if @guess_history[turn][i] == @code[i]
-          @feedback_history[turn] << "+" 
-          code[i] = 0
+        if @guess_history[turn][i] == code[i]
+          @feedback_history[turn] << "+"
+          code[i] = 0                           #so it will be ignored by include
         end
       end
 
-      code.delete(0)
-
-      code.length.times do |i|
+      4.times do |i|
         @feedback_history[turn] << "-" if code.include?(@guess_history[turn][i])
       end
 
-      (4 - @feedback_history[turn]).length.times { @feedback_history[turn] << " " }
+      (4 - @feedback_history[turn].length).times { @feedback_history[turn] << " " }
     end
 
     def update_guess_history(guess, turn)
