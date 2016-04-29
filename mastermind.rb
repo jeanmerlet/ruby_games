@@ -1,14 +1,13 @@
 class Mastermind
 
-  def initialize
-    @player = Player.new
-  end
-
   def play
-    intro
+    choose_game_type
+    code = @codemaster.create_code
+    @board = Board.new(code)
+    @turn = 0
 
     until @turn == 12 || @board.solved?
-      guess = @player.guess
+      guess = @codebreaker.guess
       @board.update_guess_history(guess, @turn)
       @board.update_feedback_history(@turn)
       @board.display
@@ -44,23 +43,46 @@ class Mastermind
     end
   end
 
-  def intro
-    @board = Board.new
-    @turn = 0
+  def choose_game_type
+    puts "Welcome to Mastermind!"
+    puts "Would you like to be code(m)aster or code(b)reaker?"
 
-    puts "Welcome to Mastermind!\n\n"
-    @board.display
+    loop do
+      input = gets.chomp
+      case input
+        when "m", "codemaster"
+          codemaster_start
+          break
+        when "b", "codebreaker"
+          codebreaker_start
+          break
+      end
+    end
+  end
+
+  def codemaster_start
+    @codemaster = Player::Human.new
+    @codebreaker = Player::AI.new
+
+    puts "\nCome up with a code and watch the AI attempt to guess it."
+    puts "\nType your code as 4 capital letters in a row (ex: BBBB). The options are:"
+    puts "(B)lue, (G)reen, (O)range, (P)urple, (R)ed, and (W)hite\n\n"
+  end
+
+  def codebreaker_start
+    @codemaster = Player::AI.new
+    @codebreaker = Player::Human.new
+
     puts "\nYour goal is to guess the secret code consisting of 4 ordered colors within 12 turns."
-    puts "Each guess will receive one + each time both color and spot are guessed correctly, and one - per correctly guessed color in the wrong spot."
-    puts "\nType your guess as 4 capital letters in a row. The options are:"
+    puts "Each guess will receive feedback: one + each time both color and spot are guessed correctly, and one - per correctly guessed color in the wrong spot."
+    puts "\nType your guess as 4 capital letters in a row (ex: BBBB). The options are:"
     puts "(B)lue, (G)reen, (O)range, (P)urple, (R)ed, and (W)hite\n\n"
   end
 
   class Board
 
-    def initialize
-      @colors = ["B", "G", "O", "P", "R", "W"]
-      @code = Array.new(4) { @colors[rand(6)] }
+    def initialize(code)
+      @code = code
       @guess_history = Array.new(12) { [" ", " ", " ", " "] }
       @feedback_history = Array.new(12) { [" ", " ", " ", " "] }
     end
@@ -107,19 +129,32 @@ class Mastermind
 
   class Player
 
-    def guess
-      loop do
-        input = gets.chomp
-        case input
-          when /^[B, G, O, P, R, W]{4}$/ then return input
+    class Human < Player
+
+      def create_code
+        guess
+      end
+
+      def guess
+        loop do
+          input = gets.chomp
+          case input
+            when /^[B, G, O, P, R, W]{4}$/ then return input
+          end
         end
       end
     end
 
     class AI < Player
-    end
 
-    class Human < Player
+      def create_code
+        colors = ["B", "G", "O", "P", "R", "W"]
+        Array.new(4) { colors[rand(6)] }
+      end
+
+      def guess
+      end
+
     end
       
   end

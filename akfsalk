@@ -1,9 +1,0 @@
-.times not found, maybe you meant:
-
-ActiveRecord::ConnectionAdapters::Table#timestamps
-ActiveRecord::ConnectionAdapters::TableDefinition#timestamps
-ActiveRecord::FixtureSet#timestamp_column_names
-ActiveRecord::Timestamp#timestamp_attributes_for_create
-ActiveRecord::Timestamp#timestamp_attributes_for_create_in_model
-ActiveRecord::Timestamp#timestamp_attributes_for_update
-ActiveRecord::Timestamp#timestamp_attributes_for_update_in_model
