@@ -22,15 +22,15 @@ class Mastermind
       @turn += 1
     end
 
-    @turn == 12 ? lose : win
-  end
-
-  def lose
-    puts "You're out of turns - you lose! :<"
+    @board.solved? ? win : lose
   end
 
   def win
     puts "You guessed the code - you win! :>"
+  end
+
+  def lose
+    puts "You're out of turns - you lose! :<"
   end
 
   def choose_game_type
