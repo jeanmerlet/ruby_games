@@ -1,16 +1,21 @@
 class Mastermind
 
-  def play
+  def initialize
     choose_game_type
     code = @codemaster.create_code
     @board = Board.new(code)
     @turn = 0
+    play
+  end
 
+  private
+
+  def play
     until @turn == 12 || @board.solved?
       guess = @codebreaker.guess
       @board.update_guess_history(guess, @turn)
       @board.update_feedback_history(@turn)
-      @board.display
+      @board.render
 
       puts "\nPlease type 4 of RGBOPW for your guess:"
 
@@ -20,27 +25,12 @@ class Mastermind
     @turn == 12 ? lose : win
   end
 
-  private
-
   def lose
     puts "You're out of turns - you lose! :<"
-    play_again
   end
 
   def win
     puts "You guessed the code - you win! :>"
-    play_again
-  end
-
-  def play_again
-    puts "Play again? (y)es or (n)o"
-    loop do
-      input = gets.chomp
-      case input
-        when "y", "yes" then play
-        when "n", "no" then exit
-      end
-    end
   end
 
   def choose_game_type
@@ -87,7 +77,7 @@ class Mastermind
       @feedback_history = Array.new(12) { [" ", " ", " ", " "] }
     end
 
-    def display
+    def render
       12.times do |i|
         print "\n ------------------\n"
         print "| "
@@ -106,12 +96,15 @@ class Mastermind
       4.times do |i|
         if @guess_history[turn][i] == code[i]
           @feedback_history[turn] << "+"
-          code[i] = 0                           #so it will be ignored by include
+          code[i] = 0
         end
       end
 
       4.times do |i|
-        @feedback_history[turn] << "-" if code.include?(@guess_history[turn][i])
+        if code.include?(@guess_history[turn][i])
+          @feedback_history[turn] << "-" 
+          code[code.index(@guess_history[turn][i])] = 0
+        end
       end
 
       (4 - @feedback_history[turn].length).times { @feedback_history[turn] << " " }
@@ -132,10 +125,14 @@ class Mastermind
     class Human < Player
 
       def create_code
-        guess
+        four_color_input
       end
 
       def guess
+        four_color_input
+      end
+
+      def four_color_input
         loop do
           input = gets.chomp
           case input
@@ -162,4 +159,3 @@ class Mastermind
 end
 
 game = Mastermind.new
-game.play
