@@ -17,7 +17,7 @@ class Mastermind
       @board.update_feedback_history(@turn)
       @board.render
 
-      puts "\nPlease type 4 of BGOPRW for your guess:"
+      puts "\nPlease type 4 of RGBOPW for your guess:"
 
       @turn += 1
     end
@@ -92,21 +92,18 @@ class Mastermind
     def update_feedback_history(turn)
       @feedback_history[turn] = []
       code = @code.dup
-      guess = @guess_history[turn].dup
 
       4.times do |i|
-        if guess[i] == code[i]
+        if @guess_history[turn][i] == code[i]
           @feedback_history[turn] << "+"
           code[i] = 0
-          guess[i] = 1
         end
       end
 
       4.times do |i|
-        if code.include?(guess[i])
+        if code.include?(@guess_history[turn][i])
           @feedback_history[turn] << "-" 
-          code[code.index(guess[i])] = 0
-          guess[i] = 1
+          code[code.index(@guess_history[turn][i])] = 0
         end
       end
 
