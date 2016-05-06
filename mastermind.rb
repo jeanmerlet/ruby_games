@@ -11,13 +11,11 @@ class Mastermind
   private
 
   def play
-    until @turn == 12 || @board.solved?
+    until @board.solved? || @turn == 12
       guess = @codebreaker.guess(@turn, @board.guesses, @board.feedback)
-      @board.update_guessses(guess, @turn)
-      @board.update_feedback(@turn)
+      @board.update_guesses(guess)
+      @board.update_feedback
       @board.render
-
-      puts "\nPlease type 4 of BGOPRW for your guess:"
 
       @turn += 1
     end
@@ -71,50 +69,50 @@ class Mastermind
 
   class Board
 
+    attr_reader :guesses, :feedback
+
     def initialize(code)
       @code = code
-      @guesses = Array.new(12) { [" ", " ", " ", " "] }
-      @feedback = Array.new(12) { [" ", " ", " ", " "] }
+      @guesses = []
+      @feedback = []
     end
 
     def render
+      swap = @guesses.length
       12.times do |i|
-        print "\n ------------------\n"
-        print "| "
-        4.times { |j| print "#{@guesses[i][j]} " }
-        print "|"
-        4.times { |j| print "#{@feedback[i][j]} " }
-        print "|"
+        print "\n -------------\n"
+        print i < swap ? "| #{@guesses[i]} | #{@feedback[i]} |" : "|      |      |"
       end
-      print "\n ------------------\n"
+      print "\n -------------\n"
+      puts "\nPlease type 4 of BGOPRW for your guess:"
     end
 
-    def update_feedback(turn)
-      @feedback[turn] = []
+    def update_feedback
       code = @code.dup
-      guess = @guesses[turn].dup
+      guess = @guesses.last.dup
+      @feedback << ""
 
       4.times do |i|
         if guess[i] == code[i]
-          @feedback[turn] << "+"
-          code[i] = 0
-          guess[i] = 1
+          @feedback.last << "+"
+          code[i] = "0"
+          guess[i] = "1"
         end
       end
 
       4.times do |i|
         if code.include?(guess[i])
-          @feedback[turn] << "-" 
-          code[code.index(guess[i])] = 0
-          guess[i] = 1
+          @feedback.last << "-" 
+          code[code.index(guess[i])] = "0"
+          guess[i] = "1"
         end
       end
 
-      (4 - @feedback[turn].length).times { @feedback[turn] << " " }
+      (4 - @feedback.last.length).times { @feedback.last << " " }
     end
 
-    def update_guesses(guess, turn)
-      @guesses[turn] = guess.split("")
+    def update_guesses(guess)
+      @guesses << guess
     end
 
     def solved?
@@ -163,7 +161,9 @@ class Mastermind
     class Codemaster < AI
 
       def create_code
-        Array.new(4) { @colors[rand(6)] }
+        code = ""
+        4.times { code << @colors[rand(6)] }
+        code
       end
 
     end
