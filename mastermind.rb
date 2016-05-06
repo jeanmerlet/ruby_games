@@ -12,9 +12,9 @@ class Mastermind
 
   def play
     until @turn == 12 || @board.solved?
-      guess = @codebreaker.guess
-      @board.update_guess_history(guess, @turn)
-      @board.update_feedback_history(@turn)
+      guess = @codebreaker.guess(@turn, @board.guesses, @board.feedback)
+      @board.update_guessses(guess, @turn)
+      @board.update_feedback(@turn)
       @board.render
 
       puts "\nPlease type 4 of BGOPRW for your guess:"
@@ -73,30 +73,30 @@ class Mastermind
 
     def initialize(code)
       @code = code
-      @guess_history = Array.new(12) { [" ", " ", " ", " "] }
-      @feedback_history = Array.new(12) { [" ", " ", " ", " "] }
+      @guesses = Array.new(12) { [" ", " ", " ", " "] }
+      @feedback = Array.new(12) { [" ", " ", " ", " "] }
     end
 
     def render
       12.times do |i|
         print "\n ------------------\n"
         print "| "
-        4.times { |j| print "#{@guess_history[i][j]} " }
+        4.times { |j| print "#{@guesses[i][j]} " }
         print "|"
-        4.times { |j| print "#{@feedback_history[i][j]} " }
+        4.times { |j| print "#{@feedback[i][j]} " }
         print "|"
       end
       print "\n ------------------\n"
     end
 
-    def update_feedback_history(turn)
-      @feedback_history[turn] = []
+    def update_feedback(turn)
+      @feedback[turn] = []
       code = @code.dup
-      guess = @guess_history[turn].dup
+      guess = @guesses[turn].dup
 
       4.times do |i|
         if guess[i] == code[i]
-          @feedback_history[turn] << "+"
+          @feedback[turn] << "+"
           code[i] = 0
           guess[i] = 1
         end
@@ -104,21 +104,21 @@ class Mastermind
 
       4.times do |i|
         if code.include?(guess[i])
-          @feedback_history[turn] << "-" 
+          @feedback[turn] << "-" 
           code[code.index(guess[i])] = 0
           guess[i] = 1
         end
       end
 
-      (4 - @feedback_history[turn].length).times { @feedback_history[turn] << " " }
+      (4 - @feedback[turn].length).times { @feedback[turn] << " " }
     end
 
-    def update_guess_history(guess, turn)
-      @guess_history[turn] = guess.split("").to_a
+    def update_guesses(guess, turn)
+      @guesses[turn] = guess.split("")
     end
 
     def solved?
-      @guess_history.include?(@code)
+      @guesses.include?(@code)
     end
 
   end
@@ -146,7 +146,7 @@ class Mastermind
 
     class Codebreaker < Player
 
-      def guess
+      def guess(a, b, c)
         four_color_input
       end
 
@@ -170,35 +170,49 @@ class Mastermind
 
     class Codebreaker < AI
 
-      def initialize(guess_history, feedback_history)
-        @guess_history = guess_history
-        @feedback_history = feedback_history
-        create_code_set
+      def initialize
+        @code_sets = Array.new(12) { [] }
+        @code_sets[0] = @colors.repeated_permutation(4).to_a
       end
 
-      def guess(turn)
-        return "BGOP" if turn == 0
-        remove_impossible_codes(turn)
-        guess using updated code set
+      def guess(turn, guesses, feedback)
+        return "BBGG" if turn == 0
+        remove_bad_codes(turn, guesses, feedback)
+        @code_sets[turn][0]
       end
 
       private
 
-      def remove_impossible_codes(turn)
-        
-      end
-
-      def create_code_set
-        @code_set = []
-        6.times do |i|
-          6.times do |j|
-            6.times do |k|
-              6.times do |l|
-                @code_set << @colors[i] + @colors[j] + @colors[k] + @colors[l]
-              end
-            end
-          end
+      def remove_bad_codes(turn, guesses, feedback)
+        perfect = 0
+        partial = 0
+        4.times do |i|
+          perfect += 1 if feedback[turn-1][i] == "+"
+          partial += 1 if feedback[turn-1][i] == "-"
         end
+        total = perfect + partial
+
+        if total == 0
+          bad_codes = guesses[turn-1].permutation.to_a
+        elsif total == 1
+          good_colors = guesses[turn-1].uniq
+
+          good_colors.length.times do |i|
+            bad_codes << @code_sets[turn-1].reject { |code| code.include?(good_colors[i]) }
+          end
+
+          bad_codes.flatten!.uniq!
+        elsif total == 2
+          good_colors = guesses[turn-1].uniq
+          good_partials = good_colors.repeated_permutation(2).to_a
+
+          bad_codes << @code_sets[turn-1].reject { |code| code.include?(good_colors[i]) }
+
+
+        else
+        end
+
+        @code_sets[turn] = @code_sets[turn-1] - bad_codes
       end
 
     end
