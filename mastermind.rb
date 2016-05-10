@@ -171,48 +171,57 @@ class Mastermind
     class Codebreaker < AI
 
       def initialize
-        @code_sets = Array.new(12) { [] }
-        @code_sets[0] = @colors.repeated_permutation(4).to_a
+        @colors = ["B", "G", "O", "P", "R", "W"]
+        @code_set = @colors.repeated_permutation(4).to_a.map { |x| x.join }
+        @parsed_feedback = []
       end
 
       def guess(turn, guesses, feedback)
         return "BBGG" if turn == 0
-        remove_bad_codes(turn, guesses, feedback)
-        @code_sets[turn][0]
+        @parsed_feedback << count_feedback(turn, feedback)
+        p @parsed_feedback
+        remove_last_turn_bad_codes(turn, guesses)
+        remove_multi_turn_bad_codes(turn, guesses) if turn > 1
+        @code_set[0]
       end
 
       private
 
-      def remove_bad_codes(turn, guesses, feedback)
-        perfect = 0
-        partial = 0
+      def count_feedback(turn, feedback)
+        result = [0, 0]
         4.times do |i|
-          perfect += 1 if feedback[turn-1][i] == "+"
-          partial += 1 if feedback[turn-1][i] == "-"
+          result[0] += 1 if feedback[turn-1][i] == "+"
+          result[1] += 1 if feedback[turn-1][i] == "-"
         end
-        total = perfect + partial
+        result << result[0] + result[1]
+      end
 
-        if total == 0
-          bad_codes = guesses[turn-1].permutation.to_a
-        elsif total == 1
-          good_colors = guesses[turn-1].uniq
+      def remove_multi_turn_bad_codes(turn, guesses)
 
-          good_colors.length.times do |i|
-            bad_codes << @code_sets[turn-1].reject { |code| code.include?(good_colors[i]) }
+      end
+
+      def remove_last_turn_bad_codes(turn, guesses)
+        @code_set -= [guesses[turn-1]]
+
+        if @parsed_feedback[2] == 0
+          bad_colors = guesses[turn-1].split("").uniq
+          bad_colors.length.times do |i|
+            @code_set.reject! { |code| code.include?(bad_colors[i]) }
           end
-
-          bad_codes.flatten!.uniq!
-        elsif total == 2
-          good_colors = guesses[turn-1].uniq
-          good_partials = good_colors.repeated_permutation(2).to_a
-
-          bad_codes << @code_sets[turn-1].reject { |code| code.include?(good_colors[i]) }
-
-
         else
+          good_colors = guesses[turn-1].split("")
+          @code_set.reject! do |code|
+            matches = 0
+            temp_code = code.dup
+            4.times do |i|
+              if temp_code.include?(good_colors[i])
+                matches += 1
+                temp_code.sub!(/#{good_colors[i]}/, "0")
+              end
+            end
+            matches >= @parsed_feedback[turn-1][2] ? false : true
+          end
         end
-
-        @code_sets[turn] = @code_sets[turn-1] - bad_codes
       end
 
     end
