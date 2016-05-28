@@ -1,16 +1,14 @@
 class Mastermind
 
   def initialize
+    @turn = 0
+  end
+
+  def play
     choose_game_type
     code = @codemaster.create_code
     @board = Board.new(code)
-    @turn = 0
-    play
-  end
 
-  private
-
-  def play
     until @board.solved? || @turn == 12
       guess = @codebreaker.guess(@turn, @board.guesses, @board.feedback)
       @board.update_guesses(guess)
@@ -23,13 +21,7 @@ class Mastermind
     @board.solved? ? win : lose
   end
 
-  def win
-    puts "You guessed the code - you win! :>"
-  end
-
-  def lose
-    puts "You're out of turns - you lose! :<"
-  end
+  private
 
   def choose_game_type
     puts "Welcome to Mastermind!"
@@ -65,6 +57,14 @@ class Mastermind
     puts "Each guess will receive feedback: one + each time both color and spot are guessed correctly, and one - per correctly guessed color in the wrong spot."
     puts "\nType your guess as 4 capital letters in a row (ex: BBBB). The options are:"
     puts "(B)lue, (G)reen, (O)range, (P)urple, (R)ed, and (W)hite\n\n"
+  end
+
+  def win
+    puts "You guessed the code - you win! :>"
+  end
+
+  def lose
+    puts "You're out of turns - you lose! :<"
   end
 
   class Board
@@ -179,9 +179,7 @@ class Mastermind
       def guess(turn, guesses, feedback)
         return "BBGG" if turn == 0
         @parsed_feedback << count_feedback(turn, feedback)
-        p @parsed_feedback
-        remove_last_turn_bad_codes(turn, guesses)
-        remove_multi_turn_bad_codes(turn, guesses) if turn > 1
+        eliminate_bad_guesses(turn, guesses)
         @code_set[0]
       end
 
@@ -196,31 +194,24 @@ class Mastermind
         result << result[0] + result[1]
       end
 
-      def remove_multi_turn_bad_codes(turn, guesses)
+      def eliminate_bad_guesses(turn, guesses)
+        @code_set -= [guesses.last]
 
-      end
+        @code_set.reject! do |code|
+          matches = 0
+          perfect_matches = 0
+          temp_code = code.dup
+          result = false
 
-      def remove_last_turn_bad_codes(turn, guesses)
-        @code_set -= [guesses[turn-1]]
-
-        if @parsed_feedback[2] == 0
-          bad_colors = guesses[turn-1].split("").uniq
-          bad_colors.length.times do |i|
-            @code_set.reject! { |code| code.include?(bad_colors[i]) }
-          end
-        else
-          good_colors = guesses[turn-1].split("")
-          @code_set.reject! do |code|
-            matches = 0
-            temp_code = code.dup
-            4.times do |i|
-              if temp_code.include?(good_colors[i])
-                matches += 1
-                temp_code.sub!(/#{good_colors[i]}/, "0")
-              end
+          4.times do |i|
+            if temp_code.include?(guesses.last[i])
+              matches += 1
+              temp_code.sub!(/#{guesses.last[i]}/, "0")
             end
-            matches >= @parsed_feedback[turn-1][2] ? false : true
+            perfect_matches += 1 if code[i] == guesses.last[i]
           end
+
+          result = true if matches != @parsed_feedback.last[2] || perfect_matches != @parsed_feedback.last[0]
         end
       end
 
@@ -231,3 +222,4 @@ class Mastermind
 end
 
 game = Mastermind.new
+game.play
