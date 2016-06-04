@@ -22,6 +22,8 @@ class Hangman
     exit
   end
 
+  private
+
   def save
     File.open("hangman.sav", 'w') do |file|
       file.puts(@word.secret_word, @word.guess, @guesses)
