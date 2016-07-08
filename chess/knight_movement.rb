@@ -7,19 +7,21 @@ class Knight
 
   def knight_moves(start, finish)
     start = MoveNode.new(start)
-    move_tree = build_move_tree(start, @moves, finish)
-    #path = find_shortest_path(move_tree, finish)
+    move_tree = build_move_tree(start)
+    path = find_shortest_path(move_tree, finish)
   end
 
-  def build_move_tree(root, moves, finish)
+  def build_move_tree(root, step = 0)
+    step += 1
+    return if step == 7
 
-    moves.each do |move|
+    @moves.each do |move|
       next_move_coords = [root.xy[0] + move[0], root.xy[1] + move[1]]
 
       if @board.include?(next_move_coords)
         new_move_node = MoveNode.new(next_move_coords, root)
         root.children << new_move_node
-        #build_move_tree(new_move_node, moves, finish)
+        build_move_tree(new_move_node, step)
       end
     end
 
@@ -27,6 +29,22 @@ class Knight
   end
 
   def find_shortest_path(move_tree, finish)
+    queue = [move_tree]
+
+    until move_tree.xy == finish
+      move_tree.children.each { |node| queue << node }
+      queue.delete_at(0)
+      move_tree = queue.first
+    end
+
+    path = []
+
+    until move_tree == nil
+      path << move_tree.xy
+      move_tree = move_tree.parent
+    end
+
+    path.reverse
   end
 
   class MoveNode
@@ -41,4 +59,13 @@ class Knight
 end
 
 knight = Knight.new
-knight.knight_moves([1, 1], [7, 7])
+puts "Where would you like to place your knight? ([0, 0] to [7, 7])"
+start = gets.chomp
+start = [start[1].to_i, start[4].to_i]
+puts "Where would you like to move your knight? ([0, 0] to [7, 7])"
+finish = gets.chomp
+finish = [finish[1].to_i, finish[4].to_i]
+
+path = knight.knight_moves(start, finish)
+puts "Your moves are as follows:"
+path.each { |xy| puts "[#{xy[0]}, #{xy[1]}]" }
