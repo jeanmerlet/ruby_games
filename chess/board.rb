@@ -1,11 +1,12 @@
 class Board
 
   def initialize
-    
   end
 
   def print_board
   end
+
+=begin
 
   class Pawn
     def initialize(color)
@@ -66,5 +67,7 @@ class Board
       @position = 
     end
   end
+
+=end
 
 end
