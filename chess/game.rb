@@ -11,28 +11,32 @@ class Chess
     loop do
       case gets.chomp
         when "N"
-          game = "new"
+          new_game
+          break
         when "L"
           puts "Enter filename:\n"
-          game = gets.chomp
+          savegame = gets.chomp
+          load_game(savegame)
+          break
         else
           puts "Type N or L"
       end
-      puts "I got here"
-      game == "new" ? new_game : load(game)
-      break
     end
   end
 
   def new_game
-    puts "new_game"
+    @board = Board.new
+    @player1 = Player.new(white)
+    @player2 = Player.new(black)
+    play
   end
 
-  def save
+  def save_game
   end
 
-  def load(filename)
-    puts "load_game"
+  def load_game(filename)
+    puts filename
+    play
   end
 
 end
