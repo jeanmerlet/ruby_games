@@ -8,72 +8,81 @@ class Board
     @spots = coordinates.product([0]).to_h
   end
 
-  def create_starting_pieces
-  end
-
-  def fill_spots_with_starting_pieces
+  def populate_spots
+    @spots.each_pair do |spot, piece|
+      if spot ~= /[2, 7]/         then piece = Pawn.new
+      elsif spot ~= /[1,8]/
+        if spot ~= /[a, h]/       then piece = Rook.new
+        elsif spot ~= /[b, g]/    then piece = Night.new
+        elsif spot ~= /[c, f]/    then piece = Bishop.new
+        elsif spot ~= /[d1, e8]/  then piece = Queen.new
+        elsif spot ~= /[e1, d8]/  then piece = King.new
+        end
+      else
+        piece = 'none'
+      end
+    end
+    @spots.values do |piece|
+      if piece ~= /[7, 8]/ then piece.color = 'black'
+      elsif piece ~= /[1, 2]/ then piece.color = 'white'
+      end
+    end
   end
 
   def print_board
   end
 
   class Pawn
-    def initialize(color, position)
+    def initialize
       @icon = "P"
       @value = 1
       @allowed_moves =
-      @color = color
-      @position = position
+      @color = ''
     end
   end
 
   class Rook
-    def initialize(color, position)
+    def initialize
       @icon = "R"
       @value = 5
       @allowed_moves =
-      @color = color
-      @position = position
+      @color = ''
     end
   end
 
   class Bishop
-    def initialize(color, position)
+    def initialize
       @icon = "B"
       @value = 3
       @allowed_moves =
-      @color = color
-      @position = position
+      @color = ''
     end
   end
 
   class Knight
-    def initialize(color, position)
+    def initialize
       @icon = "N"
       @value = 3
       @allowed_moves =
-      @color = color
-      @position = position
+      @color = ''
     end
   end
 
   class Queen
-    def initialize(color, position)
+    def initialize
       @icon = "Q"
       @value = 9
       @allowed_moves =
-      @color = color
-      @position = position
+      @color = ''
     end
   end
 
   class King
-    def initialize(color, position)
+    def initialize
       @icon = "K"
       @value = 10000
       @allowed_moves =
-      @color = color
-      @position = position
+      @color = ''
     end
   end
 

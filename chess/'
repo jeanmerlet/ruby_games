@@ -1,0 +1,89 @@
+class Board
+
+  def initialize
+    coordinates = []
+    ('a'..'h').to_a.each do |x|
+      8.times.with_index { |i| coordinates << x + (i+1).to_s }
+    end
+    @spots = coordinates.product([0]).to_h
+  end
+
+  def create_starting_pieces
+    color = "white"
+    2.times do
+      Pawn.new(color)
+      Rook.new(color)
+      Bishop.new(color)
+      Knight.new(color)
+      Queen.new(color)
+      King.new(color)
+    end
+  end
+
+  def fill_spots_with_starting_pieces
+  end
+
+  def print_board
+  end
+
+  class Pawn
+    def initialize(color)
+      @icon = "P"
+      @value = 1
+      @allowed_moves =
+      @color = color
+      @position = position
+    end
+  end
+
+  class Rook
+    def initialize(color)
+      @icon = "R"
+      @value = 5
+      @allowed_moves =
+      @color = color
+      @position = position
+    end
+  end
+
+  class Bishop
+    def initialize(color)
+      @icon = "B"
+      @value = 3
+      @allowed_moves =
+      @color = color
+      @position = position
+    end
+  end
+
+  class Knight
+    def initialize(color)
+      @icon = "N"
+      @value = 3
+      @allowed_moves =
+      @color = color
+      @position = position
+    end
+  end
+
+  class Queen
+    def initialize(color)
+      @icon = "Q"
+      @value = 9
+      @allowed_moves =
+      @color = color
+      @position = position
+    end
+  end
+
+  class King
+    def initialize(color)
+      @icon = "K"
+      @value = 10000
+      @allowed_moves =
+      @color = color
+      @position = position
+    end
+  end
+
+end

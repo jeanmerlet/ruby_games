@@ -24,11 +24,23 @@ class Chess
     end
   end
 
+  def play
+  end
+
   def new_game
+    create_chess_set
+    create_players
+    play
+  end
+
+  def create_chess_set
     @board = Board.new
+    @board.populate_spots
+  end
+
+  def create_players
     @player1 = Player.new(white)
     @player2 = Player.new(black)
-    play
   end
 
   def save_game
