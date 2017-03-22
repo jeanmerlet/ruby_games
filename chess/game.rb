@@ -35,7 +35,8 @@ class Chess
 
   def create_chess_set
     @board = Board.new
-    @board.populate_spots
+    @board.populate
+    @board.render
   end
 
   def create_players
@@ -54,4 +55,4 @@ class Chess
 end
 
 game = Chess.new
-game.start
+game.create_chess_set

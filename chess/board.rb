@@ -8,40 +8,61 @@ class Board
     @spots = coordinates.product([0]).to_h
   end
 
-  def populate_spots
-    @spots.each_pair do |spot, piece|
-      if spot ~= /[2, 7]/         then piece = Pawn.new
-      elsif spot ~= /[1,8]/
-        if spot ~= /[a, h]/       then piece = Rook.new
-        elsif spot ~= /[b, g]/    then piece = Night.new
-        elsif spot ~= /[c, f]/    then piece = Bishop.new
-        elsif spot ~= /[d1, e8]/  then piece = Queen.new
-        elsif spot ~= /[e1, d8]/  then piece = King.new
+  def populate
+    @spots.update(@spots) do |spot, piece|
+      if spot =~ /[2, 7]/         then Pawn.new
+      elsif spot =~ /[1,8]/
+        if spot =~ /[a, h]/       then Rook.new
+        elsif spot =~ /[b, g]/    then Knight.new
+        elsif spot =~ /[c, f]/    then Bishop.new
+        elsif spot =~ /(d1|e8)/  then Queen.new
+        elsif spot =~ /(e1|d8)/  then King.new
         end
       else
-        piece = 'none'
+        'none'
       end
     end
-    @spots.values do |piece|
-      if piece ~= /[7, 8]/ then piece.color = 'black'
-      elsif piece ~= /[1, 2]/ then piece.color = 'white'
+    @spots.each_key do |spot|
+      if spot =~ /[7, 8]/ then @spots[spot].color = 'black'
+      elsif spot =~ /[1, 2]/ then @spots[spot].color = 'white'
       end
     end
   end
 
-  def print_board
+  def render
+    print "\n   --------\n"
+    letters = ('a'..'h').to_a
+    8.times do |i|
+      number = (8-i).to_s
+      print " #{number}|"
+
+      8.times do |j|
+        spot = letters[j] + number
+        @spots[spot] == "none" ? print(" ") : print("#{@spots[spot].icon}")
+      end
+
+      print "|\n"
+    end
+    print "   --------\n"
+    print "   abcdefgh\n\n"
   end
 
   class Pawn
+    attr_accessor :color
+    attr_reader :icon, :value, :allowed_moves
+
     def initialize
       @icon = "P"
       @value = 1
-      @allowed_moves =
+      @allowed_moves = ''
       @color = ''
     end
   end
 
   class Rook
+    attr_accessor :color
+    attr_reader :icon, :value, :allowed_moves
+
     def initialize
       @icon = "R"
       @value = 5
@@ -51,6 +72,9 @@ class Board
   end
 
   class Bishop
+    attr_accessor :color
+    attr_reader :icon, :value, :allowed_moves
+
     def initialize
       @icon = "B"
       @value = 3
@@ -60,6 +84,9 @@ class Board
   end
 
   class Knight
+    attr_accessor :color
+    attr_reader :icon, :value, :allowed_moves
+
     def initialize
       @icon = "N"
       @value = 3
@@ -69,6 +96,9 @@ class Board
   end
 
   class Queen
+    attr_accessor :color
+    attr_reader :icon, :value, :allowed_moves
+
     def initialize
       @icon = "Q"
       @value = 9
@@ -78,6 +108,9 @@ class Board
   end
 
   class King
+    attr_accessor :color
+    attr_reader :icon, :value, :allowed_moves
+
     def initialize
       @icon = "K"
       @value = 10000
