@@ -47,6 +47,9 @@ class Board
     print "   abcdefgh\n\n"
   end
 
+  def update(move)
+  end
+
   class Pawn
     attr_accessor :color
     attr_reader :icon, :value, :allowed_moves
@@ -56,6 +59,7 @@ class Board
       @value = 1
       @allowed_moves = ''
       @color = ''
+      @passable = false
     end
   end
 
@@ -68,6 +72,7 @@ class Board
       @value = 5
       @allowed_moves =
       @color = ''
+      @castleable = true
     end
   end
 
@@ -116,6 +121,7 @@ class Board
       @value = 10000
       @allowed_moves =
       @color = ''
+      @castleable = true
     end
   end
 
