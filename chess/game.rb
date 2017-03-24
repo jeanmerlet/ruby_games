@@ -7,6 +7,8 @@ class Chess
     @checkmate = false
     @tie = false
     @save = false
+    @letters = ('a'..'h').to_a
+    @numbers = ('1'..'8').to_a
   end
 
   def start
@@ -32,11 +34,11 @@ class Chess
       @board.render
       loop do
         input = @current_player.input
-        if validate(input)
+        if input == 'save'
+          save_game(@current_player, @white, @black, @board.move_history)
+        elsif validate_move(input)
           @board.update(input)
           break
-        elsif input == 'save'
-          save_game(@current_player, @white, @black, @board.move_history)
         end
       end
       next if game_over?
@@ -45,7 +47,12 @@ class Chess
     @checkmate ? win(@current_player) : tie
   end
 
-  def validate(move)
+  def validate_move(move)
+    piece_to_be_moved = @board.spots[move[0..1]]
+    return false if piece_to_be_moved == 'none'
+    x = @letters.index(move[2]) - @letters.index(move[0])
+    y = @numbers.index(move[3]) - @numbers.index(move[1])
+    piece_to_be_moved.allowed_moves.include?([x, y])
   end
 
   def game_over?
@@ -59,12 +66,6 @@ class Chess
   def tie
     puts "Tie game."
     quit
-  end
-
-  def new_game
-    create_chess_set
-    create_players
-    play
   end
 
   def create_chess_set
@@ -82,9 +83,15 @@ class Chess
     @current_player = (@current_player == @white ? @black : @white)
   end
 
+  def new_game
+    create_chess_set
+    create_players
+    play
+  end
+
   def save_game(current_player, white, black, move_history)
     #save stuff
-    exit
+    quit
   end
 
   def load_game(filename)

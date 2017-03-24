@@ -57,8 +57,9 @@ class Board
     def initialize
       @icon = "P"
       @value = 1
-      @allowed_moves = ''
+      @allowed_moves = [[0, 2], [0, 1]]
       @color = ''
+      @moved = false
       @passable = false
     end
   end
@@ -70,7 +71,7 @@ class Board
     def initialize
       @icon = "R"
       @value = 5
-      @allowed_moves =
+      @allowed_moves = [[0, 'n'], ['n', 0]]
       @color = ''
       @castleable = true
     end
@@ -83,7 +84,7 @@ class Board
     def initialize
       @icon = "B"
       @value = 3
-      @allowed_moves =
+      @allowed_moves = ['n', 'n'] #need to know bishop color
       @color = ''
     end
   end
@@ -95,7 +96,7 @@ class Board
     def initialize
       @icon = "N"
       @value = 3
-      @allowed_moves =
+      @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
       @color = ''
     end
   end
@@ -107,7 +108,7 @@ class Board
     def initialize
       @icon = "Q"
       @value = 9
-      @allowed_moves =
+      @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
       @color = ''
     end
   end
@@ -119,7 +120,7 @@ class Board
     def initialize
       @icon = "K"
       @value = 10000
-      @allowed_moves =
+      @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
       @color = ''
       @castleable = true
     end
