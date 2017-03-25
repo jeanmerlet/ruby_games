@@ -4,9 +4,6 @@ require './player'
 class Chess
 
   def initialize
-    @checkmate = false
-    @tie = false
-    @save = false
     @letters = ('a'..'h').to_a
     @numbers = ('1'..'8').to_a
   end
@@ -30,7 +27,7 @@ class Chess
   end
 
   def play
-    until @checkmate || @tie
+    until game_over?
       @board.render
       loop do
         input = @current_player.input
@@ -41,21 +38,24 @@ class Chess
           break
         end
       end
-      next if game_over?
-      switch_players
+      switch_players unless game_over?
+      puts "\n --- Check! ---" if @board.check
     end
-    @checkmate ? win(@current_player) : tie
+    @board.checkmate ? win(@current_player) : tie
   end
 
   def validate_move(move)
     piece_to_be_moved = @board.spots[move[0..1]]
     return false if piece_to_be_moved == 'none'
+    return false if piece_to_be_moved.color != @current_player.color
     x = @letters.index(move[2]) - @letters.index(move[0])
     y = @numbers.index(move[3]) - @numbers.index(move[1])
+    #check for check
     piece_to_be_moved.allowed_moves.include?([x, y])
   end
 
   def game_over?
+    @board.checkmate || @board.tie
   end
 
   def win(player)
@@ -74,8 +74,8 @@ class Chess
   end
 
   def create_players
-    @white = Player.new(white)
-    @black = Player.new(black)
+    @white = Player::Human.new('white')
+    @black = Player::Human.new('black')
     @current_player = @white
   end
 
@@ -106,4 +106,4 @@ class Chess
 end
 
 game = Chess.new
-game.create_chess_set
+game.start

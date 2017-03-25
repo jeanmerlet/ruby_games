@@ -1,11 +1,15 @@
 class Board
+  attr_accessor :history
+  attr_reader :spots
 
   def initialize
     coordinates = []
-    ('a'..'h').to_a.each do |x|
+    @letters = ('a'..'h').to_a
+    @letters.each do |x|
       8.times.with_index { |i| coordinates << x + (i+1).to_s }
     end
     @spots = coordinates.product([0]).to_h
+    @history = []
   end
 
   def populate
@@ -15,8 +19,8 @@ class Board
         if spot =~ /[a, h]/       then Rook.new
         elsif spot =~ /[b, g]/    then Knight.new
         elsif spot =~ /[c, f]/    then Bishop.new
-        elsif spot =~ /(d1|e8)/  then Queen.new
-        elsif spot =~ /(e1|d8)/  then King.new
+        elsif spot =~ /(d1|e8)/   then Queen.new
+        elsif spot =~ /(e1|d8)/   then King.new
         end
       else
         'none'
@@ -48,6 +52,38 @@ class Board
   end
 
   def update(move)
+    update_board(move)
+    update_pieces(move)
+    update_history(move)
+  end
+
+  def update_board
+    @spots[move[2..3]] = @spots[move[0..1]]
+    @spots[move[0..1]] = 'none'
+  end
+
+  def update_pieces(move)
+    piece = @spots[move[0..2]]
+    if piece.is_a?(King) && #castles
+      #update king and rook
+    else
+      piece.update(move)
+    end    
+  end
+
+  def update_history(move)
+  end
+
+  def check
+    true
+  end
+
+  def checkmate
+    false
+  end
+
+  def tie
+    false
   end
 
   class Pawn
@@ -62,6 +98,22 @@ class Board
       @moved = false
       @passable = false
     end
+
+    def update(move)
+      @allowed_moves.delete_at(0) if @allowed_moves.length == 2
+
+      #need to check pawn moved 2 before checking for passable
+
+      spot = move[2..3]
+      left = @letters.index(@letters.index(spot[0]) - 1) + spot[1] unless spot[0] == 'a'
+      right = @letters.index(@letters.index(spot[0]) + 1) + spot[1] unless spot[0] == 'h'
+      @passable = true if @spots[left].is_a?(Pawn) && @spots[left].color != @color
+      @passable = true if @spots[right].is_a?(Pawn) && @spots[right].color != @color
+
+      #need to remove passable after 1 turn
+      #
+      #also need to do pawn upgrading...
+    end
   end
 
   class Rook
@@ -75,6 +127,9 @@ class Board
       @color = ''
       @castleable = true
     end
+
+    def update
+    end
   end
 
   class Bishop
@@ -84,8 +139,11 @@ class Board
     def initialize
       @icon = "B"
       @value = 3
-      @allowed_moves = ['n', 'n'] #need to know bishop color
+      @allowed_moves = ['n', 'n']
       @color = ''
+    end
+
+    def update
     end
   end
 
@@ -99,6 +157,9 @@ class Board
       @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
       @color = ''
     end
+
+    def update
+    end
   end
 
   class Queen
@@ -110,6 +171,9 @@ class Board
       @value = 9
       @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
       @color = ''
+    end
+
+    def update
     end
   end
 
@@ -123,6 +187,9 @@ class Board
       @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
       @color = ''
       @castleable = true
+    end
+
+    def update
     end
   end
 
