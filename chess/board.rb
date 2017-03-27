@@ -31,6 +31,13 @@ class Board
       elsif spot =~ /[1, 2]/ then @spots[spot].color = 'white'
       end
     end
+    @spots.each_key do |spot|       #swap allowed moves for black pawns
+      if spot =~ /[7]/
+        @spots[spot].allowed_moves = @spots[spot].allowed_moves.map do |x|
+          x.map {|x| x*-1}
+        end      
+      end
+    end
   end
 
   def render
@@ -87,20 +94,20 @@ class Board
   end
 
   class Pawn
-    attr_accessor :color
-    attr_reader :icon, :value, :allowed_moves
+    attr_accessor :color, :allowed_moves
+    attr_reader :icon, :values
 
     def initialize
       @icon = "P"
       @value = 1
-      @allowed_moves = [[0, 2], [0, 1]]
+      @allowed_moves = [[0, 2], [0, 1], [-1, 1], [1, 1]]
       @color = ''
       @moved = false
       @passable = false
     end
 
     def update(move)
-      @allowed_moves.delete_at(0) if @allowed_moves.length == 2
+      @allowed_moves.delete_at(0) if @allowed_moves.length == 4
 
       #need to check pawn moved 2 before checking for passable
 
@@ -110,7 +117,7 @@ class Board
       @passable = true if @spots[left].is_a?(Pawn) && @spots[left].color != @color
       @passable = true if @spots[right].is_a?(Pawn) && @spots[right].color != @color
 
-      #need to remove passable after 1 turn
+      #need to check for passable to allow diagonal capture in validate method
       #
       #also need to do pawn upgrading...
     end
