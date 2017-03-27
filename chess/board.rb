@@ -1,3 +1,5 @@
+require 'colorize'
+
 class Board
   attr_accessor :history
   attr_reader :spots
@@ -14,47 +16,46 @@ class Board
 
   def populate
     @spots.update(@spots) do |spot, piece|
-      if spot =~ /[2, 7]/         then Pawn.new
-      elsif spot =~ /[1,8]/
-        if spot =~ /[a, h]/       then Rook.new
-        elsif spot =~ /[b, g]/    then Knight.new
-        elsif spot =~ /[c, f]/    then Bishop.new
-        elsif spot =~ /(d1|e8)/   then Queen.new
-        elsif spot =~ /(e1|d8)/   then King.new
+      if spot =~ /7/              then Pawn.new('black')
+      elsif spot =~ /2/           then Pawn.new('white')
+      elsif spot =~ /8/
+        if spot =~ /[a, h]/       then Rook.new('black')
+        elsif spot =~ /[b, g]/    then Knight.new('black')
+        elsif spot =~ /[c, f]/    then Bishop.new('black')
+        elsif spot =~ /d/         then Queen.new('black')
+        elsif spot =~ /e/         then King.new('black')
+        end
+      elsif spot =~ /1/
+        if spot =~ /[a, h]/       then Rook.new('white')
+        elsif spot =~ /[b, g]/    then Knight.new('white')
+        elsif spot =~ /[c, f]/    then Bishop.new('white')
+        elsif spot =~ /d/         then Queen.new('white')
+        elsif spot =~ /e/         then King.new('white')
         end
       else
         'none'
       end
     end
-    @spots.each_key do |spot|
-      if spot =~ /[7, 8]/ then @spots[spot].color = 'black'
-      elsif spot =~ /[1, 2]/ then @spots[spot].color = 'white'
-      end
-    end
-    @spots.each_key do |spot|       #swap allowed moves for black pawns
-      if spot =~ /[7]/
-        @spots[spot].allowed_moves = @spots[spot].allowed_moves.map do |x|
-          x.map {|x| x*-1}
-        end      
-      end
-    end
   end
 
   def render
-    print "\n   --------\n"
-    letters = ('a'..'h').to_a
     8.times do |i|
       number = (8-i).to_s
-      print " #{number}|"
+      print " #{number} "
 
       8.times do |j|
-        spot = letters[j] + number
-        @spots[spot] == "none" ? print(" ") : print("#{@spots[spot].icon}")
+        spot = @letters[j] + number
+        if ((j % 2 == 0) && (i % 2 == 0)) || ((j % 2 != 0) && (i % 2 != 0))
+          @spots[spot] == "none" ?
+          (print " ".on_white) : (print "#{@spots[spot].icon}".black.on_white)
+        else
+          @spots[spot] == "none" ?
+          (print " ".on_light_black) : (print "#{@spots[spot].icon}".black.on_light_black)
+        end
       end
 
-      print "|\n"
+      print "\n"
     end
-    print "   --------\n"
     print "   abcdefgh\n\n"
   end
 
@@ -71,11 +72,11 @@ class Board
 
   def update_pieces(move)
     piece = @spots[move[0..2]]
-    if piece.is_a?(King) && #castles
+    #if piece.is_a?(King) && #castles
       #update king and rook
-    else
-      piece.update(move)
-    end    
+    #elsif
+    #  piece.update(move)
+    #end
   end
 
   def update_history(move)
@@ -97,11 +98,12 @@ class Board
     attr_accessor :color, :allowed_moves
     attr_reader :icon, :values
 
-    def initialize
-      @icon = "P"
+    def initialize(color)
+      @color = color
+      @icon = (@color == 'white' ? "\u2659" : "\u265F")
       @value = 1
-      @allowed_moves = [[0, 2], [0, 1], [-1, 1], [1, 1]]
-      @color = ''
+      @allowed_moves = (@color == 'white' ? [[0, 2], [0, 1], [-1, 1], [1, 1]] :
+                                            [[0, -2], [0, -1], [-1, -1], [1, -1]])
       @moved = false
       @passable = false
     end
@@ -127,11 +129,11 @@ class Board
     attr_accessor :color
     attr_reader :icon, :value, :allowed_moves
 
-    def initialize
-      @icon = "R"
+    def initialize(color)
+      @color = color
+      @icon = (@color == 'white' ? "\u2656" : "\u265C")
       @value = 5
       @allowed_moves = [[0, 'n'], ['n', 0]]
-      @color = ''
       @castleable = true
     end
 
@@ -143,11 +145,11 @@ class Board
     attr_accessor :color
     attr_reader :icon, :value, :allowed_moves
 
-    def initialize
-      @icon = "B"
+    def initialize(color)
+      @color = color
+      @icon = (@color == 'white' ? "\u2657" : "\u265D")
       @value = 3
       @allowed_moves = ['n', 'n']
-      @color = ''
     end
 
     def update
@@ -158,11 +160,11 @@ class Board
     attr_accessor :color
     attr_reader :icon, :value, :allowed_moves
 
-    def initialize
-      @icon = "N"
+    def initialize(color)
+      @color = color
+      @icon = (@color == 'white' ? "\u2658" : "\u265E")
       @value = 3
       @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
-      @color = ''
     end
 
     def update
@@ -173,11 +175,11 @@ class Board
     attr_accessor :color
     attr_reader :icon, :value, :allowed_moves
 
-    def initialize
-      @icon = "Q"
+    def initialize(color)
+      @color = color
+      @icon = (@color == 'white' ? "\u2655" : "\u265B")
       @value = 9
       @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
-      @color = ''
     end
 
     def update
@@ -188,11 +190,11 @@ class Board
     attr_accessor :color
     attr_reader :icon, :value, :allowed_moves
 
-    def initialize
-      @icon = "K"
+    def initialize(color)
+      @color = color
+      @icon = (@color == 'white' ? "\u2654" : "\u265A")
       @value = 10000
       @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
-      @color = ''
       @castleable = true
     end
 
