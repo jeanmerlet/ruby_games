@@ -39,6 +39,7 @@ class Board
   end
 
   def render
+    print "\n\n"
     8.times do |i|
       number = (8-i).to_s
       print " #{number} "
@@ -65,7 +66,7 @@ class Board
     update_history(move)
   end
 
-  def update_board
+  def update_board(move)
     @spots[move[2..3]] = @spots[move[0..1]]
     @spots[move[0..1]] = 'none'
   end
@@ -94,112 +95,117 @@ class Board
     false
   end
 
-  class Pawn
+  class GamePiece
+
     attr_accessor :color, :allowed_moves
     attr_reader :icon, :values
 
-    def initialize(color)
-      @color = color
-      @icon = (@color == 'white' ? "\u2659" : "\u265F")
-      @value = 1
-      @allowed_moves = (@color == 'white' ? [[0, 2], [0, 1], [-1, 1], [1, 1]] :
-                                            [[0, -2], [0, -1], [-1, -1], [1, -1]])
-      @moved = false
-      @passable = false
+    class Pawn
+      attr_accessor :color, :allowed_moves
+      attr_reader :icon, :values
+
+      def initialize(color)
+        @color = color
+        @icon = (@color == 'white' ? "\u2659" : "\u265F")
+        @value = 1
+        @allowed_moves = (@color == 'white' ? [[0, 2], [0, 1], [-1, 1], [1, 1]] :
+                                              [[0, -2], [0, -1], [-1, -1], [1, -1]])
+        @first_move = false
+        @passable = false
+      end
+
+      def update(move)
+        @allowed_moves.delete_at(0) if @allowed_moves.length == 4
+
+        #need to check pawn moved 2 before checking for passable
+
+        spot = move[2..3]
+        left = @letters.index(@letters.index(spot[0]) - 1) + spot[1] unless spot[0] == 'a'
+        right = @letters.index(@letters.index(spot[0]) + 1) + spot[1] unless spot[0] == 'h'
+        @passable = true if @spots[left].is_a?(Pawn) && @spots[left].color != @color
+        @passable = true if @spots[right].is_a?(Pawn) && @spots[right].color != @color
+
+        #need to check for passable to allow diagonal capture in validate method
+        #
+        #also need to do pawn upgrading...
+      end
     end
 
-    def update(move)
-      @allowed_moves.delete_at(0) if @allowed_moves.length == 4
+    class Rook
+      attr_accessor :color
+      attr_reader :icon, :value, :allowed_moves
 
-      #need to check pawn moved 2 before checking for passable
+      def initialize(color)
+        @color = color
+        @icon = (@color == 'white' ? "\u2656" : "\u265C")
+        @value = 5
+        @allowed_moves = [[0, 'n'], ['n', 0]]
+        @castleable = true
+      end
 
-      spot = move[2..3]
-      left = @letters.index(@letters.index(spot[0]) - 1) + spot[1] unless spot[0] == 'a'
-      right = @letters.index(@letters.index(spot[0]) + 1) + spot[1] unless spot[0] == 'h'
-      @passable = true if @spots[left].is_a?(Pawn) && @spots[left].color != @color
-      @passable = true if @spots[right].is_a?(Pawn) && @spots[right].color != @color
+      def update
+      end
+    end
 
-      #need to check for passable to allow diagonal capture in validate method
-      #
-      #also need to do pawn upgrading...
+    class Bishop
+      attr_accessor :color
+      attr_reader :icon, :value, :allowed_moves
+
+      def initialize(color)
+        @color = color
+        @icon = (@color == 'white' ? "\u2657" : "\u265D")
+        @value = 3
+        @allowed_moves = ['n', 'n']
+      end
+
+      def update
+      end
+    end
+
+    class Knight
+      attr_accessor :color
+      attr_reader :icon, :value, :allowed_moves
+
+      def initialize(color)
+        @color = color
+        @icon = (@color == 'white' ? "\u2658" : "\u265E")
+        @value = 3
+        @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
+      end
+
+      def update
+      end
+    end
+
+    class Queen
+      attr_accessor :color
+      attr_reader :icon, :value, :allowed_moves
+
+      def initialize(color)
+        @color = color
+        @icon = (@color == 'white' ? "\u2655" : "\u265B")
+        @value = 9
+        @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
+      end
+
+      def update
+      end
+    end
+
+    class King
+      attr_accessor :color
+      attr_reader :icon, :value, :allowed_moves
+
+      def initialize(color)
+        @color = color
+        @icon = (@color == 'white' ? "\u2654" : "\u265A")
+        @value = 10000
+        @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
+        @castleable = true
+      end
+
+      def update
+      end
     end
   end
-
-  class Rook
-    attr_accessor :color
-    attr_reader :icon, :value, :allowed_moves
-
-    def initialize(color)
-      @color = color
-      @icon = (@color == 'white' ? "\u2656" : "\u265C")
-      @value = 5
-      @allowed_moves = [[0, 'n'], ['n', 0]]
-      @castleable = true
-    end
-
-    def update
-    end
-  end
-
-  class Bishop
-    attr_accessor :color
-    attr_reader :icon, :value, :allowed_moves
-
-    def initialize(color)
-      @color = color
-      @icon = (@color == 'white' ? "\u2657" : "\u265D")
-      @value = 3
-      @allowed_moves = ['n', 'n']
-    end
-
-    def update
-    end
-  end
-
-  class Knight
-    attr_accessor :color
-    attr_reader :icon, :value, :allowed_moves
-
-    def initialize(color)
-      @color = color
-      @icon = (@color == 'white' ? "\u2658" : "\u265E")
-      @value = 3
-      @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
-    end
-
-    def update
-    end
-  end
-
-  class Queen
-    attr_accessor :color
-    attr_reader :icon, :value, :allowed_moves
-
-    def initialize(color)
-      @color = color
-      @icon = (@color == 'white' ? "\u2655" : "\u265B")
-      @value = 9
-      @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
-    end
-
-    def update
-    end
-  end
-
-  class King
-    attr_accessor :color
-    attr_reader :icon, :value, :allowed_moves
-
-    def initialize(color)
-      @color = color
-      @icon = (@color == 'white' ? "\u2654" : "\u265A")
-      @value = 10000
-      @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
-      @castleable = true
-    end
-
-    def update
-    end
-  end
-
 end

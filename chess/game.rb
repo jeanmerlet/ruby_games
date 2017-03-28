@@ -39,7 +39,7 @@ class Chess
         end
       end
       switch_players unless game_over?
-      puts "\n --- Check! ---" if @board.check
+      print "\n    Check!" if @board.check
     end
     @board.checkmate ? win(@current_player) : tie
   end
@@ -48,6 +48,7 @@ class Chess
     piece_to_be_moved = @board.spots[move[0..1]]
     return false if piece_to_be_moved == 'none'
     return false if piece_to_be_moved.color != @current_player.color
+    return false if @board.spots[move[2..3]].is_a?(King)
     x = @letters.index(move[2]) - @letters.index(move[0])
     y = @numbers.index(move[3]) - @numbers.index(move[1])
     #check for check
