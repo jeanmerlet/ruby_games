@@ -46,11 +46,23 @@ class Chess
 
   def validate_move(move)
     piece_to_be_moved = @board.spots[move[0..1]]
-    return false if piece_to_be_moved == 'none'
-    return false if piece_to_be_moved.color != @current_player.color
-    return false if @board.spots[move[2..3]].is_a?(King)
+    target_spot = @board.spots[move[2..3]]
     x = @letters.index(move[2]) - @letters.index(move[0])
     y = @numbers.index(move[3]) - @numbers.index(move[1])
+
+    return false if piece_to_be_moved == 'empty'
+    return false if piece_to_be_moved.color != @current_player.color
+    return false if target_spot.is_a?(King)
+    if piece_to_be_moved.is_a?(Pawn)
+      return false if (target_spot != 'empty') && (x != 1 && x != -1)
+      if (x == 1 || x == -1)
+        #en passant stuff
+        #return false if target_spot == 'empty'
+      end
+    elsif piece_to_be_moved.is_a?(King)
+      #can't move into check
+    end
+
     #check for check
     piece_to_be_moved.allowed_moves.include?([x, y])
   end

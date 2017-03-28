@@ -8,7 +8,7 @@ class Board
     coordinates = []
     @letters = ('a'..'h').to_a
     @letters.each do |x|
-      8.times.with_index { |i| coordinates << x + (i+1).to_s }
+      8.times { |i| coordinates << x + (i+1).to_s }
     end
     @spots = coordinates.product([0]).to_h
     @history = []
@@ -33,7 +33,7 @@ class Board
         elsif spot =~ /e/         then King.new('white')
         end
       else
-        'none'
+        'empty'
       end
     end
   end
@@ -47,10 +47,10 @@ class Board
       8.times do |j|
         spot = @letters[j] + number
         if ((j % 2 == 0) && (i % 2 == 0)) || ((j % 2 != 0) && (i % 2 != 0))
-          @spots[spot] == "none" ?
+          @spots[spot] == "empty" ?
           (print " ".on_white) : (print "#{@spots[spot].icon}".black.on_white)
         else
-          @spots[spot] == "none" ?
+          @spots[spot] == "empty" ?
           (print " ".on_light_black) : (print "#{@spots[spot].icon}".black.on_light_black)
         end
       end
@@ -68,7 +68,7 @@ class Board
 
   def update_board(move)
     @spots[move[2..3]] = @spots[move[0..1]]
-    @spots[move[0..1]] = 'none'
+    @spots[move[0..1]] = 'empty'
   end
 
   def update_pieces(move)
@@ -94,118 +94,107 @@ class Board
   def tie
     false
   end
+end
 
-  class GamePiece
+class ChessPiece
+  attr_accessor :color, :allowed_moves
+  attr_reader :icon, :values
+end
 
-    attr_accessor :color, :allowed_moves
-    attr_reader :icon, :values
+class Pawn < ChessPiece
 
-    class Pawn
-      attr_accessor :color, :allowed_moves
-      attr_reader :icon, :values
+  def initialize(color)
+    @color = color
+    puts "my color is #{@color}"
+    @icon = (@color == 'white' ? "\u2659" : "\u265F")
+    @value = 1
+    @allowed_moves = (@color == 'white' ? [[0, 2], [0, 1], [-1, 1], [1, 1]] :
+                                          [[0, -2], [0, -1], [-1, -1], [1, -1]])
+    @first_move = false
+    @passable = false
+  end
 
-      def initialize(color)
-        @color = color
-        @icon = (@color == 'white' ? "\u2659" : "\u265F")
-        @value = 1
-        @allowed_moves = (@color == 'white' ? [[0, 2], [0, 1], [-1, 1], [1, 1]] :
-                                              [[0, -2], [0, -1], [-1, -1], [1, -1]])
-        @first_move = false
-        @passable = false
-      end
+  def update(move)
+    @allowed_moves.delete_at(0) if @allowed_moves.length == 4
 
-      def update(move)
-        @allowed_moves.delete_at(0) if @allowed_moves.length == 4
+    #need to check pawn moved 2 before checking for passable
 
-        #need to check pawn moved 2 before checking for passable
+    spot = move[2..3]
+    left = @letters.index(@letters.index(spot[0]) - 1) + spot[1] unless spot[0] == 'a'
+    right = @letters.index(@letters.index(spot[0]) + 1) + spot[1] unless spot[0] == 'h'
+    @passable = true if @spots[left].is_a?(Pawn) && @spots[left].color != @color
+    @passable = true if @spots[right].is_a?(Pawn) && @spots[right].color != @color
 
-        spot = move[2..3]
-        left = @letters.index(@letters.index(spot[0]) - 1) + spot[1] unless spot[0] == 'a'
-        right = @letters.index(@letters.index(spot[0]) + 1) + spot[1] unless spot[0] == 'h'
-        @passable = true if @spots[left].is_a?(Pawn) && @spots[left].color != @color
-        @passable = true if @spots[right].is_a?(Pawn) && @spots[right].color != @color
+    #need to check for passable to allow diagonal capture in validate method
+    #
+    #also need to do pawn upgrading...
+    #pawn can't capture vertically
+  end
+end
 
-        #need to check for passable to allow diagonal capture in validate method
-        #
-        #also need to do pawn upgrading...
-      end
-    end
+class Rook < ChessPiece
 
-    class Rook
-      attr_accessor :color
-      attr_reader :icon, :value, :allowed_moves
+  def initialize(color)
+    @color = color
+    @icon = (@color == 'white' ? "\u2656" : "\u265C")
+    @value = 5
+    @allowed_moves = [[0, 'n'], ['n', 0]]
+    @castleable = true
+  end
 
-      def initialize(color)
-        @color = color
-        @icon = (@color == 'white' ? "\u2656" : "\u265C")
-        @value = 5
-        @allowed_moves = [[0, 'n'], ['n', 0]]
-        @castleable = true
-      end
+  def update
+  end
+end
 
-      def update
-      end
-    end
+class Bishop < ChessPiece
 
-    class Bishop
-      attr_accessor :color
-      attr_reader :icon, :value, :allowed_moves
+  def initialize(color)
+    @color = color
+    @icon = (@color == 'white' ? "\u2657" : "\u265D")
+    @value = 3
+    @allowed_moves = ['n', 'n']
+  end
 
-      def initialize(color)
-        @color = color
-        @icon = (@color == 'white' ? "\u2657" : "\u265D")
-        @value = 3
-        @allowed_moves = ['n', 'n']
-      end
+  def update
+  end
+end
 
-      def update
-      end
-    end
+class Knight < ChessPiece
 
-    class Knight
-      attr_accessor :color
-      attr_reader :icon, :value, :allowed_moves
+  def initialize(color)
+    @color = color
+    @icon = (@color == 'white' ? "\u2658" : "\u265E")
+    @value = 3
+    @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
+  end
 
-      def initialize(color)
-        @color = color
-        @icon = (@color == 'white' ? "\u2658" : "\u265E")
-        @value = 3
-        @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
-      end
+  def update
+  end
+end
 
-      def update
-      end
-    end
+class Queen < ChessPiece
 
-    class Queen
-      attr_accessor :color
-      attr_reader :icon, :value, :allowed_moves
+  def initialize(color)
+    @color = color
+    @icon = (@color == 'white' ? "\u2655" : "\u265B")
+    @value = 9
+    @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
+  end
 
-      def initialize(color)
-        @color = color
-        @icon = (@color == 'white' ? "\u2655" : "\u265B")
-        @value = 9
-        @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
-      end
+  def update
+  end
+end
 
-      def update
-      end
-    end
+class King < ChessPiece
 
-    class King
-      attr_accessor :color
-      attr_reader :icon, :value, :allowed_moves
+  def initialize(color)
+    @color = color
+    @icon = (@color == 'white' ? "\u2654" : "\u265A")
+    @value = 10000
+    @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
+    @castleable = true
+  end
 
-      def initialize(color)
-        @color = color
-        @icon = (@color == 'white' ? "\u2654" : "\u265A")
-        @value = 10000
-        @allowed_moves = [[0, 1], [0, -1], [1, 0], [-1, 0], [1, 1], [1, -1], [-1, 1], [-1, -1]]
-        @castleable = true
-      end
-
-      def update
-      end
-    end
+  def update
   end
 end
