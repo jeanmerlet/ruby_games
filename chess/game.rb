@@ -38,8 +38,8 @@ class Chess
           break
         end
       end
+      print "\n    Check!" if @board.check(@current_player.color)
       switch_players unless game_over?
-      print "\n    Check!" if @board.check
     end
     @board.checkmate ? win(@current_player) : tie
   end
@@ -49,10 +49,24 @@ class Chess
     target_spot = @board.spots[move[2..3]]
     x = @letters.index(move[2]) - @letters.index(move[0])
     y = @numbers.index(move[3]) - @numbers.index(move[1])
+    converted_move = [x, y]
 
-    return false if piece_to_be_moved == 'empty'
-    return false if piece_to_be_moved.color != @current_player.color
-    return false if target_spot.is_a?(King)
+    if piece_to_be_moved == 'empty'
+      return false
+    elsif piece_to_be_moved.color != @current_player.color
+      return false
+    elsif target_spot.color == @current_player.color
+      return false
+    elsif @board.has_clear_move_path?(move)
+      return false
+    elsif @board.check #check for uncheck
+      return false
+    else
+      piece_to_be_moved.move_is_possible_move?(converted_move)
+    end
+    
+
+
     if piece_to_be_moved.is_a?(Pawn)
       return false if (target_spot != 'empty') && (x != 1 && x != -1)
       if (x == 1 || x == -1)
@@ -61,14 +75,14 @@ class Chess
       end
     elsif piece_to_be_moved.is_a?(King)
       #can't move into check
+      #castling
+    elsif piece_to_be_moved.is_a?(Rook)
+      #castling
     end
-
-    #check for check
-    piece_to_be_moved.allowed_moves.include?([x, y])
   end
 
   def game_over?
-    @board.checkmate || @board.tie
+    @board.check_for_checkmate || @board.check_for_tie
   end
 
   def win(player)

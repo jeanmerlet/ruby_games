@@ -12,6 +12,8 @@ class Board
     end
     @spots = coordinates.product([0]).to_h
     @history = []
+    @check = false
+    @checkmate = false
   end
 
   def populate
@@ -60,6 +62,15 @@ class Board
     print "   abcdefgh\n\n"
   end
 
+  def check_for_check
+  end
+
+  def check_for_checkmate
+  end
+
+  def check_for_tie
+  end
+
   def update(move)
     update_board(move)
     update_pieces(move)
@@ -82,35 +93,28 @@ class Board
 
   def update_history(move)
   end
-
-  def check
-    true
-  end
-
-  def checkmate
-    false
-  end
-
-  def tie
-    false
-  end
 end
 
 class ChessPiece
   attr_accessor :color, :allowed_moves
   attr_reader :icon, :values
+
+  def update
+  end
+
+  def move_is_possible_move?(move)
+    @allowed_moves.include?(move)
+  end
 end
 
 class Pawn < ChessPiece
 
   def initialize(color)
     @color = color
-    puts "my color is #{@color}"
     @icon = (@color == 'white' ? "\u2659" : "\u265F")
     @value = 1
     @allowed_moves = (@color == 'white' ? [[0, 2], [0, 1], [-1, 1], [1, 1]] :
                                           [[0, -2], [0, -1], [-1, -1], [1, -1]])
-    @first_move = false
     @passable = false
   end
 
@@ -144,6 +148,10 @@ class Rook < ChessPiece
 
   def update
   end
+
+  def move_is_possible_move?(x, y)
+    x == 0 || y == 0
+  end
 end
 
 class Bishop < ChessPiece
@@ -155,7 +163,8 @@ class Bishop < ChessPiece
     @allowed_moves = ['n', 'n']
   end
 
-  def update
+  def move_is_possible_move?(x, y)
+    x == y
   end
 end
 
@@ -166,9 +175,6 @@ class Knight < ChessPiece
     @icon = (@color == 'white' ? "\u2658" : "\u265E")
     @value = 3
     @allowed_moves = [[2, 1], [2, -1], [-2, 1], [-2, -1], [1, 2], [1, -2], [-1, 2], [-1, -2]]
-  end
-
-  def update
   end
 end
 
@@ -181,7 +187,8 @@ class Queen < ChessPiece
     @allowed_moves = [['n', 'n'], [0, 'n'], ['n', 0]]
   end
 
-  def update
+  def move_is_possible_move?(x, y)
+    x == 0 || y == 0 || x == y
   end
 end
 
