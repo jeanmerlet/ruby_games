@@ -62,7 +62,6 @@ class Chess
     elsif @board.check #check for uncheck
       return false
     else
-      piece_to_be_moved.move_is_possible_move?(converted_move)
     end
     
 
