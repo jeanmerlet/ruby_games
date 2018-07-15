@@ -60,7 +60,7 @@ class Board
       end
       print "\n"
     end
-    print "  abcdefgh\n\n"
+    print " abcdefgh\n\n"
   end
 
   def update(move)
@@ -69,9 +69,23 @@ end
 
 class ChessPiece
 
-  def generate_moves
+  def generate_all_moves(spot)
+    all_moves = []
+    @moves.each do |move|
+      move[2].times do |i|
+        current_move = move[0..1].map! {|x| x*(i+1)}
+        all_moves << current_move if spot_empty?(spot, current_move)
+      end
+    end
+    all_moves
+    #print all_moves
+    #print all_moves.size
   end
 
+  def spot_empty?(spot, move)
+    check_spot = [spot[0] + move[0], spot[1] + move[1]]
+    @board[check_spot] == 0
+  end
 end
 
 class Pawn < ChessPiece
@@ -80,6 +94,11 @@ attr_reader :color, :icon
   def initialize(color)
     @color = color
     @icon = (@color == 'W' ? "\u265F" : "\u2659")
+    @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
+                              [[0, -1, 1], [-1, -1, 1], [1, -1, 1], [0, -2, 1]])
+  end
+
+  def eliminate_bad_moves(moves)
   end
 end
 
@@ -89,6 +108,7 @@ attr_reader :color, :icon
   def initialize(color)
     @color = color
     @icon = (@color == 'W' ? "\u265C" : "\u2656")
+    @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
   end
 end
 
@@ -127,3 +147,6 @@ attr_reader :color, :icon
     @icon = (@color == 'W' ? "\u265B" : "\u2655")
   end
 end
+
+rook = Rook.new('W')
+rook.generate_moves
