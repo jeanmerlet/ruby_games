@@ -13,31 +13,31 @@ class Board
     @board.each do |spot, piece|
       if spot[1] == 1
         if spot[0] == 1 || spot[0] == 8
-          piece = Rook.new('W')
+          @board[spot] = Rook.new('W')
         elsif spot[0] == 2 || spot[0] == 7
-          piece = Knight.new('W')
+          @board[spot] = Knight.new('W')
         elsif spot[0] == 3 || spot[0] == 6
-          piece = Bishop.new('W')
+          @board[spot] = Bishop.new('W')
         elsif spot[0] == 4
-          piece = Queen.new('W')
+          @board[spot] = Queen.new('W')
         elsif spot[0] == 5
-          piece = King.new('W')
+          @board[spot] = King.new('W')
         end
       elsif spot[1] == 2
-        piece = Pawn.new('W')
+        @board[spot] = Pawn.new('W')
       elsif spot[1] == 7
-        piece = Pawn.new('B')
+        @board[spot] = Pawn.new('B')
       elsif spot[1] == 8
         if spot[0] == 1 || spot[0] == 8
-          piece = Rook.new('B')
+          @board[spot] = Rook.new('B')
         elsif spot[0] == 2 || spot[0] == 7
-          piece = Knight.new('B')
+          @board[spot] = Knight.new('B')
         elsif spot[0] == 3 || spot[0] == 6
-          piece = Bishop.new('B')
+          @board[spot] = Bishop.new('B')
         elsif spot[0] == 4
-          piece = Queen.new('B')
+          @board[spot] = Queen.new('B')
         elsif spot[0] == 5
-          piece = King.new('B')
+          @board[spot] = King.new('B')
         end
       end
     end
@@ -48,14 +48,14 @@ class Board
 
     8.times do |y|
       number = 8-y
-      print "#{number} "
+      print "#{number}"
       8.times do |x|
         if ((x % 2 == 0) && (y % 2 == 0)) || ((x % 2 != 0) && (y % 2 != 0))
-          @board[[x, y]] == 0 ?
-          (print " ".on_white) : (print "#{@board[[x,y]].icon}".black.on_white)
+          @board[[x+1, y+1]] == 0 ?
+          (print " ".on_white) : (print "#{@board[[x+1,y+1]].icon}".black.on_white)
         else
-          @board[[x, y]] == 0 ?
-          (print " ".on_light_black) : (print "#{@board[[x,y]].icon}".black.on_light_black)
+          @board[[x+1, y+1]] == 0 ?
+          (print " ".on_light_black) : (print "#{@board[[x+1,y+1]].icon}".black.on_light_black)
         end
       end
       print "\n"
@@ -75,48 +75,55 @@ class ChessPiece
 end
 
 class Pawn < ChessPiece
+attr_reader :color, :icon
+
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u2659" : "\u265F")
+    @icon = (@color == 'W' ? "\u265F" : "\u2659")
   end
 end
 
 class Rook < ChessPiece
+attr_reader :color, :icon
+
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u2656" : "\u265C")
+    @icon = (@color == 'W' ? "\u265C" : "\u2656")
   end
 end
 
 class Knight < ChessPiece
+attr_reader :color, :icon
+
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u2658" : "\u265E")
+    @icon = (@color == 'W' ? "\u265E" : "\u2658")
   end
 end
 
 class Bishop < ChessPiece
+attr_reader :color, :icon
+
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u2657" : "\u265D")
+    @icon = (@color == 'W' ? "\u265D" : "\u2657")
   end
 end
 
 class King < ChessPiece
+attr_reader :color, :icon
+
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u2654" : "\u265A")
+    @icon = (@color == 'W' ? "\u265A" : "\u2654")
   end
 end
 
 class Queen < ChessPiece
+attr_reader :color, :icon
+
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u2655" : "\u265B")
+    @icon = (@color == 'W' ? "\u265B" : "\u2655")
   end
 end
-
-
-test = Board.new
-test.place_pieces
-print test.board
