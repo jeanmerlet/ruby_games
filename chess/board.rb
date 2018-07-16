@@ -45,17 +45,18 @@ class Board
 
   def render
     print "\n\n"
-
     8.times do |y|
       number = 8-y
       print "#{number}"
       8.times do |x|
-        if ((x % 2 == 0) && (y % 2 == 0)) || ((x % 2 != 0) && (y % 2 != 0))
+        if ((x%2 == 0) && (y%2 == 0)) || ((x%2 != 0) && (y%2 != 0))
           @board[[x+1, y+1]] == 0 ?
-          (print " ".on_white) : (print "#{@board[[x+1,y+1]].icon}".black.on_white)
+          (print " ".on_white) :
+          (print "#{@board[[x+1, y+1]].icon}".black.on_white)
         else
           @board[[x+1, y+1]] == 0 ?
-          (print " ".on_light_black) : (print "#{@board[[x+1,y+1]].icon}".black.on_light_black)
+          (print " ".on_light_black) :
+          (print "#{@board[[x+1, y+1]].icon}".black.on_light_black)
         end
       end
       print "\n"
@@ -66,9 +67,9 @@ class Board
   def update(move)
   end
 
-  def validate(move)
-    return false unless generate_moves(origin).contains?(move)
-    true
+  def validate(origin, move)
+    return true if @board[origin].generate_moves(origin).contains?(move)
+    false
   end
 end
 
@@ -100,9 +101,6 @@ attr_reader :color, :icon
     @icon = (@color == 'W' ? "\u265F" : "\u2659")
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
                               [[0, -1, 1], [-1, -1, 1], [1, -1, 1], [0, -2, 1]])
-  end
-
-  def eliminate_bad_moves(moves)
   end
 end
 
@@ -151,6 +149,3 @@ attr_reader :color, :icon
     @icon = (@color == 'W' ? "\u265B" : "\u2655")
   end
 end
-
-rook = Rook.new('W')
-rook.generate_moves
