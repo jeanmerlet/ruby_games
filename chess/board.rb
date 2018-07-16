@@ -65,26 +65,30 @@ class Board
 
   def update(move)
   end
+
+  def validate(move)
+    return false unless generate_moves(origin).contains?(move)
+    true
+  end
 end
 
 class ChessPiece
 
-  def generate_all_moves(spot)
-    all_moves = []
+  def generate_moves(origin)
+    valid_moves = []
     @moves.each do |move|
-      move[2].times do |i|
-        current_move = move[0..1].map! {|x| x*(i+1)}
-        all_moves << current_move if spot_empty?(spot, current_move)
+      next_spot = calculate_next_spot(origin, move)
+      until @board[next_spot] != 0 || @board[next_spot] == nil do
+        all_moves << next_spot
+        next_spot = calculate_next_spot(next_spot, move)
       end
     end
-    all_moves
-    #print all_moves
-    #print all_moves.size
+    valid_moves
+    print valid_moves
   end
 
-  def spot_empty?(spot, move)
-    check_spot = [spot[0] + move[0], spot[1] + move[1]]
-    @board[check_spot] == 0
+  def calculate_next_spot(spot, move)
+    next_spot = [spot[0] + move[0], spot[1] + move[1]]
   end
 end
 
