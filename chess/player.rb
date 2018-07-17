@@ -2,13 +2,14 @@ class Player
 end
 
 class Human < Player
+  attr_reader :color
 
   def initialize(color)
     @color = color
   end
 
   def take_turn
-    move = 'a2a3'
+    input = gets
   end
 end
 

@@ -9,20 +9,21 @@ class Chess
 
   def new_game
     @board = Board.new
-    @white = Human.new('white')
-    @black = Human.new('black')
+    @board.place_pieces
+    @white = Human.new('W')
+    @black = Human.new('B')
     play
   end
 
   def play
     player = @white
     until checkmate(player) || draw(player)
+      @board.render
       parsed_input = parse_player_input(player.take_turn)
-      origin = parsed_input[0]
-      move = parsed_input[1]
-      if @board.validate(origin, move)
-        @board.update(origin, move)
-        player == @white ? (player == @black) : (player == @white)
+      origin, destination = parsed_input[0], parsed_input[1]
+      if @board.validate(player, origin, destination)
+        @board.update(origin, destination)
+        player == @white ? (player = @black) : (player = @white)
       else
         puts 'INVALID MOVE LOL'
       end
@@ -46,3 +47,7 @@ class Chess
   def draw(player)
     false
   end
+end
+
+chess = Chess.new
+chess.new_game

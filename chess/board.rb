@@ -49,14 +49,15 @@ class Board
       number = 8-y
       print "#{number}"
       8.times do |x|
+        #print [x+1, 8-y]
         if ((x%2 == 0) && (y%2 == 0)) || ((x%2 != 0) && (y%2 != 0))
-          @board[[x+1, y+1]] == 0 ?
+          @board[[x+1, 8-y]] == 0 ?
           (print " ".on_white) :
-          (print "#{@board[[x+1, y+1]].icon}".black.on_white)
+          (print "#{@board[[x+1, 8-y]].icon}".black.on_white)
         else
-          @board[[x+1, y+1]] == 0 ?
+          @board[[x+1, 8-y]] == 0 ?
           (print " ".on_light_black) :
-          (print "#{@board[[x+1, y+1]].icon}".black.on_light_black)
+          (print "#{@board[[x+1, 8-y]].icon}".black.on_light_black)
         end
       end
       print "\n"
@@ -64,28 +65,27 @@ class Board
     print " abcdefgh\n\n"
   end
 
-  def update(move)
+  def update(origin, destination)
+    @board[origin], @board[destination] = 0, @board[origin]
   end
 
-  def validate(origin, move)
-    return true if @board[origin].generate_moves(origin).contains?(move)
-    false
+  def validate(player, origin, destination)
+    return false if @board[origin] == 0
+    return false if player.color != @board[origin].color
+    return false unless generate_moves(origin).include?(destination)
+    true
   end
-end
 
-class ChessPiece
-
-  def generate_moves(origin)
+  def generate_moves(spot)
     valid_moves = []
-    @moves.each do |move|
-      next_spot = calculate_next_spot(origin, move)
+    @board[spot].moves.each do |move|
+      next_spot = calculate_next_spot(spot, move)
       until @board[next_spot] != 0 || @board[next_spot] == nil do
-        all_moves << next_spot
+        valid_moves << next_spot
         next_spot = calculate_next_spot(next_spot, move)
       end
     end
     valid_moves
-    print valid_moves
   end
 
   def calculate_next_spot(spot, move)
@@ -93,59 +93,62 @@ class ChessPiece
   end
 end
 
+class ChessPiece
+end
+
 class Pawn < ChessPiece
-attr_reader :color, :icon
+  attr_reader :color, :icon, :moves
 
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u265F" : "\u2659")
+    @icon = (@color == 'B' ? "\u265F" : "\u2659")
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
                               [[0, -1, 1], [-1, -1, 1], [1, -1, 1], [0, -2, 1]])
   end
 end
 
 class Rook < ChessPiece
-attr_reader :color, :icon
+  attr_reader :color, :icon
 
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u265C" : "\u2656")
+    @icon = (@color == 'B' ? "\u265C" : "\u2656")
     @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
   end
 end
 
 class Knight < ChessPiece
-attr_reader :color, :icon
+  attr_reader :color, :icon
 
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u265E" : "\u2658")
+    @icon = (@color == 'B' ? "\u265E" : "\u2658")
   end
 end
 
 class Bishop < ChessPiece
-attr_reader :color, :icon
+  attr_reader :color, :icon
 
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u265D" : "\u2657")
+    @icon = (@color == 'B' ? "\u265D" : "\u2657")
   end
 end
 
 class King < ChessPiece
-attr_reader :color, :icon
+  attr_reader :color, :icon
 
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u265A" : "\u2654")
+    @icon = (@color == 'B' ? "\u265A" : "\u2654")
   end
 end
 
 class Queen < ChessPiece
-attr_reader :color, :icon
+  attr_reader :color, :icon
 
   def initialize(color)
     @color = color
-    @icon = (@color == 'W' ? "\u265B" : "\u2655")
+    @icon = (@color == 'B' ? "\u265B" : "\u2655")
   end
 end
