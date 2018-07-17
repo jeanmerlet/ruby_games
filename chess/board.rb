@@ -66,25 +66,32 @@ class Board
   end
 
   def update(origin, destination)
+    if @board[origin].is_a?(Pawn) && @board[origin].moves.size == 4
+      @board[origin].moves.pop
+    end
     @board[origin], @board[destination] = 0, @board[origin]
   end
 
-  def validate(player, origin, destination)
+  def validate_move(player, origin, destination)
     return false if @board[origin] == 0
     return false if player.color != @board[origin].color
-    return false unless generate_moves(origin).include?(destination)
+    return false unless generate_moves(player, origin).include?(destination)
     true
   end
 
-  def generate_moves(spot)
+  def generate_moves(player, spot)
     valid_moves = []
     @board[spot].moves.each do |move|
       next_spot = calculate_next_spot(spot, move)
-      until @board[next_spot] != 0 || @board[next_spot] == nil do
+      move[2].times do
+        break if @board[next_spot] == nil
+        break if @board[next_spot] != 0 && @board[next_spot].color == player.color
         valid_moves << next_spot
+        break if @board[next_spot] != 0
         next_spot = calculate_next_spot(next_spot, move)
       end
     end
+    print valid_moves
     valid_moves
   end
 
@@ -108,7 +115,7 @@ class Pawn < ChessPiece
 end
 
 class Rook < ChessPiece
-  attr_reader :color, :icon
+  attr_reader :color, :icon, :moves
 
   def initialize(color)
     @color = color
@@ -118,37 +125,41 @@ class Rook < ChessPiece
 end
 
 class Knight < ChessPiece
-  attr_reader :color, :icon
+  attr_reader :color, :icon, :moves
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265E" : "\u2658")
+    @moves = [[1, 2, 1], [1, -2, 1], [-1, 2, 1], [-1, -2, 1], [2, 1, 1], [2, -1, 1], [-2, 1, 1], [-2, -1, 1]]
   end
 end
 
 class Bishop < ChessPiece
-  attr_reader :color, :icon
+  attr_reader :color, :icon, :moves
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265D" : "\u2657")
+    @moves = [[1, 1, 7], [1, -1, 7], [-1, 1, 7], [-1, -1, 7]]
   end
 end
 
 class King < ChessPiece
-  attr_reader :color, :icon
+  attr_reader :color, :icon, :moves
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
+    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1]]
   end
 end
 
 class Queen < ChessPiece
-  attr_reader :color, :icon
+  attr_reader :color, :icon, :moves
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265B" : "\u2655")
+    @moves = [[0, 1, 7], [1, 1, 7], [1, 0, 7], [1, -1, 7], [0, -1, 7], [-1, -1, 7], [-1, 0, 7], [-1, 1, 7]]
   end
 end

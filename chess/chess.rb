@@ -21,7 +21,7 @@ class Chess
       @board.render
       parsed_input = parse_player_input(player.take_turn)
       origin, destination = parsed_input[0], parsed_input[1]
-      if @board.validate(player, origin, destination)
+      if @board.validate_move(player, origin, destination)
         @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
