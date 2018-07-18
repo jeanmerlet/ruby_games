@@ -72,31 +72,44 @@ class Board
     @board[origin], @board[destination] = 0, @board[origin]
   end
 
-  def validate_move(player, origin, destination)
+  def validate_move(color, origin, destination)
     return false if @board[origin] == 0
-    return false if player.color != @board[origin].color
-    return false unless generate_moves(player, origin).include?(destination)
+    return false if color != @board[origin].color
+    return false unless generate_moves(color, origin).include?(destination)
     true
   end
 
-  def generate_moves(player, spot)
+  def generate_moves(color, spot)
     valid_moves = []
     @board[spot].moves.each do |move|
       next_spot = calculate_next_spot(spot, move)
       move[2].times do
         break if @board[next_spot] == nil
-        break if @board[next_spot] != 0 && @board[next_spot].color == player.color
+        break if @board[next_spot] != 0 && @board[next_spot].color == color
         valid_moves << next_spot
         break if @board[next_spot] != 0
         next_spot = calculate_next_spot(next_spot, move)
       end
     end
-    print valid_moves
+    #print valid_moves
     valid_moves
   end
 
   def calculate_next_spot(spot, move)
     next_spot = [spot[0] + move[0], spot[1] + move[1]]
+  end
+
+  def check?(color, king_spot)
+    @board.each do |spot, piece|
+      if @board[spot] != 0
+        return true if generate_moves(color, spot).include?(king_spot)
+      end
+    end
+    false
+  end
+
+  def find_king(color)
+    spot = @board.find {|spot, piece| piece.is_a?(King) && piece.color == color}[0]
   end
 end
 

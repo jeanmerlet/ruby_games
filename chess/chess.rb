@@ -19,9 +19,11 @@ class Chess
     player = @white
     until checkmate(player) || draw(player)
       @board.render
+      color = player.color
+      #puts 'check' if @board.check_for_check(color)
       parsed_input = parse_player_input(player.take_turn)
       origin, destination = parsed_input[0], parsed_input[1]
-      if @board.validate_move(player, origin, destination)
+      if @board.validate_move(color, origin, destination)
         @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
@@ -41,6 +43,9 @@ class Chess
   end
 
   def checkmate(player)
+    king_spot = @board.find_king(player.color)
+    return true if @board.check?(player.color, king_spot) &&
+                   @board.generate_moves(player.color, king_spot).empty?
     false
   end
 
