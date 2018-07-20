@@ -20,7 +20,7 @@ class Chess
     until checkmate(player) || draw(player)
       @board.render
       color = player.color
-      #puts 'check' if @board.check_for_check(color)
+      puts 'check' if @board.check?(color, @board.find_king(color))
       parsed_input = parse_player_input(player.take_turn)
       origin, destination = parsed_input[0], parsed_input[1]
       if @board.validate_move(color, origin, destination)
@@ -30,7 +30,7 @@ class Chess
         puts 'INVALID MOVE LOL'
       end
     end
-    #end game methods
+    puts 'game over man'
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -45,7 +45,7 @@ class Chess
   def checkmate(player)
     king_spot = @board.find_king(player.color)
     return true if @board.check?(player.color, king_spot) &&
-                   @board.generate_moves(player.color, king_spot).empty?
+                   @board.generate_moves(player.color, king_spot).each
     false
   end
 

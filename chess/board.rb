@@ -91,7 +91,6 @@ class Board
         next_spot = calculate_next_spot(next_spot, move)
       end
     end
-    #print valid_moves
     valid_moves
   end
 
@@ -100,9 +99,11 @@ class Board
   end
 
   def check?(color, king_spot)
+    color = (color == 'W' ? 'B' : 'W')
     @board.each do |spot, piece|
-      if @board[spot] != 0
-        return true if generate_moves(color, spot).include?(king_spot)
+      if @board[spot] != 0 && @board[spot].color == color &&
+         generate_moves(color, spot).include?(king_spot)
+        return true
       end
     end
     false
