@@ -44,8 +44,13 @@ class Chess
 
   def checkmate(player)
     king_spot = @board.find_king(player.color)
-    return true if @board.check?(player.color, king_spot) &&
-                   @board.generate_moves(player.color, king_spot).each
+    print @board.generate_moves(player.color, king_spot)
+    if @board.check?(player.color, king_spot)
+      @board.generate_moves(player.color, king_spot).each do |move|
+        return false unless @board.check?(player.color, move)
+      end
+      return true
+    end
     false
   end
 

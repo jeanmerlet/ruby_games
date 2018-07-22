@@ -69,6 +69,9 @@ class Board
     if @board[origin].is_a?(Pawn) && @board[origin].moves.size == 4
       @board[origin].moves.pop
     end
+    if @board[origin].is_a?(King) || @board[origin].is_a?(Rook)
+      @board[origin].can_castle = 0
+    end
     @board[origin], @board[destination] = 0, @board[origin]
   end
 
@@ -118,7 +121,8 @@ class ChessPiece
 end
 
 class Pawn < ChessPiece
-  attr_reader :color, :icon, :moves
+  attr_reader :color, :icon
+  attr_accessor :moves
 
   def initialize(color)
     @color = color
@@ -130,9 +134,11 @@ end
 
 class Rook < ChessPiece
   attr_reader :color, :icon, :moves
+  attr_accessor :can_castle
 
   def initialize(color)
     @color = color
+    @can_castle = 1
     @icon = (@color == 'B' ? "\u265C" : "\u2656")
     @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
   end
@@ -160,9 +166,11 @@ end
 
 class King < ChessPiece
   attr_reader :color, :icon, :moves
+  attr_accessor :can_castle
 
   def initialize(color)
     @color = color
+    @can_castle = 1
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1]]
   end
