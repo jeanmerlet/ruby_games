@@ -121,67 +121,73 @@ class ChessPiece
 end
 
 class Pawn < ChessPiece
-  attr_reader :color, :icon
+  attr_reader :color, :icon, :letter
   attr_accessor :moves
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265F" : "\u2659")
+    @letter = ''
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
                               [[0, -1, 1], [-1, -1, 1], [1, -1, 1], [0, -2, 1]])
   end
 end
 
 class Rook < ChessPiece
-  attr_reader :color, :icon, :moves
+  attr_reader :color, :icon, :moves, :letter
   attr_accessor :can_castle
 
   def initialize(color)
     @color = color
     @can_castle = 1
     @icon = (@color == 'B' ? "\u265C" : "\u2656")
+    @letter = 'R'
     @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
   end
 end
 
 class Knight < ChessPiece
-  attr_reader :color, :icon, :moves
+  attr_reader :color, :icon, :moves, :letter
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265E" : "\u2658")
+    @letter = 'N'
     @moves = [[1, 2, 1], [1, -2, 1], [-1, 2, 1], [-1, -2, 1], [2, 1, 1], [2, -1, 1], [-2, 1, 1], [-2, -1, 1]]
   end
 end
 
 class Bishop < ChessPiece
-  attr_reader :color, :icon, :moves
+  attr_reader :color, :icon, :moves, :letter
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265D" : "\u2657")
+    @letter = 'B'
     @moves = [[1, 1, 7], [1, -1, 7], [-1, 1, 7], [-1, -1, 7]]
   end
 end
 
 class King < ChessPiece
-  attr_reader :color, :icon, :moves
+  attr_reader :color, :icon, :moves, :letter
   attr_accessor :can_castle
 
   def initialize(color)
     @color = color
     @can_castle = 1
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
+    @letter = 'K'
     @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1]]
   end
 end
 
 class Queen < ChessPiece
-  attr_reader :color, :icon, :moves
+  attr_reader :color, :icon, :moves, :letter
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265B" : "\u2655")
+    @letter = 'Q'
     @moves = [[0, 1, 7], [1, 1, 7], [1, 0, 7], [1, -1, 7], [0, -1, 7], [-1, -1, 7], [-1, 0, 7], [-1, 1, 7]]
   end
 end
