@@ -66,11 +66,19 @@ class Board
   end
 
   def update(origin, destination)
-    if @board[origin].is_a?(Pawn)
-      @board[origin].moves.pop if @board[origin].moves.size == 4
+    if @board[origin].is_a?(Pawn) && @board[origin].moves.size == 4
+      if (destination[1] - origin[1]).abs == 2
+        left_side = @board[[destination[0] - 1, destination[1]]]
+        right_side = @board[[destination[0] + 1, destination[1]]]
+        if (left_side.is_a?(Pawn) && left_side.color != @board[origin].color) ||
+           (right_side.is_a?(Pawn) && right_side.color != @board[origin].color)
+          @board[origin].en_passant = 1
+        end
+      end
+      @board[origin].moves.pop
     end
     if @board[origin].is_a?(King) || @board[origin].is_a?(Rook)
-      @board[origin].can_castle = 0
+      @board[origin].castle = 0
     end
     @board[origin], @board[destination] = 0, @board[origin]
   end
@@ -79,12 +87,32 @@ class Board
     return false if @board[origin] == 0
     return false if color != @board[origin].color
     return false unless generate_moves(color, origin).include?(destination)
+
     if @board[origin].is_a?(Pawn)
-      x_distance = (destination[0] - origin[0]).abs 
-      return false if x_distance == 0 && @board[destination] != 0
-      return false if x_distance == 1 && @board[destination] == 0
+      return false if !validate_pawn_movement(color, origin, destination)
     elsif @board[origin].is_a?(King)
       return false if check?(color, destination)
+    end
+    true
+  end
+
+  def validate_pawn_movement(color, origin, destination)
+    x_distance = (destination[0] - origin[0]).abs
+    return false if x_distance == 0 && @board[destination] != 0
+    if x_distance == 1 && @board[destination] == 0
+      if color == 'W'
+        target_pawn_spot = [destination[0], destination[1] - 1]
+      else
+        target_pawn_spot = [destination[0], destination[1] + 1]
+      end
+      target_pawn = @board[target_pawn_spot]
+      if target_pawn.is_a?(Pawn) &&
+         target_pawn.color != color &&
+         target_pawn.en_passant == 1
+        @board[target_pawn_spot] = 0
+      else
+        return false
+      end
     end
     true
   end
@@ -129,10 +157,11 @@ end
 
 class Pawn < ChessPiece
   attr_reader :color, :icon, :letter
-  attr_accessor :moves
+  attr_accessor :moves, :en_passant
 
   def initialize(color)
     @color = color
+    @en_passant = 0
     @icon = (@color == 'B' ? "\u265F" : "\u2659")
     @letter = ''
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
@@ -147,7 +176,7 @@ class Rook < ChessPiece
 
   def initialize(color)
     @color = color
-    @can_castle = 1
+    @castle = 1
     @icon = (@color == 'B' ? "\u265C" : "\u2656")
     @letter = 'R'
     @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
@@ -185,7 +214,7 @@ class King < ChessPiece
 
   def initialize(color)
     @color = color
-    @can_castle = 1
+    @castle = 1
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
     @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1]]
