@@ -66,8 +66,8 @@ class Board
   end
 
   def update(origin, destination)
-    if @board[origin].is_a?(Pawn) && @board[origin].moves.size == 4
-      @board[origin].moves.pop
+    if @board[origin].is_a?(Pawn)
+      @board[origin].moves.pop if @board[origin].moves.size == 4
     end
     if @board[origin].is_a?(King) || @board[origin].is_a?(Rook)
       @board[origin].can_castle = 0
@@ -79,6 +79,13 @@ class Board
     return false if @board[origin] == 0
     return false if color != @board[origin].color
     return false unless generate_moves(color, origin).include?(destination)
+    if @board[origin].is_a?(Pawn)
+      x_distance = (destination[0] - origin[0]).abs 
+      return false if x_distance == 0 && @board[destination] != 0
+      return false if x_distance == 1 && @board[destination] == 0
+    elsif @board[origin].is_a?(King)
+      return false if check?(color, destination)
+    end
     true
   end
 
@@ -130,6 +137,7 @@ class Pawn < ChessPiece
     @letter = ''
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
                               [[0, -1, 1], [-1, -1, 1], [1, -1, 1], [0, -2, 1]])
+    @value = 1
   end
 end
 
@@ -143,6 +151,7 @@ class Rook < ChessPiece
     @icon = (@color == 'B' ? "\u265C" : "\u2656")
     @letter = 'R'
     @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
+    @value = 5
   end
 end
 
@@ -154,6 +163,7 @@ class Knight < ChessPiece
     @icon = (@color == 'B' ? "\u265E" : "\u2658")
     @letter = 'N'
     @moves = [[1, 2, 1], [1, -2, 1], [-1, 2, 1], [-1, -2, 1], [2, 1, 1], [2, -1, 1], [-2, 1, 1], [-2, -1, 1]]
+    @value = 3
   end
 end
 
@@ -165,6 +175,7 @@ class Bishop < ChessPiece
     @icon = (@color == 'B' ? "\u265D" : "\u2657")
     @letter = 'B'
     @moves = [[1, 1, 7], [1, -1, 7], [-1, 1, 7], [-1, -1, 7]]
+    @value = 3
   end
 end
 
@@ -178,6 +189,7 @@ class King < ChessPiece
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
     @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1]]
+    @value = 10000
   end
 end
 
@@ -189,5 +201,6 @@ class Queen < ChessPiece
     @icon = (@color == 'B' ? "\u265B" : "\u2655")
     @letter = 'Q'
     @moves = [[0, 1, 7], [1, 1, 7], [1, 0, 7], [1, -1, 7], [0, -1, 7], [-1, -1, 7], [-1, 0, 7], [-1, 1, 7]]
+    @value = 10
   end
 end

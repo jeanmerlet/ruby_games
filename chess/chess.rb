@@ -78,7 +78,8 @@ class Chess
     false
   end
 
-  def record_move(color, origin, destination, check) #portable game notation
+  #portable game notation (PGN)
+  def record_move(color, origin, destination, check)
     piece = @board.board[origin].letter
     if @board.board[destination] != 0
       capture_indicator = 'x'
