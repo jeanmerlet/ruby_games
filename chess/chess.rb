@@ -12,7 +12,8 @@ class Chess
     @board.place_pieces
     @white = Human.new('W')
     @black = Human.new('B')
-    File.open('chess.txt', 'w+') {|f| }
+    @turn = 1
+    File.open('game.pgn', 'w+') {|f| }
     play
   end
 
@@ -22,10 +23,10 @@ class Chess
       @board.render
       color = player.color
       puts 'check' if @board.check?(color, @board.find_king(color))
-      parsed_input = parse_player_input(player.take_turn)
-      origin, destination = parsed_input[0], parsed_input[1]
+      player_move = parse_player_input(player.take_turn)
+      origin, destination = player_move[0], player_move[1]
       if @board.validate_move(color, origin, destination)
-        record_move(origin, destination)
+        record_move(color, origin, destination)
         @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
@@ -62,17 +63,24 @@ class Chess
     false
   end
 
-  def record_move(origin, destination)
-    move_piece = @board.board[origin].letter
+  def record_move(color, origin, destination) #portable game notation
+    piece = @board.board[origin].letter
     if @board.board[destination] != 0
-      capture_piece = @board.board[destination].letter 
+      capture_indicator = 'x'
     else
-      capture_piece = ''
+      capture_indicator = ''
     end
+
     #converts ex: [1, 4] to 'a4'
     move = @letter_index[destination[0]-1] + destination[1].to_s
-    File.open('chess.txt', 'r+') do |file|
-      file.write("#{move_piece}#{move}#{capture_piece}")
+
+    File.open('game.pgn', 'r+') do |file|
+      if color = 'W'
+        file.write("#{turn}. ")
+      else
+        @turn += 1
+      end
+      file.write("#{piece}#{capture_indicator}#{move} ")
     end
   end
 end
