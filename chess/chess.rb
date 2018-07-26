@@ -17,16 +17,21 @@ class Chess
     play
   end
 
+  def load_game
+    
+  end
+
   def play
     player = @white
     until checkmate(player) || draw(player)
       @board.render
       color = player.color
-      puts 'check' if @board.check?(color, @board.find_king(color))
+      check = check_for_check(color)
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
+
       if @board.validate_move(color, origin, destination)
-        record_move(color, origin, destination)
+        record_move(color, origin, destination, check)
         @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
@@ -43,6 +48,16 @@ class Chess
       x[1] = x[1].to_i
     end
     output
+  end
+
+  def check_for_check(color)
+    if @board.check?(color, @board.find_king(color))
+      check = '+'
+      puts 'check'
+    else
+      check = ''
+    end
+    check
   end
 
   def checkmate(player)
@@ -63,7 +78,7 @@ class Chess
     false
   end
 
-  def record_move(color, origin, destination) #portable game notation
+  def record_move(color, origin, destination, check) #portable game notation
     piece = @board.board[origin].letter
     if @board.board[destination] != 0
       capture_indicator = 'x'
@@ -74,13 +89,13 @@ class Chess
     #converts ex: [1, 4] to 'a4'
     move = @letter_index[destination[0]-1] + destination[1].to_s
 
-    File.open('game.pgn', 'r+') do |file|
-      if color = 'W'
-        file.write("#{turn}. ")
+    File.open('game.pgn', 'a') do |file|
+      if color == 'W'
+        file.write("#{@turn}. ")
       else
         @turn += 1
       end
-      file.write("#{piece}#{capture_indicator}#{move} ")
+      file.write("#{piece}#{capture_indicator}#{move}#{check} ")
     end
   end
 end
