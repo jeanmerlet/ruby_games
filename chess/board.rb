@@ -1,6 +1,5 @@
 require 'colorize'
 
-
 class Board
   attr_reader :board
 
@@ -46,10 +45,8 @@ class Board
   def render
     print "\n\n"
     8.times do |y|
-      number = 8-y
-      print "#{number}"
+      print "#{8-y}"
       8.times do |x|
-        #print [x+1, 8-y]
         if ((x%2 == 0) && (y%2 == 0)) || ((x%2 != 0) && (y%2 != 0))
           @board[[x+1, 8-y]] == 0 ?
           (print " ".on_white) :
@@ -66,16 +63,20 @@ class Board
   end
 
   def update(origin, destination)
-    if @board[origin].is_a?(Pawn) && @board[origin].moves.size == 4
-      if (destination[1] - origin[1]).abs == 2
-        left_side = @board[[destination[0] - 1, destination[1]]]
-        right_side = @board[[destination[0] + 1, destination[1]]]
-        if (left_side.is_a?(Pawn) && left_side.color != @board[origin].color) ||
-           (right_side.is_a?(Pawn) && right_side.color != @board[origin].color)
-          @board[origin].en_passant = 1
+    if @board[origin].is_a?(Pawn)
+      if @board[origin].moves.size == 4
+        if (destination[1] - origin[1]).abs == 2
+          left_side = @board[[destination[0] - 1, destination[1]]]
+          right_side = @board[[destination[0] + 1, destination[1]]]
+          if (left_side.is_a?(Pawn) && left_side.color != @board[origin].color) ||
+             (right_side.is_a?(Pawn) && right_side.color != @board[origin].color)
+            @board[origin].en_passant = 1
+          end
         end
+        @board[origin].moves.pop
       end
-      @board[origin].moves.pop
+      #@board[origin] = promotion if destination[1] == 8 || destination[1] == 1
+      end
     end
     if @board[origin].is_a?(King) || @board[origin].is_a?(Rook)
       @board[origin].castle = 0
@@ -89,15 +90,16 @@ class Board
     return false unless generate_moves(color, origin).include?(destination)
 
     if @board[origin].is_a?(Pawn)
-      return false if !validate_pawn_movement(color, origin, destination)
+      return false unless validate_pawn_move(color, origin, destination)
     elsif @board[origin].is_a?(King)
-      return false if check?(color, destination)
+      return false unless validate_king_move(color, origin, destination)
     end
+
     true
   end
 
-  def validate_pawn_movement(color, origin, destination)
-    x_distance = (destination[0] - origin[0]).abs
+  def validate_pawn_move(color, origin, destination)
+    x_distance = horizontal_distance(origin, destination)
     return false if x_distance == 0 && @board[destination] != 0
     if x_distance == 1 && @board[destination] == 0
       if color == 'W'
@@ -117,13 +119,31 @@ class Board
     true
   end
 
+  def validate_king_move(color, origin, destination)
+    return false if check?(color, destination)
+    x_distance = horizontal_distance(origin, destination)
+    if x_distance > 1
+      return false unless @board[origin].castle == 1
+      return false unless @board[destination].is_a?(Rook) &&
+                          @board[destination].castle == 1
+      (x_distance - 1).times do |i|
+        return false if !@board[[[origin[0] - 1 - i], origin[1]]] == 0 &&
+                        check?(color, @board[[origin[0] - 1 - i], origin[1]])
+      end
+    else
+      return false if @board[destination] != 0 && @board[destination].color == color
+    end
+    true
+  end
+
   def generate_moves(color, spot)
     valid_moves = []
     @board[spot].moves.each do |move|
       next_spot = calculate_next_spot(spot, move)
       move[2].times do
         break if @board[next_spot] == nil
-        break if @board[next_spot] != 0 && @board[next_spot].color == color
+        break if @board[next_spot] != 0 && @board[next_spot].color == color unless
+                 @board[spot].is_a?(King)
         valid_moves << next_spot
         break if @board[next_spot] != 0
         next_spot = calculate_next_spot(next_spot, move)
@@ -134,6 +154,10 @@ class Board
 
   def calculate_next_spot(spot, move)
     next_spot = [spot[0] + move[0], spot[1] + move[1]]
+  end
+
+  def horizontal_distance(spot_a, spot_b)
+    (spot_a[0] - spot_b[0]).abs
   end
 
   def check?(color, king_spot)
@@ -172,7 +196,7 @@ end
 
 class Rook < ChessPiece
   attr_reader :color, :icon, :moves, :letter
-  attr_accessor :can_castle
+  attr_accessor :castle
 
   def initialize(color)
     @color = color
@@ -210,14 +234,14 @@ end
 
 class King < ChessPiece
   attr_reader :color, :icon, :moves, :letter
-  attr_accessor :can_castle
+  attr_accessor :castle
 
   def initialize(color)
     @color = color
     @castle = 1
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
-    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1]]
+    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-4, 0, 1], [3, 0, 1]]
     @value = 10000
   end
 end
