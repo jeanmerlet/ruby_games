@@ -25,11 +25,20 @@ class Chess
     player = @white
     until checkmate(player) || draw(player)
       @board.render
-      color = player.color
-      check = check_for_check(color)
+      #check = check_for_check(player.color)
+
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
+      piece = @board.spots[origin]
 
+      if piece.validate_move(player.color, @board.spots, origin, destination)
+        @board.update(origin, destination)
+        player == @white ? (player = @black) : (player = @white)
+      else
+        puts 'INVALID MOVE LOL'
+      end
+
+=begin
       if @board.validate_move(color, origin, destination)
         record_move(color, origin, destination, check)
         @board.update(origin, destination)
@@ -37,6 +46,7 @@ class Chess
       else
         puts 'INVALID MOVE LOL'
       end
+=end
     end
     @board.render
   end
@@ -78,7 +88,6 @@ class Chess
     false
   end
 
-  #portable game notation (PGN)
   def record_move(color, origin, destination, check)
     piece = @board.board[origin].letter
     if @board.board[destination] != 0
