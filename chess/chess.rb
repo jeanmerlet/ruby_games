@@ -13,6 +13,7 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @turn = 1
+    @special_markers = ['', 'x', '=', '0 - 0']
     File.open('game.pgn', 'w+') {|f| }
     play
   end
@@ -23,30 +24,21 @@ class Chess
 
   def play
     player = @white
-    until checkmate(player) || draw(player)
+    until checkmate(player.color, @board.spots) || draw(player.color)
       @board.render
-      #check = check_for_check(player.color)
+      check_for_check(player.color)
 
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
       piece = @board.spots[origin]
 
       if piece.validate_move(player.color, @board.spots, origin, destination)
+        record_move(player.color, origin, destination, @special_markers)
         @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
         puts 'INVALID MOVE LOL'
       end
-
-=begin
-      if @board.validate_move(color, origin, destination)
-        record_move(color, origin, destination, check)
-        @board.update(origin, destination)
-        player == @white ? (player = @black) : (player = @white)
-      else
-        puts 'INVALID MOVE LOL'
-      end
-=end
     end
     @board.render
   end
@@ -60,24 +52,22 @@ class Chess
     output
   end
 
-  def check_for_check(color)
-    if @board.check?(color, @board.find_king(color))
-      check = '+'
-      puts 'check'
+  def check_for_check(player_color)
+    if @board.check?(player_color, @board.spots)
+      puts 'Check!'
+      @special_markers[0] = '+'
     else
-      check = ''
+      @special_markers[0] = ''
     end
-    check
   end
 
-  def checkmate(player)
-    king_spot = @board.find_king(player.color)
-    if @board.check?(player.color, king_spot)
-      @board.generate_moves(player.color, king_spot).each do |move|
-        return false unless @board.check?(player.color, move)
+  def checkmate(player_color, board)
+    if @board.check?(player_color, board)
+      @board.generate_moves(player_color, king_spot).each do |move|
+        return false unless @board.check?(player_color, move)
       end
-      winning_color = (player.color == 'W' ? 'black' : 'white')
-      print 'checkmate'
+      winning_color = (player_color == 'W' ? 'Black' : 'White')
+      print 'Checkmate'
       print "\n#{winning_color} wins!"
       return true
     end
@@ -88,9 +78,9 @@ class Chess
     false
   end
 
-  def record_move(color, origin, destination, check)
-    piece = @board.board[origin].letter
-    if @board.board[destination] != 0
+  def record_move(color, origin, destination, special_markers)
+    piece = @board.spots[origin].letter
+    if @board.spots[destination] != 0
       capture_indicator = 'x'
     else
       capture_indicator = ''
@@ -105,7 +95,7 @@ class Chess
       else
         @turn += 1
       end
-      file.write("#{piece}#{capture_indicator}#{move}#{check} ")
+      file.write("#{piece}#{capture_indicator}#{move}#{special_markers[0]} ")
     end
   end
 end

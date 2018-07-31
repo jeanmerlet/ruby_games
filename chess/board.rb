@@ -99,27 +99,6 @@ class Board
     true
   end
 
-  def validate_pawn_move(color, origin, destination)
-    x_distance = horizontal_distance(origin, destination)
-    return false if x_distance == 0 && @board[destination] != 0
-    if x_distance == 1 && @board[destination] == 0
-      if color == 'W'
-        target_pawn_spot = [destination[0], destination[1] - 1]
-      else
-        target_pawn_spot = [destination[0], destination[1] + 1]
-      end
-      target_pawn = @board[target_pawn_spot]
-      if target_pawn.is_a?(Pawn) &&
-         target_pawn.color != color &&
-         target_pawn.en_passant == 1
-        @board[target_pawn_spot] = 0
-      else
-        return false
-      end
-    end
-    true
-  end
-
   def validate_king_move(color, origin, destination)
     return false if check?(color, destination)
     x_distance = horizontal_distance(origin, destination)
@@ -153,19 +132,12 @@ class Board
     valid_moves
   end
 
-  def calculate_next_spot(spot, move)
-    next_spot = [spot[0] + move[0], spot[1] + move[1]]
-  end
-
-  def horizontal_distance(spot_a, spot_b)
-    (spot_a[0] - spot_b[0]).abs
-  end
-
-  def check?(color, king_spot)
-    color = (color == 'W' ? 'B' : 'W')
+  def check?(player_color, board)
+    king_spot = find_king(player_color)
+    player_color = (player_color == 'W' ? 'B' : 'W')
     @spots.each do |spot, piece|
-      if @spots[spot] != 0 && @spots[spot].color == color &&
-         generate_moves(color, spot).include?(king_spot)
+      if @spots[spot] != 0 && @spots[spot].color == player_color &&
+         @spots[spot].generate_moves(board, spot).include?(king_spot)
         return true
       end
     end
@@ -212,11 +184,11 @@ class ChessPiece
 end
 
 class Pawn < ChessPiece
-  attr_accessor :moves, :en_passant
+  attr_accessor :moves, :en_passable
 
   def initialize(color)
     @color = color
-    @en_passant = 0
+    @en_passable = 0
     @icon = (@color == 'B' ? "\u265F" : "\u2659")
     @letter = ''
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
@@ -227,24 +199,27 @@ class Pawn < ChessPiece
   def validate_move(player_color, board, origin, destination)
     if super
       x_distance = horizontal_distance(origin, destination)
-      return false if x_distance == 0 && board[destination] != 0
-      if x_distance == 1 && @board[destination] == 0
-        if color == 'W'
-          target_pawn_spot = [destination[0], destination[1] - 1]
-        else
-          target_pawn_spot = [destination[0], destination[1] + 1]
-        end
-        target_pawn = @board[target_pawn_spot]
-        if target_pawn.is_a?(Pawn) &&
-           target_pawn.color != color &&
-           target_pawn.en_passant == 1
-          @board[target_pawn_spot] = 0
-        else
-          return false
-        end
+      if x_distance == 0
+        return false if board[destination] != 0
+      elsif x_distance == 1
+        return false if board[destination] == 0 &&
+                        !en_passant_conditions_met?(board, origin, destination)
       end
-      true
     end
+    true
+  end
+
+  def en_passant_conditions_met?(board, origin, destination)
+    if @color == 'W'
+      target_pawn_spot = [destination[0], destination[1] - 1]
+    else
+      target_pawn_spot = [destination[0], destination[1] + 1]
+    end
+    target_pawn = board[target_pawn_spot]
+    return false unless target_pawn.is_a?(Pawn) &&
+                        target_pawn.color != @color &&
+                        target_pawn.en_passable == 1
+    true
   end
 end
 
