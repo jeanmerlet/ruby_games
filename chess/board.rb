@@ -82,6 +82,7 @@ class Board
       @board[origin].castle = 0
     end
 =end
+    @spots[origin].update
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
@@ -114,8 +115,9 @@ class Board
       return false if @board[destination] != 0 && @board[destination].color == color
     end
     true
-  end
+    end
 
+=begin
   def generate_moves(color, spot)
     valid_moves = []
     @spots[spot].moves.each do |move|
@@ -131,12 +133,13 @@ class Board
     end
     valid_moves
   end
+=end
 
-  def check?(player_color, board)
-    king_spot = find_king(player_color)
+  def check?(player_color, board, king_spot)
     player_color = (player_color == 'W' ? 'B' : 'W')
     @spots.each do |spot, piece|
-      if @spots[spot] != 0 && @spots[spot].color == player_color &&
+      if @spots[spot] != 0 &&
+         @spots[spot].color == player_color &&
          @spots[spot].generate_moves(board, spot).include?(king_spot)
         return true
       end
@@ -160,18 +163,18 @@ class ChessPiece
   end
 
   def generate_moves(board, spot)
-    valid_moves = []
+    moves = []
     @moves.each do |move|
       next_spot = calculate_next_spot(spot, move)
       move[2].times do
         break if board[next_spot] == nil
         break if board[next_spot] != 0 && board[next_spot].color == @color
-        valid_moves << next_spot
+        moves << next_spot
         break if board[next_spot] != 0
         next_spot = calculate_next_spot(next_spot, move)
       end
     end
-    valid_moves
+    moves
   end
 
   def calculate_next_spot(spot, move)
@@ -268,6 +271,26 @@ class King < ChessPiece
     @letter = 'K'
     @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-4, 0, 1], [3, 0, 1]]
     @value = 10000
+  end
+
+  def validate_move(player_color, board, origin, destination)
+    if super
+      return false if board.check?(player_color, board, destination)
+      x_distance = horizontal_distance(origin, destination)
+      if x_distance > 1
+        return false unless @castle == 1
+        return false unless board[destination].is_a?(Rook) &&
+                            board[destination].castle == 1
+        (x_distance - 1).times do |i|
+          spot = board[[[origin[0] - 1 - i], origin[1]]] 
+          return false if !spot == 0 && board.check?(color, board, spot)
+        end
+      else
+        return false if board[destination] != 0 &&
+                        @board[destination].color == @color
+      end
+    end
+    true
   end
 end
 

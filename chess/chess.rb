@@ -53,7 +53,8 @@ class Chess
   end
 
   def check_for_check(player_color)
-    if @board.check?(player_color, @board.spots)
+    king_spot = @board.find_king(player_color)
+    if @board.check?(player_color, @board.spots, king_spot)
       puts 'Check!'
       @special_markers[0] = '+'
     else
@@ -62,7 +63,8 @@ class Chess
   end
 
   def checkmate(player_color, board)
-    if @board.check?(player_color, board)
+    king_spot = @board.find_king(player_color)
+    if @board.check?(player_color, board, king_spot)
       @board.generate_moves(player_color, king_spot).each do |move|
         return false unless @board.check?(player_color, move)
       end
