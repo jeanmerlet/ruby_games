@@ -63,7 +63,6 @@ class Board
   end
 
   def update(origin, destination)
-=begin
     if @board[origin].is_a?(Pawn)
       if @board[origin].moves.size == 4
         if (destination[1] - origin[1]).abs == 2
@@ -78,11 +77,8 @@ class Board
       end
       #@board[origin] = promotion if destination[1] == 8 || destination[1] == 1
     end
-    if @board[origin].is_a?(King) || @board[origin].is_a?(Rook)
-      @board[origin].castle = 0
-    end
-=end
-    @spots[origin].update
+
+    #@spots[origin].update(@board, origin, destination)
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
@@ -90,50 +86,8 @@ class Board
     return false if @board[origin] == 0
     return false if color != @board[origin].color
     return false unless generate_moves(color, origin).include?(destination)
-
-    if @board[origin].is_a?(Pawn)
-      return false unless validate_pawn_move(color, origin, destination)
-    elsif @board[origin].is_a?(King)
-      return false unless validate_king_move(color, origin, destination)
-    end
-
     true
   end
-
-  def validate_king_move(color, origin, destination)
-    return false if check?(color, destination)
-    x_distance = horizontal_distance(origin, destination)
-    if x_distance > 1
-      return false unless @board[origin].castle == 1
-      return false unless @board[destination].is_a?(Rook) &&
-                          @board[destination].castle == 1
-      (x_distance - 1).times do |i|
-        return false if !@board[[[origin[0] - 1 - i], origin[1]]] == 0 &&
-                        check?(color, @board[[origin[0] - 1 - i], origin[1]])
-      end
-    else
-      return false if @board[destination] != 0 && @board[destination].color == color
-    end
-    true
-    end
-
-=begin
-  def generate_moves(color, spot)
-    valid_moves = []
-    @spots[spot].moves.each do |move|
-      next_spot = calculate_next_spot(spot, move)
-      move[2].times do
-        break if @spots[next_spot] == nil
-        break if @spots[next_spot] != 0 && @spots[next_spot].color == color unless
-                 @spots[spot].is_a?(King)
-        valid_moves << next_spot
-        break if @spots[next_spot] != 0
-        next_spot = calculate_next_spot(next_spot, move)
-      end
-    end
-    valid_moves
-  end
-=end
 
   def check?(player_color, board, king_spot)
     player_color = (player_color == 'W' ? 'B' : 'W')
@@ -155,29 +109,22 @@ end
 class ChessPiece
   attr_reader :color, :icon, :moves, :letter
 
-  def validate_move(player_color, board, origin, destination)
-    return false if board[origin] == 0
-    return false if player_color != @color
-    return false unless generate_moves(board, origin).include?(destination)
-    true
-  end
-
   def generate_moves(board, spot)
     moves = []
     @moves.each do |move|
-      next_spot = calculate_next_spot(spot, move)
+      next_spot = increment_move(spot, move)
       move[2].times do
         break if board[next_spot] == nil
         break if board[next_spot] != 0 && board[next_spot].color == @color
         moves << next_spot
         break if board[next_spot] != 0
-        next_spot = calculate_next_spot(next_spot, move)
+        next_spot = increment_move(next_spot, move)
       end
     end
     moves
   end
 
-  def calculate_next_spot(spot, move)
+  def increment_move(spot, move)
     next_spot = [spot[0] + move[0], spot[1] + move[1]]
   end
 
@@ -199,17 +146,18 @@ class Pawn < ChessPiece
     @value = 1
   end
 
-  def validate_move(player_color, board, origin, destination)
-    if super
-      x_distance = horizontal_distance(origin, destination)
-      if x_distance == 0
-        return false if board[destination] != 0
-      elsif x_distance == 1
-        return false if board[destination] == 0 &&
-                        !en_passant_conditions_met?(board, origin, destination)
+  def generate_moves(board, spot)
+    moves = super
+      moves.dup.each do |move|
+        x_distance = move[0]
+        destination = increment_move(spot, move)
+        if x_distance == 0 && board[destination] != 0
+          moves -= [move]
+        elsif board[destination] == 0
+          moves -= [move] unless en_passant_conditions_met?(board, spot, destination)
       end
     end
-    true
+    moves
   end
 
   def en_passant_conditions_met?(board, origin, destination)
@@ -273,10 +221,12 @@ class King < ChessPiece
     @value = 10000
   end
 
-  def validate_move(player_color, board, origin, destination)
-    if super
-      return false if board.check?(player_color, board, destination)
-      x_distance = horizontal_distance(origin, destination)
+  def generate_moves(board, spot)
+    moves = super
+    moves.dup.each do |move|
+      x_distance = move[0].abs
+      destination = increment_move(spot, move)
+      moves -= [move] if board.check?(@color, board, destination)
       if x_distance > 1
         return false unless @castle == 1
         return false unless board[destination].is_a?(Rook) &&
@@ -287,8 +237,7 @@ class King < ChessPiece
         end
       else
         return false if board[destination] != 0 &&
-                        @board[destination].color == @color
-      end
+                      @board[destination].color == @color
     end
     true
   end

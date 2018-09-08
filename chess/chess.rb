@@ -13,13 +13,12 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @turn = 1
-    @special_markers = ['', 'x', '=', '0 - 0']
+    @markers = ['', 'x', '=', '0 - 0']
     File.open('game.pgn', 'w+') {|f| }
     play
   end
 
   def load_game
-    
   end
 
   def play
@@ -32,8 +31,8 @@ class Chess
       origin, destination = player_move[0], player_move[1]
       piece = @board.spots[origin]
 
-      if piece.validate_move(player.color, @board.spots, origin, destination)
-        record_move(player.color, origin, destination, @special_markers)
+      if @board.validate_move(player.color, @board.spots, origin, destination)
+        record_move(player.color, origin, destination, @markers)
         @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
@@ -56,9 +55,9 @@ class Chess
     king_spot = @board.find_king(player_color)
     if @board.check?(player_color, @board.spots, king_spot)
       puts 'Check!'
-      @special_markers[0] = '+'
+      @markers[0] = '+'
     else
-      @special_markers[0] = ''
+      @markers[0] = ''
     end
   end
 
