@@ -86,14 +86,15 @@ class Board
     return false if @board[origin] == 0
     return false if color != @board[origin].color
     return false unless generate_moves(color, origin).include?(destination)
+    return false if @board[origin].is_a?(King) && spot_in_check?(color, origin)
     true
   end
 
-  def check?(player_color, board, king_spot)
-    player_color = (player_color == 'W' ? 'B' : 'W')
+  def spot_in_check?(player_color, king_spot)
+    checking_color = (player_color == 'W' ? 'B' : 'W')
     @spots.each do |spot, piece|
       if @spots[spot] != 0 &&
-         @spots[spot].color == player_color &&
+         @spots[spot].color == checking_color &&
          @spots[spot].generate_moves(board, spot).include?(king_spot)
         return true
       end
@@ -221,23 +222,29 @@ class King < ChessPiece
     @value = 10000
   end
 
-  def generate_moves(board, spot)
+  def generate_moves(board, king_spot)
     moves = super
     moves.dup.each do |move|
       x_distance = move[0].abs
-      destination = increment_move(spot, move)
-      moves -= [move] if board.check?(@color, board, destination)
       if x_distance > 1
-        return false unless @castle == 1
-        return false unless board[destination].is_a?(Rook) &&
-                            board[destination].castle == 1
-        (x_distance - 1).times do |i|
-          spot = board[[[origin[0] - 1 - i], origin[1]]] 
-          return false if !spot == 0 && board.check?(color, board, spot)
-        end
-      else
-        return false if board[destination] != 0 &&
-                      @board[destination].color == @color
+        rook = board.spots[increment_move(king_spot, move)]
+        moves -= [move] unless can_castle?(board, king_spot, rook, x_distance)
+      end
+    end
+    true
+  end
+
+  def can_castle?(board, king_spot, rook, spot_number)
+    return false if @castle == 0
+    return false if !(rook.is_a?(Rook) && rook.castle == 1)
+
+    (spot_number - 1).times do |i|
+      spot = board[[[king_spot[0] - 1 - i], king_spot[1]]]
+      if spot != 0
+        return false
+      elsif board.spot_in_check?(@color, spot)
+        return false
+      end
     end
     true
   end
