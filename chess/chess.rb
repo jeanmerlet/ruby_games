@@ -30,11 +30,11 @@ class Chess
 
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
-      piece = @board.spots[origin]
 
       if @board.validate_move(player_color, origin, destination)
+        promotion = player.pawn_promote if @board.promotion_available?
         record_move(player_color, origin, destination)
-        @board.update(origin, destination)
+        @board.update(origin, destination, promotion = 0)
         player == @white ? (player = @black) : (player = @white)
         player_color = player.color
       else

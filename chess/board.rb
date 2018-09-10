@@ -62,31 +62,28 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination)
-    if @board[origin].is_a?(Pawn)
-      if @board[origin].moves.size == 4
-        if (destination[1] - origin[1]).abs == 2
-          left_side = @board[[destination[0] - 1, destination[1]]]
-          right_side = @board[[destination[0] + 1, destination[1]]]
-          if (left_side.is_a?(Pawn) && left_side.color != @board[origin].color) ||
-             (right_side.is_a?(Pawn) && right_side.color != @board[origin].color)
-            @board[origin].en_passant = 1
-          end
-        end
-        @board[origin].moves.pop
+  def update(origin, destination, promotion)
+    piece = @board[origin]
+    if piece.is_a?(Pawn)
+      if (destination[1] - origin[1]).abs == 2
+        piece.double_moved = 1 
+      else
+        piece.double_moved = 0
       end
-      #@board[origin] = promotion if destination[1] == 8 || destination[1] == 1
+      piece.moves.pop if piece.moves.size == 4
+      @board[origin] = promotion if destination[1] == 8 || destination[1] == 1
+    elsif piece.is_a?(King) || piece.is_a?(Rook)
+      piece.has_moved = 1
     end
-
-    #@spots[origin].update(@board, origin, destination)
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
-  def validate_move(color, origin, destination)
-    return false if @board[origin] == 0
-    return false if color != @board[origin].color
-    return false unless generate_moves(color, origin).include?(destination)
-    return false if @board[origin].is_a?(King) && spot_in_check?(color, origin)
+  def validate_move(player_color, origin, destination)
+    piece = @board[origin]
+    return false if piece == 0
+    return false if player_color != piece.color
+    return false if !piece.generate_moves(@spots, origin).include?(destination)
+    return false if piece.is_a?(King) && spot_in_check?(player_color, origin)
     true
   end
 
@@ -104,6 +101,13 @@ class Board
 
   def find_king(color)
     spot = @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}[0]
+  end
+
+  def promotion_available?(origin, destination)
+    piece = board[origin]
+    rank = destination[1]
+    return false if !(piece.is_a?(Pawn) && (rank == 8 || rank == 1))
+    true
   end
 end
 
@@ -139,7 +143,7 @@ class Pawn < ChessPiece
 
   def initialize(color)
     @color = color
-    @en_passable = 0
+    @double_moved = 0
     @icon = (@color == 'B' ? "\u265F" : "\u2659")
     @letter = ''
     @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
@@ -152,25 +156,26 @@ class Pawn < ChessPiece
       moves.dup.each do |move|
         x_distance = move[0]
         destination = increment_move(spot, move)
-        if x_distance == 0 && board[destination] != 0
+        target_spot = board[destination]
+        if x_distance == 0 && target_spot != 0
           moves -= [move]
-        elsif board[destination] == 0
-          moves -= [move] unless en_passant_conditions_met?(board, spot, destination)
+        elsif target_spot == 0
+          
+          moves -= [move] unless can_take_en_passant?(board, spot, destination)
       end
     end
     moves
   end
 
-  def en_passant_conditions_met?(board, origin, destination)
+  def can_take_en_passant?(board, origin, destination)
     if @color == 'W'
-      target_pawn_spot = [destination[0], destination[1] - 1]
+      pawn = board[[destination[0], destination[1] - 1]]
     else
-      target_pawn_spot = [destination[0], destination[1] + 1]
+      pawn = board[[destination[0], destination[1] + 1]]
     end
-    target_pawn = board[target_pawn_spot]
-    return false unless target_pawn.is_a?(Pawn) &&
-                        target_pawn.color != @color &&
-                        target_pawn.en_passable == 1
+    return false if !(pawn.is_a?(Pawn) &&
+                      pawn.color != @color &&
+                      pawn.double_moved == 1)
     true
   end
 end
@@ -180,7 +185,7 @@ class Rook < ChessPiece
 
   def initialize(color)
     @color = color
-    @castle = 1
+    @has_moved = 0
     @icon = (@color == 'B' ? "\u265C" : "\u2656")
     @letter = 'R'
     @moves = [[0, 1, 7], [0, -1, 7], [-1, 0, 7], [1, 0, 7]]
@@ -215,7 +220,7 @@ class King < ChessPiece
 
   def initialize(color)
     @color = color
-    @castle = 1
+    @has_moved = 0
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
     @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-4, 0, 1], [3, 0, 1]]
@@ -235,8 +240,8 @@ class King < ChessPiece
   end
 
   def can_castle?(board, king_spot, rook, spot_number)
-    return false if @castle == 0
-    return false if !(rook.is_a?(Rook) && rook.castle == 1)
+    return false if @has_moved == 1
+    return false if !(rook.is_a?(Rook) && rook.has_moved == 0)
 
     (spot_number - 1).times do |i|
       spot = board[[[king_spot[0] - 1 - i], king_spot[1]]]
