@@ -32,7 +32,9 @@ class Chess
       origin, destination = player_move[0], player_move[1]
 
       if @board.validate_move(player_color, origin, destination)
-        promotion = [player.pawn_promote, player_color] if @board.can_promote?
+        if @board.can_promote?(origin, destination)
+          promotion = [player.pawn_promote, player_color]
+        end
         record_move(player_color, origin, destination)
         @board.update(origin, destination, promotion = 0)
         player == @white ? (player = @black) : (player = @white)
@@ -64,6 +66,7 @@ class Chess
   end
 
   def checkmate(player_color, board)
+=begin
     king_spot = @board.find_king(player_color)
     if @board.spot_in_check?(player_color, king_spot)
       @board.generate_moves(player_color, king_spot).each do |move|
@@ -74,6 +77,7 @@ class Chess
       print "\n#{winning_color} wins!"
       return true
     end
+=end
     false
   end
 
@@ -81,7 +85,7 @@ class Chess
     false
   end
 
-  def record_move(color, origin, destination, special_markers)
+  def record_move(color, origin, destination)
     piece = @board.spots[origin].letter
     if @board.spots[destination] != 0
       capture_indicator = 'x'
@@ -98,7 +102,7 @@ class Chess
       else
         @turn += 1
       end
-      file.write("#{piece}#{capture_indicator}#{move}#{special_markers[0]} ")
+      file.write("#{piece}#{capture_indicator}#{move}#{@markers[0]} ")
     end
   end
 end
