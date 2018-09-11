@@ -66,12 +66,13 @@ class Board
     piece = @board[origin]
     if piece.is_a?(Pawn)
       if (destination[1] - origin[1]).abs == 2
-        piece.double_moved = 1 
+        piece.double_moved = 1
       else
         piece.double_moved = 0
       end
-      piece.moves.pop if piece.moves.size == 4
-      @board[origin] = promotion if destination[1] == 8 || destination[1] == 1
+      if destination[1] == 8 || destination[1] == 1
+        @board[origin] = create_promotion_piece(promotion)
+      end
     elsif piece.is_a?(King) || piece.is_a?(Rook)
       piece.has_moved = 1
     end
@@ -103,11 +104,22 @@ class Board
     spot = @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}[0]
   end
 
-  def promotion_available?(origin, destination)
+  def can_promote?(origin, destination)
     piece = board[origin]
     rank = destination[1]
     return false if !(piece.is_a?(Pawn) && (rank == 8 || rank == 1))
     true
+  end
+
+  def create_promotion_piece(player_input)
+    piece_type = player_input[0]
+    color = player_input[1]
+    case piece_type
+      return Queen.new(color) when "Q"
+      return Rook.new(color) when "R"
+      return Knight.new(color) when "N"
+      return Bishop.new(color) when "B"
+    end
   end
 end
 
@@ -115,22 +127,22 @@ class ChessPiece
   attr_reader :color, :icon, :moves, :letter
 
   def generate_moves(board, spot)
-    moves = []
+    legal_spots = []
     @moves.each do |move|
       next_spot = increment_move(spot, move)
       move[2].times do
         break if board[next_spot] == nil
         break if board[next_spot] != 0 && board[next_spot].color == @color
-        moves << next_spot
+        legal_spots << next_spot
         break if board[next_spot] != 0
         next_spot = increment_move(next_spot, move)
       end
     end
-    moves
+    legal_spots
   end
 
   def increment_move(spot, move)
-    next_spot = [spot[0] + move[0], spot[1] + move[1]]
+    [spot[0] + move[0], spot[1] + move[1]]
   end
 
   def horizontal_distance(spot_a, spot_b)
@@ -139,7 +151,7 @@ class ChessPiece
 end
 
 class Pawn < ChessPiece
-  attr_accessor :moves, :en_passable
+  attr_accessor :double_moved
 
   def initialize(color)
     @color = color
@@ -151,37 +163,34 @@ class Pawn < ChessPiece
     @value = 1
   end
 
-  def generate_moves(board, spot)
-    moves = super
-      moves.dup.each do |move|
-        x_distance = move[0]
-        destination = increment_move(spot, move)
-        target_spot = board[destination]
-        if x_distance == 0 && target_spot != 0
-          moves -= [move]
-        elsif target_spot == 0
-          
-          moves -= [move] unless can_take_en_passant?(board, spot, destination)
+  def generate_moves(board, pawn_spot)
+    legal_spots = super
+    legal_spots.dup.each do |spot|
+      x_distance = horizontal_distance(pawn_spot, spot)
+      if x_distance == 0 && spot != 0
+        legal_spots -= [spot]
+      elsif spot == 0
+        legal_spots -= [spot] unless can_take_en_passant?(board, spot, destination)
       end
     end
-    moves
+    legal_spots
   end
 
-  def can_take_en_passant?(board, origin, destination)
+  def can_take_en_passant?(board, pawn_spot, destination)
     if @color == 'W'
-      pawn = board[[destination[0], destination[1] - 1]]
+      target_pawn = board[[destination[0], destination[1] - 1]]
     else
-      pawn = board[[destination[0], destination[1] + 1]]
+      target_pawn = board[[destination[0], destination[1] + 1]]
     end
-    return false if !(pawn.is_a?(Pawn) &&
-                      pawn.color != @color &&
-                      pawn.double_moved == 1)
+    return false if !(target_pawn.is_a?(Pawn) &&
+                      target_pawn.color != @color &&
+                      target_pawn.double_moved == 1)
     true
   end
 end
 
 class Rook < ChessPiece
-  attr_accessor :castle
+  attr_accessor :has_moved
 
   def initialize(color)
     @color = color
@@ -216,7 +225,7 @@ class Bishop < ChessPiece
 end
 
 class King < ChessPiece
-  attr_accessor :castle
+  attr_accessor :has_moved
 
   def initialize(color)
     @color = color
@@ -228,23 +237,27 @@ class King < ChessPiece
   end
 
   def generate_moves(board, king_spot)
-    moves = super
-    moves.dup.each do |move|
-      x_distance = move[0].abs
+    legal_spots = super
+    legal_spots.dup.each do |spot|
+      x_distance = horizontal_distance(king_spot, move)
       if x_distance > 1
-        rook = board.spots[increment_move(king_spot, move)]
-        moves -= [move] unless can_castle?(board, king_spot, rook, x_distance)
+        legal_spots -= [spot] unless can_castle?(board, king_spot, spot, x_distance)
+      else
+        legal_spots -= [spot] unless board.spot_in_check?(@color, spot)
       end
     end
-    true
+    legal_spots
   end
 
-  def can_castle?(board, king_spot, rook, spot_number)
+  def can_castle?(board, king_spot, move, x_distance)
+    rook = board.spots[move]
     return false if @has_moved == 1
     return false if !(rook.is_a?(Rook) && rook.has_moved == 0)
 
-    (spot_number - 1).times do |i|
-      spot = board[[[king_spot[0] - 1 - i], king_spot[1]]]
+    
+    x = (move[0]
+    (x_distance - 1).times do |i|
+      spot = board[[[x*(king_spot[0] - 1 - i)], king_spot[1]]]
       if spot != 0
         return false
       elsif board.spot_in_check?(@color, spot)
