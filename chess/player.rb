@@ -9,11 +9,11 @@ class Human < Player
   end
 
   def take_turn
-    input = gets
+    gets.chomp
   end
 
   def pawn_promote
-    input = gets
+    gets.chomp
   end
 end
 

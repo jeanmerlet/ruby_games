@@ -36,7 +36,7 @@ class Chess
           promotion = [player.pawn_promote, player_color]
         end
         record_move(player_color, origin, destination)
-        @board.update(origin, destination, promotion = 0)
+        @board.update(origin, destination, promotion)
         player == @white ? (player = @black) : (player = @white)
         player_color = player.color
       else

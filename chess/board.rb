@@ -62,17 +62,27 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination, promotion)
+  def update(origin, destination, promotion = 0)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
       if (destination[1] - origin[1]).abs == 2
         piece.double_moved = 1
       else
         piece.double_moved = 0
+        if piece.horizontal_distance(origin, destination) == 1 &&
+           @spots[destination] == 0
+          if piece.color == 'W'
+            passed_pawn_spot = [destination[0], destination[1] - 1]
+          else
+            passed_pawn_spot = [destination[0], destination[1] + 1]
+          end
+          @spots[passed_pawn_spot] = 0
+        end
       end
       if destination[1] == 8 || destination[1] == 1
         @spots[origin] = create_promotion_piece(promotion)
       end
+      piece.moves.pop if piece.moves.size == 4
     elsif piece.is_a?(King) || piece.is_a?(Rook)
       piece.has_moved = 1
     end
@@ -114,16 +124,13 @@ class Board
   def create_promotion_piece(player_input)
     piece_type = player_input[0]
     color = player_input[1]
-    case piece_type
-    when "Q"
-      return Queen.new(color)
-    when "R"
-      return Rook.new(color)
-    when "N"
-      return Knight.new(color) 
-    when "B"
-      return Bishop.new(color) 
+    promotion = case piece_type
+    when "Q" then Queen.new(color)
+    when "R" then Rook.new(color)
+    when "N" then Knight.new(color) 
+    when "B" then Bishop.new(color) 
     end
+    promotion
   end
 end
 
@@ -245,9 +252,9 @@ class King < ChessPiece
     legal_spots.dup.each do |spot|
       x_distance = horizontal_distance(king_spot, spot)
       if x_distance > 1
-        legal_spots -= [spot] unless can_castle?(board, king_spot, spot, x_distance)
+        legal_spots -= [spot] #unless can_castle?(board, king_spot, spot, x_distance)
       else
-        legal_spots -= [spot] if board.spot_in_check?(@color, spot)
+        #legal_spots -= [spot] if board.spot_in_check?(@color, spot)
       end
     end
     legal_spots
