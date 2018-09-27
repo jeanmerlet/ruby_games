@@ -93,9 +93,8 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    print piece.generate_moves(@spots, origin)
-    return false if !piece.generate_moves(@spots, origin).include?(destination)
-    #return false if piece.is_a?(King) && spot_in_check?(player_color, origin)
+    print piece.generate_moves(self, origin, true)
+    return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
 
@@ -103,7 +102,7 @@ class Board
     @spots.each do |spot, piece|
       if @spots[spot] != 0 &&
          @spots[spot].color != player_color &&
-         @spots[spot].generate_moves(@spots, spot).include?(king_spot)
+         @spots[spot].generate_moves(self, spot).include?(king_spot)
         return true
       end
     end
@@ -137,15 +136,16 @@ end
 class ChessPiece
   attr_reader :color, :icon, :moves, :letter
 
-  def generate_moves(board, spot)
+  def generate_moves(board, spot, check_for_check = false)
+    all_spots = board.spots
     legal_spots = []
     @moves.each do |move|
       next_spot = increment_move(spot, move)
       move[2].times do
-        break if board[next_spot] == nil
-        break if board[next_spot] != 0 && board[next_spot].color == @color
+        break if all_spots[next_spot] == nil
+        break if all_spots[next_spot] != 0 && all_spots[next_spot].color == @color
         legal_spots << next_spot
-        break if board[next_spot] != 0
+        break if all_spots[next_spot] != 0
         next_spot = increment_move(next_spot, move)
       end
     end
@@ -174,24 +174,25 @@ class Pawn < ChessPiece
     @value = 1
   end
 
-  def generate_moves(board, pawn_spot)
+  def generate_moves(board, pawn_spot, check_for_check = false)
+    all_spots = board.spots
     legal_spots = super
     legal_spots.dup.each do |spot|
       x_distance = horizontal_distance(pawn_spot, spot)
-      if x_distance == 0 && board[spot] != 0
+      if x_distance == 0 && all_spots[spot] != 0
         legal_spots -= [spot]
-      elsif x_distance != 0 && board[spot] == 0
-        legal_spots -= [spot] unless can_take_en_passant?(board, pawn_spot, spot)
+      elsif x_distance != 0 && all_spots[spot] == 0
+        legal_spots -= [spot] unless can_take_en_passant?(all_spots, pawn_spot, spot)
       end
     end
     legal_spots
   end
 
-  def can_take_en_passant?(board, pawn_spot, destination)
+  def can_take_en_passant?(all_spots, pawn_spot, destination)
     if @color == 'W'
-      target_pawn = board[[destination[0], destination[1] - 1]]
+      target_pawn = all_spots[[destination[0], destination[1] - 1]]
     else
-      target_pawn = board[[destination[0], destination[1] + 1]]
+      target_pawn = all_spots[[destination[0], destination[1] + 1]]
     end
     return false if !(target_pawn.is_a?(Pawn) &&
                       target_pawn.color != @color &&
@@ -247,27 +248,31 @@ class King < ChessPiece
     @value = 10000
   end
 
-  def generate_moves(board, king_spot)
+  def generate_moves(board, king_spot, check_for_check = false)
+    all_spots = board.spots
     legal_spots = super
     legal_spots.dup.each do |spot|
       x_distance = horizontal_distance(king_spot, spot)
-      if x_distance > 1
-        legal_spots -= [spot] #unless can_castle?(board, king_spot, spot, x_distance)
-      else
-        #legal_spots -= [spot] if board.spot_in_check?(@color, spot)
+      if check_for_check
+        if board.spot_in_check?(@color, spot)
+          legal_spots -= [spot]         
+        elsif x_distance > 1 && !can_castle?(board, king_spot, spot, x_distance)
+          legal_spots -= [spot]
+        end
       end
     end
     legal_spots
   end
 
   def can_castle?(board, king_spot, rook_spot, x_distance)
-    rook = board.spots[rook_spot]
+    all_spots = board.spots
+    rook = all_spots[rook_spot]
     return false if @has_moved == 1
     return false if !(rook.is_a?(Rook) && rook.has_moved == 0)
 
     x = (rook_spot[0] - king_spot[0] > 1 ? -1 : 1)
     (x_distance - 1).times do |i|
-      spot = board[[king_spot[0] - (x*(1 + i)), king_spot[1]]]
+      spot = all_spots[[king_spot[0] - (x*(1 + i)), king_spot[1]]]
       if spot != 0
         return false
       elsif board.spot_in_check?(@color, spot)

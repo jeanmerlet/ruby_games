@@ -24,7 +24,7 @@ class Chess
   def play
     player = @white
     player_color = @white.color
-    until checkmate(player_color, @board.spots) || draw(player_color)
+    until checkmate?(player_color) || draw?(player_color)
       @board.render
       check_for_check(player_color)
 
@@ -65,23 +65,20 @@ class Chess
     end
   end
 
-  def checkmate(player_color, board)
-=begin
+  def checkmate?(player_color)
     king_spot = @board.find_king(player_color)
+    king = @board.spots[king_spot]
     if @board.spot_in_check?(player_color, king_spot)
-      @board.generate_moves(player_color, king_spot).each do |move|
-        return false unless @board.spot_in_check?(player_color, move)
-      end
+      return false if king.generate_moves(@board, king_spot, true).size != 0
       winning_color = (player_color == 'W' ? 'Black' : 'White')
       print 'Checkmate'
       print "\n#{winning_color} wins!"
       return true
     end
-=end
     false
   end
 
-  def draw(player)
+  def draw?(player)
     false
   end
 
