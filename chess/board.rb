@@ -83,7 +83,15 @@ class Board
         @spots[origin] = create_promotion_piece(promotion)
       end
       piece.moves.pop if piece.moves.size == 4
-    elsif piece.is_a?(King) || piece.is_a?(Rook)
+    elsif piece.is_a?(King)
+      if piece.horizontal_distance(origin, destination) > 1
+        rook_origin, rook_destination = destination, destination
+        rook_origin[0] = (destination[0] == 2 ? 1 : 8)
+        rook_destination[0] = (destination[0] == 2 ? 3 : 6)
+        @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
+      end
+      2.times {piece.moves.pop} if piece.moves.size == 10
+    elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
     @spots[origin], @spots[destination] = 0, @spots[origin]
@@ -93,7 +101,7 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    print piece.generate_moves(self, origin, true)
+    #print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
@@ -241,10 +249,9 @@ class King < ChessPiece
 
   def initialize(color)
     @color = color
-    @has_moved = 0
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
-    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-4, 0, 1], [3, 0, 1]]
+    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-3, 0, 1], [2, 0, 1]]
     @value = 10000
   end
 
@@ -255,27 +262,33 @@ class King < ChessPiece
       x_distance = horizontal_distance(king_spot, spot)
       if check_for_check
         if board.spot_in_check?(@color, spot)
+          print "spot in check"
           legal_spots -= [spot]         
         elsif x_distance > 1 && !can_castle?(board, king_spot, spot, x_distance)
+          print "can't castle"
           legal_spots -= [spot]
         end
       end
     end
+    print legal_spots
     legal_spots
   end
 
-  def can_castle?(board, king_spot, rook_spot, x_distance)
+  def can_castle?(board, king_spot, destination, x_distance)
     all_spots = board.spots
+    rook_spot = destination
+    rook_spot[0] = (destination[0] == 2 ? 1 : 8)
     rook = all_spots[rook_spot]
-    return false if @has_moved == 1
     return false if !(rook.is_a?(Rook) && rook.has_moved == 0)
 
-    x = (rook_spot[0] - king_spot[0] > 1 ? -1 : 1)
-    (x_distance - 1).times do |i|
-      spot = all_spots[[king_spot[0] - (x*(1 + i)), king_spot[1]]]
+    x = (destination[0] == 2 ? -1 : 1)
+    x_distance.times do |i|
+      spot = all_spots[[king_spot[0] + (x*(1 + i)), king_spot[1]]]
       if spot != 0
+        print 'non_empty'
         return false
       elsif board.spot_in_check?(@color, spot)
+        print 'in_check'
         return false
       end
     end

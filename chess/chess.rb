@@ -69,11 +69,16 @@ class Chess
     king_spot = @board.find_king(player_color)
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player_color, king_spot)
-      return false if king.generate_moves(@board, king_spot, true).size != 0
-      winning_color = (player_color == 'W' ? 'Black' : 'White')
-      print 'Checkmate'
-      print "\n#{winning_color} wins!"
-      return true
+      if king.generate_moves(@board, king_spot, true).size != 0
+        return false 
+      elsif true #player can't move a different piece to end check
+        return false
+      else
+        winning_color = (player_color == 'W' ? 'Black' : 'White')
+        print 'Checkmate'
+        print "\n#{winning_color} wins!"
+        return true
+      end
     end
     false
   end
