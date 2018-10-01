@@ -85,7 +85,7 @@ class Board
       piece.moves.pop if piece.moves.size == 4
     elsif piece.is_a?(King)
       if piece.horizontal_distance(origin, destination) > 1
-        rook_origin, rook_destination = destination, destination
+        rook_origin, rook_destination = destination.dup, destination.dup
         rook_origin[0] = (destination[0] == 2 ? 1 : 8)
         rook_destination[0] = (destination[0] == 2 ? 3 : 6)
         @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
@@ -101,7 +101,7 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    #print piece.generate_moves(self, origin, true)
+    print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
@@ -258,25 +258,23 @@ class King < ChessPiece
   def generate_moves(board, king_spot, check_for_check = false)
     all_spots = board.spots
     legal_spots = super
-    legal_spots.dup.each do |spot|
-      x_distance = horizontal_distance(king_spot, spot)
-      if check_for_check
+    if check_for_check
+      legal_spots.dup.each do |spot|
+        x_distance = horizontal_distance(king_spot, spot)
         if board.spot_in_check?(@color, spot)
-          print "spot in check"
           legal_spots -= [spot]         
         elsif x_distance > 1 && !can_castle?(board, king_spot, spot, x_distance)
-          print "can't castle"
           legal_spots -= [spot]
+        else
         end
       end
     end
-    print legal_spots
     legal_spots
   end
 
   def can_castle?(board, king_spot, destination, x_distance)
     all_spots = board.spots
-    rook_spot = destination
+    rook_spot = destination.dup
     rook_spot[0] = (destination[0] == 2 ? 1 : 8)
     rook = all_spots[rook_spot]
     return false if !(rook.is_a?(Rook) && rook.has_moved == 0)
@@ -285,10 +283,8 @@ class King < ChessPiece
     x_distance.times do |i|
       spot = all_spots[[king_spot[0] + (x*(1 + i)), king_spot[1]]]
       if spot != 0
-        print 'non_empty'
         return false
       elsif board.spot_in_check?(@color, spot)
-        print 'in_check'
         return false
       end
     end
