@@ -1,7 +1,7 @@
 require 'colorize'
 
 class Board
-  attr_reader :spots
+  attr_accessor :spots
 
   def initialize
     #hash with [x, y] coordinate arrays as keys and 0 as default values
@@ -106,11 +106,11 @@ class Board
     true
   end
 
-  def spot_in_check?(player_color, king_spot)
+  def spot_in_check?(player_color, target_spot)
     @spots.each do |spot, piece|
       if @spots[spot] != 0 &&
          @spots[spot].color != player_color &&
-         @spots[spot].generate_moves(self, spot).include?(king_spot)
+         @spots[spot].generate_moves(self, spot).include?(target_spot)
         return true
       end
     end

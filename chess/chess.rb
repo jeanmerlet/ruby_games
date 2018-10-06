@@ -12,10 +12,11 @@ class Chess
     @board.place_pieces
     @white = Human.new('W')
     @black = Human.new('B')
-    @turn = 1
-    @markers = ['', 'x', '=', '0 - 0']
-    File.open('game.pgn', 'w+') {|f| }
+    @log = Log.new
     play
+  end
+
+  def save_game
   end
 
   def load_game
@@ -23,27 +24,28 @@ class Chess
 
   def play
     player = @white
-    player_color = @white.color
-    until checkmate?(player_color) || draw?(player_color)
+    until checkmate?(player) || draw?(player)
       @board.render
-      check_for_check(player_color)
 
+      if @board.spot_in_check?(player.color, @board.find_king(player.color))
+        check_message
+      end
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
 
-      if @board.validate_move(player_color, origin, destination)
+      if @board.validate_move(player.color, origin, destination)
         if @board.can_promote?(origin, destination)
-          promotion = [player.pawn_promote, player_color]
+          promotion = [player.pawn_promote, player.color]
         end
-        record_move(player_color, origin, destination)
+        #@log.record_move(player, origin, destination)
         @board.update(origin, destination, promotion)
         player == @white ? (player = @black) : (player = @white)
-        player_color = player.color
       else
         puts 'INVALID MOVE LOL'
       end
     end
     @board.render
+    win(player)
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -55,39 +57,70 @@ class Chess
     output
   end
 
-  def check_for_check(player_color)
-    king_spot = @board.find_king(player_color)
-    if @board.spot_in_check?(player_color, king_spot)
-      puts 'Check!'
-      @markers[0] = '+'
-    else
-      @markers[0] = ''
-    end
+  def check_message
+    puts 'Check!'
   end
 
-  def checkmate?(player_color)
-    king_spot = @board.find_king(player_color)
+  def checkmate?(player)
+    king_spot = @board.find_king(player.color)
     king = @board.spots[king_spot]
-    if @board.spot_in_check?(player_color, king_spot)
+    if @board.spot_in_check?(player.color, king_spot)
       if king.generate_moves(@board, king_spot, true).size != 0
         return false 
-      elsif true #player can't move a different piece to end check
-        return false
-      else
-        winning_color = (player_color == 'W' ? 'Black' : 'White')
-        print 'Checkmate'
-        print "\n#{winning_color} wins!"
+      elsif !non_king_piece_can_prevent_check?(player, king_spot)
         return true
       end
     end
     false
   end
 
-  def draw?(player)
+  def non_king_piece_can_prevent_check?(player, king_spot)
+    clone_board = @board.dup
+    clone_board.spots = @board.spots.dup
+    
+    @board.spots.each do |spot, piece|
+      current_spot = @board.spots[spot]
+      if current_spot != 0 && current_spot.color == player.color
+        moves = @board.spots[spot].generate_moves(@board, spot)
+        moves.each do |move|
+          clone_board.update(spot, move)
+          return true if !clone_board.spot_in_check?(player.color, king_spot)
+          clone_board.spots = @board.spots.dup
+        end
+      end
+    end
     false
   end
 
-  def record_move(color, origin, destination)
+  def win(player)
+    winning_color = (player.color == 'W' ? 'Black' : 'White')
+    puts "\nCheckmate!"
+    puts "#{winning_color} wins."
+  end
+
+  def draw?(player)
+    false
+  end
+end
+
+class Log
+  attr_accessor :savefile, :markers
+
+  def initialize
+    @savefile = File.open('game.pgn', 'w+') {|f|}
+    @turn = 1
+    @last_move = 0
+    @undo = 0
+    @markers = ['', 'x', '=', '0 - 0']
+  end
+
+  def undo(player, move)
+  end
+
+  def redo(player, move)
+  end
+
+  def record_move(player, move)
     piece = @board.spots[origin].letter
     if @board.spots[destination] != 0
       capture_indicator = 'x'
