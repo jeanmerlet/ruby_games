@@ -65,36 +65,44 @@ class Board
   def update(origin, destination, promotion = 0)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
-      if (destination[1] - origin[1]).abs == 2
-        piece.double_moved = 1
-      else
-        piece.double_moved = 0
-        if piece.horizontal_distance(origin, destination) == 1 &&
-           @spots[destination] == 0
-          if piece.color == 'W'
-            passed_pawn_spot = [destination[0], destination[1] - 1]
-          else
-            passed_pawn_spot = [destination[0], destination[1] + 1]
-          end
-          @spots[passed_pawn_spot] = 0
-        end
-      end
-      if destination[1] == 8 || destination[1] == 1
-        @spots[origin] = create_promotion_piece(promotion)
-      end
-      piece.moves.pop if piece.moves.size == 4
+      pawn_update(piece, origin, destination, promotion)
     elsif piece.is_a?(King)
-      if piece.horizontal_distance(origin, destination) > 1
-        rook_origin, rook_destination = destination.dup, destination.dup
-        rook_origin[0] = (destination[0] == 2 ? 1 : 8)
-        rook_destination[0] = (destination[0] == 2 ? 3 : 6)
-        @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
-      end
-      2.times {piece.moves.pop} if piece.moves.size == 10
+      king_update(piece, origin, destination)
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
     @spots[origin], @spots[destination] = 0, @spots[origin]
+  end
+
+  def pawn_update(piece, origin, destination, promotion)
+    if (destination[1] - origin[1]).abs == 2
+      piece.double_moved = 1
+    else
+      piece.double_moved = 0
+      if piece.horizontal_distance(origin, destination) == 1 &&
+         @spots[destination] == 0
+        if piece.color == 'W'
+          passed_pawn_spot = [destination[0], destination[1] - 1]
+        else
+          passed_pawn_spot = [destination[0], destination[1] + 1]
+        end
+        @spots[passed_pawn_spot] = 0
+      end
+    end
+    if destination[1] == 8 || destination[1] == 1
+      @spots[origin] = create_promotion_piece(promotion)
+    end
+    piece.moves.pop if piece.moves.size == 4
+  end
+
+  def king_update(piece, origin, destination)
+    if piece.horizontal_distance(origin, destination) > 1
+      rook_origin, rook_destination = destination.dup, destination.dup
+      rook_origin[0] = (destination[0] == 2 ? 1 : 8)
+      rook_destination[0] = (destination[0] == 2 ? 3 : 6)
+      @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
+    end
+    2.times {piece.moves.pop} if piece.moves.size == 10
   end
 
   def validate_move(player_color, origin, destination)
@@ -108,9 +116,9 @@ class Board
 
   def spot_in_check?(player_color, target_spot)
     @spots.each do |spot, piece|
-      if @spots[spot] != 0 &&
-         @spots[spot].color != player_color &&
-         @spots[spot].generate_moves(self, spot).include?(target_spot)
+      piece = @spots[spot]
+      if piece != 0 && piece.color != player_color &&
+         piece.generate_moves(self, spot).include?(target_spot)
         return true
       end
     end

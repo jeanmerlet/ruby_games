@@ -45,7 +45,7 @@ class Chess
       end
     end
     @board.render
-    win(player)
+    new_game
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -57,30 +57,28 @@ class Chess
     output
   end
 
-  def check_message
-    puts 'Check!'
-  end
-
   def checkmate?(player)
     king_spot = @board.find_king(player.color)
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player.color, king_spot)
       if king.generate_moves(@board, king_spot, true).size != 0
         return false 
-      elsif !non_king_piece_can_prevent_check?(player, king_spot)
+      elsif !non_king_move_can_prevent_check?(player, king_spot)
+        checkmate
+        win(player)
         return true
       end
     end
     false
   end
 
-  def non_king_piece_can_prevent_check?(player, king_spot)
+  def non_king_move_can_prevent_check?(player, king_spot)
     clone_board = @board.dup
     clone_board.spots = @board.spots.dup
     
     @board.spots.each do |spot, piece|
-      current_spot = @board.spots[spot]
-      if current_spot != 0 && current_spot.color == player.color
+      piece = @board.spots[spot]
+      if piece != 0 && piece.color == player.color
         moves = @board.spots[spot].generate_moves(@board, spot)
         moves.each do |move|
           clone_board.update(spot, move)
@@ -92,14 +90,49 @@ class Chess
     false
   end
 
+  def draw?(player)
+    color = player.color
+    spots = @board.spots
+    if stalemate?(spots, color) || threefold_repetition || fifty_move_rule
+      return true
+    end
+    false
+  end
+
+  def stalemate?(spots, color)
+    if !@board.spot_in_check?(color, @board.find_king(color))
+      spots.each do |spot, piece|
+        piece = spots[spot]
+        if piece != 0 && piece.color == color && piece.generate_moves.size != 0
+          return false
+        end
+        stalemate
+        return true
+      end
+    end
+  end
+
+  def threefold_repetition
+  end
+
+  def fifty_move_rule
+  end
+
   def win(player)
     winning_color = (player.color == 'W' ? 'Black' : 'White')
-    puts "\nCheckmate!"
     puts "#{winning_color} wins."
   end
 
-  def draw?(player)
-    false
+  def checkmate
+    puts 'Checkmate!'
+  end
+
+  def stalemate
+    puts 'Stalemate!'
+  end
+
+  def check_message
+    puts 'Check!'
   end
 end
 
