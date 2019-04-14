@@ -1,5 +1,6 @@
 require './board.rb'
 require './player.rb'
+require './log.rb'
 
 class Chess
 
@@ -38,7 +39,7 @@ class Chess
         if @board.can_promote?(origin, destination)
           promotion = [player.pawn_promote, player.color]
         end
-        #@log.record_move(player, origin, destination)
+        @log.record_move(@board, player, player_move)
         @board.update(origin, destination, promotion)
         player == @white ? (player = @black) : (player = @white)
       else
@@ -136,46 +137,6 @@ class Chess
 
   def check_message
     puts 'Check!'
-  end
-end
-
-class Log
-  attr_accessor :savefile, :markers
-
-  def initialize
-    @savefile = File.open('game.pgn', 'w+') {|f|}
-    @round = 0
-    @turn = 1
-    @last_move = 0
-    @undo = 0
-    @markers = ['x', '=', '+', '#', 'O-O', 'O-O-O']
-  end
-
-  def undo(player, move)
-  end
-
-  def redo(player, move)
-  end
-
-  def record_move(player, move)
-    piece = @board.spots[origin].letter
-    if @board.spots[destination] != 0
-      capture_indicator = 'x'
-    else
-      capture_indicator = ''
-    end
-
-    #converts ex: [1, 4] to 'a4'
-    move = @letter_index[destination[0]-1] + destination[1].to_s
-
-    File.open('game.pgn', 'a') do |file|
-      if color == 'W'
-        file.write("#{@turn}. ")
-      else
-        @turn += 1
-      end
-      file.write("#{piece}#{capture_indicator}#{move}#{@markers[0]} ")
-    end
   end
 end
 
