@@ -13,6 +13,7 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @log = Log.new
+    sleep 2
     play
   end
 
@@ -102,13 +103,15 @@ class Chess
   def stalemate?(spots, color)
     if !@board.spot_in_check?(color, @board.find_king(color))
       spots.each do |spot, piece|
-        piece = spots[spot]
-        if piece != 0 && piece.color == color && piece.generate_moves.size != 0
+        current_piece = spots[spot]
+        if current_piece != 0 &&
+           current_piece.color == color &&
+           current_piece.generate_moves(@board, spot).size != 0
           return false
         end
-        stalemate
-        return true
       end
+      stalemate
+      return true
     end
   end
 
@@ -141,10 +144,11 @@ class Log
 
   def initialize
     @savefile = File.open('game.pgn', 'w+') {|f|}
+    @round = 0
     @turn = 1
     @last_move = 0
     @undo = 0
-    @markers = ['', 'x', '=', '0 - 0']
+    @markers = ['x', '=', '+', '#', 'O-O', 'O-O-O']
   end
 
   def undo(player, move)
