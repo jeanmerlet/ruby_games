@@ -39,7 +39,8 @@ class Chess
         if @board.can_promote?(origin, destination)
           promotion = [player.pawn_promote, player.color]
         end
-        @log.record_move(@board, player, player_move)
+        rankfile = player_input[2..3]
+        @log.record_move(@board, player, origin, destination, promotion)
         @board.update(origin, destination, promotion)
         player == @white ? (player = @black) : (player = @white)
       else
