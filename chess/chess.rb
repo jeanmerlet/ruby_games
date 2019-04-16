@@ -14,7 +14,6 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @log = Log.new
-    sleep 2
     play
   end
 
@@ -39,7 +38,6 @@ class Chess
         if @board.can_promote?(origin, destination)
           promotion = [player.pawn_promote, player.color]
         end
-        rankfile = player_input[2..3]
         @log.record_move(@board, player, origin, destination, promotion)
         @board.update(origin, destination, promotion)
         player == @white ? (player = @black) : (player = @white)
