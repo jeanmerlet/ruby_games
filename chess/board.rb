@@ -6,6 +6,7 @@ class Board
   def initialize
     #hash with [x, y] coordinate arrays as keys and 0 as default values
     @spots = Hash[[*1..8].repeated_permutation(2).map {|x| [x, 0]}]
+    @promotion = false
   end
 
   def place_pieces
@@ -62,10 +63,10 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination, promotion = 0)
+  def update(origin, destination)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
-      pawn_update(piece, origin, destination, promotion)
+      pawn_update(piece, origin, destination)
     elsif piece.is_a?(King)
       king_update(piece, origin, destination)
     elsif piece.is_a?(Rook)
@@ -74,7 +75,7 @@ class Board
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
-  def pawn_update(piece, origin, destination, promotion)
+  def pawn_update(piece, origin, destination)
     if (destination[1] - origin[1]).abs == 2
       piece.double_moved = 1
     else
@@ -90,7 +91,7 @@ class Board
       end
     end
     if destination[1] == 8 || destination[1] == 1
-      @spots[origin] = create_promotion_piece(promotion)
+      @spots[origin] = create_promotion_piece(@promotion)
     end
     piece.moves.pop if piece.moves.size == 4
   end
@@ -129,16 +130,16 @@ class Board
     spot = @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}[0]
   end
 
-  def can_promote?(origin, destination)
+  def need_promote?(origin, destination)
     piece = @spots[origin]
     rank = destination[1]
     return false if !(piece.is_a?(Pawn) && (rank == 8 || rank == 1))
     true
   end
 
-  def create_promotion_piece(player_input)
-    piece_type = player_input[0]
-    color = player_input[1]
+  def create_promotion_piece
+    piece_type = @promotion[0]
+    color = @promotion[1]
     promotion = case piece_type
     when "Q" then Queen.new(color)
     when "R" then Rook.new(color)
@@ -264,7 +265,7 @@ class King < ChessPiece
   end
 
   def generate_moves(board, king_spot, check_for_check = false)
-    all_spots = board.spots
+    #all_spots = board.spots
     legal_spots = super
     if check_for_check
       legal_spots.dup.each do |spot|

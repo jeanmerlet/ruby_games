@@ -25,28 +25,32 @@ class Chess
 
   def play
     player = @white
-    until checkmate?(player) || draw?(player)
+    until checkmate(player) || draw?(player)
       @board.render
 
       if @board.spot_in_check?(player.color, @board.find_king(player.color))
         check_message
+        @log.uncommon[:check] = true
+      else
+        @log.uncommon[:check] = false
       end
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
 
       if @board.validate_move(player.color, origin, destination)
-        if @board.can_promote?(origin, destination)
-          promotion = [player.pawn_promote, player.color]
+        if @board.need_promote?(origin, destination)
+          @board.promotion = [player.pawn_promote, player.color]
+          @log.uncommon[promotion] = @board.promotion[0]
         end
-        @log.record_move(@board, player, origin, destination, promotion)
-        @board.update(origin, destination, promotion)
+        @log.record_move(@board, player, origin, destination)
+        @board.update(origin, destination)
         player == @white ? (player = @black) : (player = @white)
       else
         puts 'INVALID MOVE LOL'
       end
     end
     @board.render
-    new_game
+    #new_game
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -58,14 +62,15 @@ class Chess
     output
   end
 
-  def checkmate?(player)
+  def checkmate(player)
     king_spot = @board.find_king(player.color)
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player.color, king_spot)
       if king.generate_moves(@board, king_spot, true).size != 0
         return false 
       elsif !non_king_move_can_prevent_check?(player, king_spot)
-        checkmate
+        #puts "Checkmate #{player.name}!"
+        @log.uncommon[checkmate] = true
         win(player)
         return true
       end
@@ -94,13 +99,13 @@ class Chess
   def draw?(player)
     color = player.color
     spots = @board.spots
-    if stalemate?(spots, color) || threefold_repetition || fifty_move_rule
+    if stalemate(spots, color) || threefold_repetition || fifty_move_rule
       return true
     end
     false
   end
 
-  def stalemate?(spots, color)
+  def stalemate(spots, color)
     if !@board.spot_in_check?(color, @board.find_king(color))
       spots.each do |spot, piece|
         current_piece = spots[spot]
@@ -110,7 +115,7 @@ class Chess
           return false
         end
       end
-      stalemate
+      puts 'Stalemate!'
       return true
     end
   end
@@ -124,14 +129,6 @@ class Chess
   def win(player)
     winning_color = (player.color == 'W' ? 'Black' : 'White')
     puts "#{winning_color} wins."
-  end
-
-  def checkmate
-    puts 'Checkmate!'
-  end
-
-  def stalemate
-    puts 'Stalemate!'
   end
 
   def check_message

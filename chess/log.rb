@@ -1,13 +1,14 @@
 class Log
-  attr_accessor :savefile
+  attr_accessor :savefile, :uncommon
 
   def initialize
     @savefile = File.open('game.pgn', 'w+') {|f|}
     @round = 1
     @letter_index = ("a".."h").to_a
+    @uncommon = { promotion: false, castle: false, check: false, checkmate: false }
   end
 
-  def record_move(board, player, origin, destination, promotion = "")
+  def record_move(board, player, origin, destination)
     piece = board.spots[origin]
     target_spot = board.spots[destination]
     File.open('game.pgn', 'a') do |file|
@@ -20,8 +21,12 @@ class Log
       piece_letter << disambiguation(board, piece, origin, destination)
       capture = (board.spots[destination] == 0 ? "" : "x")
       rankfile = @letter_index[destination[0] - 1].to_s + destination[1].to_s
+      promotion = ("=" + @uncommon[:promotion]) if @uncommon[:promotion]
+      check = "+" if @uncommon[:check]
+      check = "#" if @uncommon[:checkmate]
+      #castle = @uncommon[:castle][1] if @uncommon[:castle][0]
 
-      file.write("#{piece_letter}#{capture}#{rankfile}#{promotion} ")
+      file.write("#{piece_letter}#{capture}#{rankfile}#{promotion}#{check} ")
     end
   end
 
