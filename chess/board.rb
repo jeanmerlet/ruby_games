@@ -66,9 +66,9 @@ class Board
   def update(origin, destination, log)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
-      pawn_update(piece, origin, destination)
+      pawn_update(piece, origin, destination, log)
     elsif piece.is_a?(King)
-      castle_update(piece, origin, destination)
+      castle_update(piece, origin, destination, log)
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
@@ -87,7 +87,7 @@ class Board
         else
           passed_pawn_spot = [destination[0], destination[1] + 1]
         end
-        log.uncommon[:en_passant] = "e.p."
+        log.uncommon[:en_passant] = true
         @spots[passed_pawn_spot] = 0
       end
     end

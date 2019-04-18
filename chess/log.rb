@@ -17,26 +17,28 @@ class Log
         file.write("\n#{@round}. ")
         @round += 1
       end
-      determine_strings(player, board, piece, origin, destination)
-      file.write("#{piece_letter}#{capture}#{rankfile}#{promotion}#{check} ")
+
+      letter = piece.letter
+      letter << disambiguation(board, piece, origin, destination)
+
+      capture = (board.spots[destination] == 0 ? "" : "x")
+      capture = "x" if @uncommon[:en_passant]
+      rankfile = @letter_index[destination[0] - 1].to_s + destination[1].to_s
+      if @uncommon[:promotion]
+        promotion = ("=" + @uncommon[:promotion])
+      else
+        promotion = ""
+      end
+      check = "+" if @uncommon[:check]
+      check = "#" if @uncommon[:checkmate]
+
+      if @uncommon[:castle]
+        file.write("#{@uncommon[:castle]} ")
+      else
+        file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
+      end
     end
     reset_uncommon
-  end
-
-  def determine_strings(player, board, piece, origin, destination)
-    piece_letter = piece.letter
-    piece_letter << disambiguation(board, piece, origin, destination)
-
-    capture = (board.spots[destination] == 0 ? "" : "x")
-    rankfile = @letter_index[destination[0] - 1].to_s + destination[1].to_s
-    promotion = ("=" + @uncommon[:promotion]) if @uncommon[:promotion]
-    check = "+" if @uncommon[:check]
-    check = "#" if @uncommon[:checkmate]
-    if @uncommon[:en_passant]
-      ep = "e.p."
-    end
-    #castle = @uncommon[:castle][1] if @uncommon[:castle][0]
-
   end
 
   def reset_uncommon
