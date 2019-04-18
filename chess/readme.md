@@ -2,7 +2,7 @@ Hello! Welcome to the readme for my command-line Ruby chess game for 2-player ho
 
 All standard chess rules have been coded, including king- and queen-side castling, pawn en-passant captures, and pawn promotions.
 
-The game auto-detects check, checkmate, and the 4 draw conditions: stalemate, "dead position", threefold repetition, and the fifty-move rule.
+The game auto-detects check, checkmate, and the 4 draw conditions: stalemate, "dead position", threefold repetition, and the fifty-move rule. (almost)
 
 All games are saved in the Portable Game Notation (PGN) standard for chess programs in a game.pgn file that should be compatible with all other PGN-compliant chess programs.
 
