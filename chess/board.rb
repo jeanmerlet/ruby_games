@@ -63,19 +63,19 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination)
+  def update(origin, destination, log)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
       pawn_update(piece, origin, destination)
     elsif piece.is_a?(King)
-      king_update(piece, origin, destination)
+      castle_update(piece, origin, destination)
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
-  def pawn_update(piece, origin, destination)
+  def pawn_update(piece, origin, destination, log)
     if (destination[1] - origin[1]).abs == 2
       piece.double_moved = 1
     else
@@ -87,6 +87,7 @@ class Board
         else
           passed_pawn_spot = [destination[0], destination[1] + 1]
         end
+        log.uncommon[:en_passant] = "e.p."
         @spots[passed_pawn_spot] = 0
       end
     end
@@ -96,11 +97,18 @@ class Board
     piece.moves.pop if piece.moves.size == 4
   end
 
-  def king_update(piece, origin, destination)
-    if piece.horizontal_distance(origin, destination) > 1
+  def castle_update(king, origin, destination, log)
+    if king.horizontal_distance(origin, destination) > 1
       rook_origin, rook_destination = destination.dup, destination.dup
-      rook_origin[0] = (destination[0] == 2 ? 1 : 8)
-      rook_destination[0] = (destination[0] == 2 ? 3 : 6)
+      if destination[0] == 2
+        rook_origin[0] == 1
+        rook_destination[0] == 3
+        log.uncommon[:castle] = "O-O"
+      else
+        rook_origin[0] == 8
+        rook_destination[0] == 6
+        log.uncommon[:castle] = "O-O-O"
+      end
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
     2.times {piece.moves.pop} if piece.moves.size == 10

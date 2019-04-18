@@ -43,7 +43,7 @@ class Chess
           @log.uncommon[promotion] = @board.promotion[0]
         end
         @log.record_move(@board, player, origin, destination)
-        @board.update(origin, destination)
+        @board.update(origin, destination, @log)
         player == @white ? (player = @black) : (player = @white)
       else
         puts 'INVALID MOVE LOL'
