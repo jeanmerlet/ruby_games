@@ -1,11 +1,17 @@
-class Log
+class Logger
   attr_accessor :savefile, :uncommon
 
   def initialize
-    @savefile = File.open('game.pgn', 'w+') {|f|}
+    @savefile = File.open('game.pgn', 'w+')
+    @filename = 'game.pgn'
     @round = 1
     @letter_index = ("a".."h").to_a
     @uncommon = { promotion: false, castle: false, check: false, checkmate: false, en_passant: false }
+  end
+
+  def change_file(filename)
+    @savefile = File.open(filename, 'w+')
+    @filename = filename
   end
 
   def record_move(board, player, origin, destination)

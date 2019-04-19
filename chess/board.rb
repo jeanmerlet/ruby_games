@@ -63,19 +63,19 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination, log)
+  def update(origin, destination, logger)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
-      pawn_update(piece, origin, destination, log)
+      pawn_update(piece, origin, destination, logger)
     elsif piece.is_a?(King)
-      castle_update(piece, origin, destination, log)
+      castle_update(piece, origin, destination, logger)
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
-  def pawn_update(piece, origin, destination, log)
+  def pawn_update(piece, origin, destination, logger)
     if (destination[1] - origin[1]).abs == 2
       piece.double_moved = 1
     else
@@ -97,7 +97,7 @@ class Board
     piece.moves.pop if piece.moves.size == 4
   end
 
-  def castle_update(king, origin, destination, log)
+  def castle_update(king, origin, destination, logger)
     if king.horizontal_distance(origin, destination) > 1
       rook_origin, rook_destination = destination.dup, destination.dup
       if destination[0] == 2

@@ -13,14 +13,27 @@ class Chess
     @board.place_pieces
     @white = Human.new('W')
     @black = Human.new('B')
-    @log = Log.new
+    @logger = Logger.new
     play
+    #menu
   end
 
-  def save_game
+  def menu
+    load_game(gets.chomp)
   end
 
-  def load_game
+  def load_game(filename)
+    @logger.change_file(filename)
+    bring_game_current
+  end
+
+  def bring_game_current(render = true)
+    File.open(@logger.filename, 'w+') do |file|
+      
+
+
+      @logger.round = "latestroundinthefile, ofcourse"
+    end
   end
 
   def play
@@ -30,9 +43,9 @@ class Chess
 
       if @board.spot_in_check?(player.color, @board.find_king(player.color))
         check_message
-        @log.uncommon[:check] = true
+        @logger.uncommon[:check] = true
       else
-        @log.uncommon[:check] = false
+        @logger.uncommon[:check] = false
       end
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
@@ -40,10 +53,10 @@ class Chess
       if @board.validate_move(player.color, origin, destination)
         if @board.need_promote?(origin, destination)
           @board.promotion = [player.pawn_promote, player.color]
-          @log.uncommon[promotion] = @board.promotion[0]
+          @logger.uncommon[promotion] = @board.promotion[0]
         end
-        @log.record_move(@board, player, origin, destination)
-        @board.update(origin, destination, @log)
+        @logger.record_move(@board, player, origin, destination)
+        @board.update(origin, destination, @logger)
         player == @white ? (player = @black) : (player = @white)
       else
         puts 'INVALID MOVE LOL'
@@ -70,7 +83,7 @@ class Chess
         return false 
       elsif !non_king_move_can_prevent_check?(player, king_spot)
         #puts "Checkmate #{player.name}!"
-        @log.uncommon[checkmate] = true
+        @logger.uncommon[checkmate] = true
         win(player)
         return true
       end
