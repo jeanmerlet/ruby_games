@@ -1,3 +1,39 @@
+class Serialize
+
+  def initialize
+  end
+
+  def load_game(filename)
+    @logger.change_file(filename)
+    data = read_file(filename)
+    data = standardize_file_format(data)
+    bring_game_current(data)
+  end
+
+  def standardize_file_format(data)
+    data
+  end
+
+  def read_file(filename)
+    File.read(filename)
+  end
+
+  def bring_game_current(data, render = true)
+    rounds = data.scan(/(\d+[.]\s?\S+\s\S+)/).flatten
+    rounds.each do |round|
+      moves = round.scan(/[.]\s?(\S+)\s(\S+)/).flatten
+      moves.each do |move|
+        move = parse_SAN(move)
+        origin, destination = move[0], move[1]
+        @logger.record_move(@board, player, origin, destination)
+        @board.update(origin, destination, @logger)
+        @board.render if render
+      end
+    end
+    #round = "latestroundinthefile, ofcourse"
+  end
+end
+
 class Logger
   attr_accessor :savefile, :uncommon
 

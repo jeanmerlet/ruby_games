@@ -1,6 +1,6 @@
 require './board.rb'
 require './player.rb'
-require './log.rb'
+require './record.rb'
 
 class Chess
 
@@ -20,20 +20,6 @@ class Chess
 
   def menu
     load_game(gets.chomp)
-  end
-
-  def load_game(filename)
-    @logger.change_file(filename)
-    bring_game_current
-  end
-
-  def bring_game_current(render = true)
-    File.open(@logger.filename, 'w+') do |file|
-      
-
-
-      @logger.round = "latestroundinthefile, ofcourse"
-    end
   end
 
   def play
