@@ -1,6 +1,7 @@
 class Serialize
 
   def initialize
+    @letter_index = ("a".."h").to_a
   end
 
   def load_game(filename)
@@ -31,6 +32,17 @@ class Serialize
       end
     end
     #round = "latestroundinthefile, ofcourse"
+  end
+
+  def parse_SAN(move)
+    move_parts = move.match(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
+    piece = move_parts[0]
+    start_file_rank = move_parts[1]
+    end_file_rank = move_parts[2]
+
+    
+    
+    "#{start_file_rank}#{end_file_rank}"
   end
 end
 
