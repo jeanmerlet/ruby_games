@@ -135,7 +135,15 @@ class Board
   end
 
   def find_king(color)
-    spot = @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}[0]
+    @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}.first
+  end
+
+  def find_SAN_piece(piece_type, color, destination, file)
+    @spots.find do |spot, piece|
+      @spots[spot] != 0 && piece.letter == piece_type && piece.color == color 
+        && piece.generate_moves.include?(destination)
+        && (@letter_index.index(file) + 1) == @spots[spot][0] if file != ""
+    end.first
   end
 
   def need_promote?(origin, destination)

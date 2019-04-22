@@ -6,24 +6,29 @@ class Chess
 
   def initialize
     @letter_index = [*('a'..'h')]
-  end
-
-  def new_game
     @board = Board.new
     @board.place_pieces
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
+  end
+
+  def new_game
     play
-    #menu
   end
 
   def menu
+    #play
     load_game(gets.chomp)
   end
 
+  def load_game(filename)
+    file_loader = Serialize.new
+    file_loader.restore(filename, @board, @white, @black, @logger)
+    play
+  end
+
   def play
-    player = @white
     until checkmate(player) || draw?(player)
       @board.render
 

@@ -4,45 +4,42 @@ class Serialize
     @letter_index = ("a".."h").to_a
   end
 
-  def load_game(filename)
-    @logger.change_file(filename)
-    data = read_file(filename)
-    data = standardize_file_format(data)
-    bring_game_current(data)
+  def restore(filename, board, white, black, logger)
+    #logger.change_savefile(filename)
+    data = File.read(filename)
+    data.gsub!(/[\n\r]/, "")
+    bring_game_current(data, board, white, black, logger)
   end
 
-  def standardize_file_format(data)
-    data
-  end
-
-  def read_file(filename)
-    File.read(filename)
-  end
-
-  def bring_game_current(data, render = true)
+  def bring_game_current(data, board, white, black, logger, render = true)
     rounds = data.scan(/(\d+[.]\s?\S+\s\S+)/).flatten
     rounds.each do |round|
-      moves = round.scan(/[.]\s?(\S+)\s(\S+)/).flatten
-      moves.each do |move|
-        move = parse_SAN(move)
+      move_pair = round.scan(/[.]\s?(\S+)\s(\S+)/).flatten
+      player = white
+      move_pair.each do |move|
+        move = parse_SAN(move, board, player)
         origin, destination = move[0], move[1]
-        @logger.record_move(@board, player, origin, destination)
-        @board.update(origin, destination, @logger)
-        @board.render if render
+        logger.record_move(board, player, origin, destination)
+        board.update(origin, destination, logger)
+        board.render if render
+        player = black
       end
     end
-    #round = "latestroundinthefile, ofcourse"
+    logger.round = rounds[-1].match(/[\d]+/).first
   end
 
-  def parse_SAN(move)
-    move_parts = move.match(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
+  def parse_SAN(move, board, player)
+    move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
     piece = move_parts[0]
-    start_file_rank = move_parts[1]
-    end_file_rank = move_parts[2]
+    origin_file_rank = move_parts[1]
+    destination_file_rank = move_parts[2]
 
+    destination = [@letter_index.index(destination_file_rank[0]) + 1, destination_file_rank[1]]
+    if !origin_file_rank =~ /\A[a-h][1-8]\z/
+      origin_file_rank = board.find_SAN_piece(piece, player.color, origin_file_rank, destination)
+    end
     
-    
-    "#{start_file_rank}#{end_file_rank}"
+    "#{origin_file_rank}#{destination_file_rank}"
   end
 end
 
@@ -57,7 +54,7 @@ class Logger
     @uncommon = { promotion: false, castle: false, check: false, checkmate: false, en_passant: false }
   end
 
-  def change_file(filename)
+  def change_savefile(filename)
     @savefile = File.open(filename, 'w+')
     @filename = filename
   end
