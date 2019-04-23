@@ -138,12 +138,22 @@ class Board
     @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}.first
   end
 
-  def find_SAN_piece(piece_type, color, destination, file)
-    @spots.find do |spot, piece|
-      @spots[spot] != 0 && piece.letter == piece_type && piece.color == color 
-        && piece.generate_moves.include?(destination)
-        && (@letter_index.index(file) + 1) == @spots[spot][0] if file != ""
-    end.first
+  def find_SAN_piece(piece_type, color, file, destination)
+    matches = @spots.select do |spot, piece|
+      @spots[spot] != 0 &&
+      @spots[spot].letter == piece_type &&
+      @spots[spot].color == color &&
+      @spots[spot].generate_moves(self, spot, true).include?(destination)
+    end.keys
+    if matches.size == 1
+      return matches.first
+    else
+      matches.each do |spot|
+        if (@letter_index.index(file) + 1).to_i == @spots[spot][0]
+          return @spots[spot]
+        end
+      end
+    end
   end
 
   def need_promote?(origin, destination)

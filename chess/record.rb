@@ -19,6 +19,9 @@ class Serialize
       move_pair.each do |move|
         move = parse_SAN(move, board, player)
         origin, destination = move[0], move[1]
+        print origin
+        print destination
+        sleep 2
         logger.record_move(board, player, origin, destination)
         board.update(origin, destination, logger)
         board.render if render
@@ -34,12 +37,15 @@ class Serialize
     origin_file_rank = move_parts[1]
     destination_file_rank = move_parts[2]
 
-    destination = [@letter_index.index(destination_file_rank[0]) + 1, destination_file_rank[1]]
-    if !origin_file_rank =~ /\A[a-h][1-8]\z/
-      origin_file_rank = board.find_SAN_piece(piece, player.color, origin_file_rank, destination)
+    destination_file_rank = [@letter_index.index(destination_file_rank[0]) + 1, destination_file_rank[1].to_i]
+    if !(origin_file_rank =~ /\A[a-h][1-8]\z/)
+      origin_file_rank = board.find_SAN_piece(piece, player.color, origin_file_rank, destination_file_rank)
     end
     
-    "#{origin_file_rank}#{destination_file_rank}"
+    puts "this is the origin: #{origin_file_rank}"
+    puts "this is the destination: #{destination_file_rank}"
+    print [[origin_file_rank], [destination_file_rank]]
+    [origin_file_rank, destination_file_rank]
   end
 end
 

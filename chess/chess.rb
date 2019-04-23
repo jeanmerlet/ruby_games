@@ -22,7 +22,7 @@ class Chess
     load_game(gets.chomp)
   end
 
-  def load_game(filename)
+  def load_game(filename = "test.pgn")
     file_loader = Serialize.new
     file_loader.restore(filename, @board, @white, @black, @logger)
     play
@@ -141,4 +141,5 @@ class Chess
 end
 
 chess = Chess.new
-chess.new_game
+#chess.new_game
+chess.load_game
