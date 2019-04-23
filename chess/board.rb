@@ -111,7 +111,7 @@ class Board
       end
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
-    2.times {piece.moves.pop} if piece.moves.size == 10
+    2.times {king.moves.pop} if king.moves.size == 10
   end
 
   def validate_move(player_color, origin, destination)

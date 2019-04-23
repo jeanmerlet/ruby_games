@@ -19,8 +19,6 @@ class Serialize
       move_pair.each do |move|
         move = parse_SAN(move, board, player)
         origin, destination = move[0], move[1]
-        print origin
-        print destination
         sleep 2
         logger.record_move(board, player, origin, destination)
         board.update(origin, destination, logger)
@@ -42,9 +40,6 @@ class Serialize
       origin_file_rank = board.find_SAN_piece(piece, player.color, origin_file_rank, destination_file_rank)
     end
     
-    puts "this is the origin: #{origin_file_rank}"
-    puts "this is the destination: #{destination_file_rank}"
-    print [[origin_file_rank], [destination_file_rank]]
     [origin_file_rank, destination_file_rank]
   end
 end
