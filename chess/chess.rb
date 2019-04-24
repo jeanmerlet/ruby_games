@@ -13,19 +13,35 @@ class Chess
     @logger = Logger.new
   end
 
-  def new_game
+  def menu
+    puts "(n)ew game, (l)oad game, or (q)uit?"
+    loop do
+      input = gets.chomp
+      case input
+      when "new game", "new", "n" then new_game
+      when "load game", "load", "l" then load_game
+      when "quit", "q" then exit
+      end
+    end
     play
   end
 
-  def menu
-    #play
-    load_game(gets.chomp)
+  def new_game
+    name_player(@white, "white")
+    name_player(@black, "black")
   end
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
     file_loader.restore(filename, @board, @white, @black, @logger)
-    play
+  end
+
+  def name_player(player, color)
+    puts "enter name for #{color}:"
+    loop do
+      input = gets.chomp
+      player.name = input if /\A[a-z]{2, 35}\s[a-z]{2, 35}\z/ === input
+    end
   end
 
   def play
@@ -35,8 +51,6 @@ class Chess
       if @board.spot_in_check?(player.color, @board.find_king(player.color))
         check_message
         @logger.uncommon[:check] = true
-      else
-        @logger.uncommon[:check] = false
       end
       player_move = parse_player_input(player.take_turn)
       origin, destination = player_move[0], player_move[1]
@@ -54,7 +68,7 @@ class Chess
       end
     end
     @board.render
-    #new_game
+    menu
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -73,9 +87,8 @@ class Chess
       if king.generate_moves(@board, king_spot, true).size != 0
         return false 
       elsif !non_king_move_can_prevent_check?(player, king_spot)
-        #puts "Checkmate #{player.name}!"
+        puts "Checkmate #{player.name}!"
         @logger.uncommon[checkmate] = true
-        win(player)
         return true
       end
     end
@@ -103,7 +116,9 @@ class Chess
   def draw?(player)
     color = player.color
     spots = @board.spots
-    if stalemate(spots, color) || threefold_repetition || fifty_move_rule
+    if stalemate(spots, color) || dead_position || threefold_repetition ||
+       fifty_move_rule
+      puts "It's a draw."
       return true
     end
     false
@@ -124,10 +139,16 @@ class Chess
     end
   end
 
+  def dead_position
+    false
+  end
+
   def threefold_repetition
+    false
   end
 
   def fifty_move_rule
+    false
   end
 
   def win(player)

@@ -19,7 +19,7 @@ class Serialize
       move_pair.each do |move|
         move = parse_SAN(move, board, player)
         origin, destination = move[0], move[1]
-        sleep 2
+        sleep 1
         logger.record_move(board, player, origin, destination)
         board.update(origin, destination, logger)
         board.render if render
@@ -73,29 +73,41 @@ class Logger
       letter = piece.letter
       letter << disambiguation(board, piece, origin, destination)
 
-      capture = (board.spots[destination] == 0 ? "" : "x")
-      capture = "x" if @uncommon[:en_passant]
-      rankfile = @letter_index[destination[0] - 1].to_s + destination[1].to_s
-      if @uncommon[:promotion]
-        promotion = ("=" + @uncommon[:promotion])
-      else
-        promotion = ""
-      end
-      check = "+" if @uncommon[:check]
-      check = "#" if @uncommon[:checkmate]
+      assign_values(board, destination)
 
       if @uncommon[:castle]
         file.write("#{@uncommon[:castle]} ")
       else
         file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
+        if @uncommon[:checkmate]
+          win_text = (player.color == 'W' ? "1-0" : " 0-1")
+          file.write("#{win_text}")
+        end
       end
     end
     reset_uncommon
   end
 
+  def assign_values(board, destination)
+    capture = (board.spots[destination] == 0 ? "" : "x")
+    capture = "x" if @uncommon[:en_passant]
+    rankfile = @letter_index[destination[0] - 1].to_s + destination[1].to_s
+    if @uncommon[:promotion]
+      promotion = ("=" + @uncommon[:promotion])
+    else
+      promotion = ""
+    end
+    check = "+" if @uncommon[:check]
+    check = "#" if @uncommon[:checkmate]
+  end
+@symbols = { capture: "x", rankfile: "", promotion: "=", check: ""}
+
   def reset_uncommon
     @uncommon.each do |flag, value|
       @uncommon[flag] = false
+    end
+    @symbols.each do |symbol, value|
+      @symbols[symbol] = ""
     end
   end
 
