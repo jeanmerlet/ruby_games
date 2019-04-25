@@ -45,7 +45,7 @@ class Serialize
 end
 
 class Logger
-  attr_accessor :savefile, :uncommon
+  attr_accessor :savefile, :uncommon, :symbols
 
   def initialize
     @savefile = File.open('game.pgn', 'w+')
@@ -53,6 +53,7 @@ class Logger
     @round = 1
     @letter_index = ("a".."h").to_a
     @uncommon = { promotion: false, castle: false, check: false, checkmate: false, en_passant: false }
+    @symbols = { capture: "x", rankfile: "", promotion: "=", check: ""}
   end
 
   def change_savefile(filename)
@@ -100,7 +101,6 @@ class Logger
     check = "+" if @uncommon[:check]
     check = "#" if @uncommon[:checkmate]
   end
-@symbols = { capture: "x", rankfile: "", promotion: "=", check: ""}
 
   def reset_uncommon
     @uncommon.each do |flag, value|

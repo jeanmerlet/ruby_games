@@ -1,7 +1,7 @@
 require 'colorize'
 
 class Board
-  attr_accessor :spots
+  attr_accessor :spots, :promotion
 
   def initialize
     #hash with [x, y] coordinate arrays as keys and 0 as default values
@@ -118,7 +118,7 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    print piece.generate_moves(self, origin, true)
+    #print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
