@@ -14,16 +14,18 @@ class Chess
     @logger = Logger.new
   end
 
-  def play(player)
+  def play(player, restore = false)
+    round = 1
     while !(checkmate(player) || draw?(player))
       player, player_color = *swap_players(player)
       loop do
         @board.render
         check_for_check(player_color)
-        origin, destination = *parse_player_input(player.take_turn)
+        origin, destination = *fetch_move_input(player, restore)
         if @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
-          #@logger.record_move(@board, player, origin, destination)
+          #@logger.record_move(@board, round, player, origin, destination)
+          round += 1
           @board.update(origin, destination, @logger)
           break
         else
@@ -32,7 +34,7 @@ class Chess
       end
     end
     @board.render
-    menu
+    menu #does this eventually cause memory problems?
   end
 
   def swap_players(player)
@@ -46,6 +48,12 @@ class Chess
       puts 'Check!'
       @logger.uncommon[:check] = true
     end
+  end
+
+  def fetch_move_input(round, player, restore)
+    return parse_player_input(player.take_turn) if !restore
+    player = (player == @white ? 0 : 1)
+    restore[round - 1][player]
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -151,17 +159,12 @@ class Chess
       when "quit", "q" then exit
       end
     end
-    play
+    play(@black)
   end
 
   def new_game
     name_player(@white, "white")
     name_player(@black, "black")
-  end
-
-  def load_game(filename = "test.pgn")
-    file_loader = Serialize.new
-    file_loader.restore(filename, @board, @white, @black, @logger)
   end
 
   def name_player(player, color)
@@ -171,9 +174,21 @@ class Chess
       player.name = input if /\A[a-z]{2, 35}\s[a-z]{2, 35}\z/ === input
     end
   end
+
+  def load_game(filename = "test.pgn")
+    file_loader = Serialize.new
+    moveset, players = file_loader.restore(filename)
+    bring_game_current(moveset)
+  end
+
+  def bring_game_current(moveset)
+    moveset.each do |move_pair|
+      play(@black, move_pair)
+    end
+  end
 end
 
 chess = Chess.new
 #chess.new_game
-#chess.load_game
-chess.play(chess.black)
+chess.load_game
+#chess.play(chess.black)

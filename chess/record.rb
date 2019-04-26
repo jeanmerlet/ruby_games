@@ -4,18 +4,17 @@ class Serialize
     @letter_index = ("a".."h").to_a
   end
 
-  def restore(filename, board, white, black, logger)
-    #logger.change_savefile(filename)
+  def restore(filename)
     data = File.read(filename)
     data.gsub!(/[\n\r]/, "")
-    bring_game_current(data, board, white, black, logger)
+    rounds = data.scan(/\d+[.]\s?(\S+\s\S+)/).flatten
+    moveset = []
+    rounds.each do |round|
+      moveset << round.scan(/(\S+)\s(\S+)/).flatten
+    end
   end
 
   def bring_game_current(data, board, white, black, logger, render = true)
-    rounds = data.scan(/(\d+[.]\s?\S+\s\S+)/).flatten
-    rounds.each do |round|
-      move_pair = round.scan(/[.]\s?(\S+)\s(\S+)/).flatten
-      player = white
       move_pair.each do |move|
         move = parse_SAN(move, board, player)
         origin, destination = move[0], move[1]
@@ -25,7 +24,6 @@ class Serialize
         board.render if render
         player = black
       end
-    end
     logger.round = rounds[-1].match(/[\d]+/).first
   end
 
