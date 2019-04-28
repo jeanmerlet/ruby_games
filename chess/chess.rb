@@ -12,20 +12,21 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
+    @restore = false
   end
 
-  def play(player, restore = false)
+  def play(player)
     round = 1
     while !(checkmate(player) || draw?(player))
       player, player_color = *swap_players(player)
       loop do
         @board.render
         check_for_check(player_color)
-        origin, destination = *fetch_move_input(player, restore)
+        origin, destination = *fetch_move_input(round, player, @restore)
         if @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
           #@logger.record_move(@board, round, player, origin, destination)
-          round += 1
+          round += 1 if player.color == "B"
           @board.update(origin, destination, @logger)
           break
         else
@@ -52,8 +53,9 @@ class Chess
 
   def fetch_move_input(round, player, restore)
     return parse_player_input(player.take_turn) if !restore
+    color = player.color
     player = (player == @white ? 0 : 1)
-    restore[round - 1][player]
+    parse_SAN(restore[round - 1][player], color)
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -65,7 +67,22 @@ class Chess
     output
   end
 
-  def check_for_promotion(player, player_color, origin, destination)
+  def parse_SAN(move, color)
+    move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
+    piece = move_parts[0]
+    origin_SAN = move_parts[1]
+    destination_SAN = move_parts[2]
+
+    destination = [@letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
+    if !(origin_SAN =~ /\A[a-h][1-8]\z/)
+      origin = @board.find_SAN_piece(piece, color, origin_SAN, destination)
+    else
+      origin = origin_SAN
+    end
+    [origin, destination]
+  end
+
+    def check_for_promotion(player, player_color, origin, destination)
     if @board.need_promote?(origin, destination)
       @board.promotion = [player.pawn_promote, player_color]
       #@logger.uncommon[:promotion] =
@@ -177,14 +194,8 @@ class Chess
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
-    moveset, players = file_loader.restore(filename)
-    bring_game_current(moveset)
-  end
-
-  def bring_game_current(moveset)
-    moveset.each do |move_pair|
-      play(@black, move_pair)
-    end
+    @restore = file_loader.restore(filename, @board, @white, @black)
+    play(@black)
   end
 end
 

@@ -4,41 +4,14 @@ class Serialize
     @letter_index = ("a".."h").to_a
   end
 
-  def restore(filename)
-    data = File.read(filename)
-    data.gsub!(/[\n\r]/, "")
+  def restore(filename, logger, white, black)
+    data = File.read(filename).gsub(/[\n\r]/, "")
     rounds = data.scan(/\d+[.]\s?(\S+\s\S+)/).flatten
     moveset = []
-    rounds.each do |round|
+    rounds.each_with_index do |round, i|
       moveset << round.scan(/(\S+)\s(\S+)/).flatten
     end
-  end
-
-  def bring_game_current(data, board, white, black, logger, render = true)
-      move_pair.each do |move|
-        move = parse_SAN(move, board, player)
-        origin, destination = move[0], move[1]
-        sleep 1
-        logger.record_move(board, player, origin, destination)
-        board.update(origin, destination, logger)
-        board.render if render
-        player = black
-      end
-    logger.round = rounds[-1].match(/[\d]+/).first
-  end
-
-  def parse_SAN(move, board, player)
-    move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
-    piece = move_parts[0]
-    origin_file_rank = move_parts[1]
-    destination_file_rank = move_parts[2]
-
-    destination_file_rank = [@letter_index.index(destination_file_rank[0]) + 1, destination_file_rank[1].to_i]
-    if !(origin_file_rank =~ /\A[a-h][1-8]\z/)
-      origin_file_rank = board.find_SAN_piece(piece, player.color, origin_file_rank, destination_file_rank)
-    end
-    
-    [origin_file_rank, destination_file_rank]
+    moveset
   end
 end
 
