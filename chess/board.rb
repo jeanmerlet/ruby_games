@@ -101,13 +101,13 @@ class Board
     if king.horizontal_distance(origin, destination) > 1
       rook_origin, rook_destination = destination.dup, destination.dup
       if destination[0] == 2
-        rook_origin[0] == 1
-        rook_destination[0] == 3
-        logger.tokens[:castle] = "O-O"
-      else
-        rook_origin[0] == 8
-        rook_destination[0] == 6
+        rook_origin[0] = 1
+        rook_destination[0] = 3
         logger.tokens[:castle] = "O-O-O"
+      else
+        rook_origin[0] = 8
+        rook_destination[0] = 6
+        logger.tokens[:castle] = "O-O"
       end
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end

@@ -7,8 +7,8 @@ class Serialize
     data = File.read(filename).gsub(/[\n\r]/, "")
     tags = data.scan(/(\[[A-Za-z]+\s"[A-Za-z]+"\])/).flatten
     rounds = data.scan(/\d+[.]\s?(\S+\s\S+)/).flatten
-    moveset = []
     logger.import_tags(tags)
+    moveset = []
     rounds.each_with_index do |round, i|
       moveset << round.scan(/(\S+)\s(\S+)/).flatten
     end
@@ -44,7 +44,7 @@ class Logger
   end
 
   def write_names(white, black)
-    File.open(@filename, 'a' do |file|
+    File.open(@filename, 'a') do |file|
     end
   end
 
@@ -78,8 +78,8 @@ class Logger
   end
 
   def reset_tokens
-    @token.each do |flag, value|
-      @token[flag] = false
+    @tokens.each do |flag, value|
+      @tokens[flag] = false
     end
   end
 

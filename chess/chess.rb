@@ -69,16 +69,25 @@ class Chess
   end
 
   def parse_SAN(move, color)
-    move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
-    piece = move_parts[0]
-    origin_SAN = move_parts[1]
-    destination_SAN = move_parts[2]
-
-    destination = [@@letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
-    if !(origin_SAN =~ /\A[a-h][1-8]\z/)
-      origin = @board.find_SAN_piece(piece, color, origin_SAN, destination)
+    if move == "O-O" || move == "O-O-O"
+      origin = @board.find_king(color)
+      if move == "O-O"
+        destination = (color == 'W' ? [7, 1] : [7, 8])
+      else
+        destination = (color == 'W' ? [3, 1] : [3, 8])
+      end
     else
-      origin = origin_SAN
+      move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
+      piece = move_parts[0]
+      origin_SAN = move_parts[1]
+      destination_SAN = move_parts[2]
+
+      destination = [@@letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
+      if !(origin_SAN =~ /\A[a-h][1-8]\z/)
+        origin = @board.find_SAN_piece(piece, color, origin_SAN, destination)
+      else
+        origin = origin_SAN
+      end
     end
     [origin, destination]
   end
@@ -204,5 +213,5 @@ end
 
 chess = Chess.new
 #chess.new_game
-chess.load_game
 #chess.play(chess.black)
+chess.load_game
