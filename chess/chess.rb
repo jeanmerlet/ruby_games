@@ -85,8 +85,7 @@ class Chess
     def check_for_promotion(player, player_color, origin, destination)
     if @board.need_promote?(origin, destination)
       @board.promotion = [player.pawn_promote, player_color]
-      #@logger.uncommon[:promotion] =
-      #@logger.symbols[:promotion] = @board.promotion[0]
+      @logger.uncommon[:promotion] = @board.promotion[0]
     end
   end
 
@@ -98,7 +97,7 @@ class Chess
         return false 
       elsif !non_king_move_can_prevent_check?(player, king_spot)
         puts "Checkmate #{player.name}!"
-        @logger.uncommon[:checkmate] = true
+        @logger.tokens[:end_game] = (player.color == 'W' ? "0-1" : "1-0")
         return true
       end
     end
@@ -129,6 +128,7 @@ class Chess
     if stalemate(spots, color) || dead_position || threefold_repetition ||
        fifty_move_rule
       puts "It's a draw."
+      @logger.tokens[:end_game] = "1/2-1/2"
       return true
     end
     false

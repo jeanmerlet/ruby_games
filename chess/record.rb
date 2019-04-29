@@ -21,22 +21,34 @@ class Logger
   def initialize
     @savefile = File.open('game.pgn', 'w+')
     @filename = 'game.pgn'
-    @round = 1
     @letter_index = ("a".."h").to_a
-    @uncommon = { promotion: false, castle: false, check: false, checkmate: false, en_passant: false }
-    @symbols = { capture: "x", rankfile: "", promotion: "=", check: ""}
+    @tokens = { promotion: false, castle: false, check: false, end_game: false }
+    write_default_STR
+    @round = 1
   end
 
-  def change_savefile(filename)
-    @savefile = File.open(filename, 'w+')
-    @filename = filename
+  def write_default_STR
+    File.open(@filename, 'a') do |file|
+      file.write("[Event \"casual game\"]\n")
+      file.write("[Site \"Knoxville, TN USA\"]\n")
+      file.write("[Date \"#{time.year}.#{time.month}.#{time.day}\"]\n")
+      file.write("[Round \"1\"]\n")
+      file.write("[White \"?\"]\n")
+      file.write("[Black \"?\"]\n")
+      file.write("[Result \"*\"]\n\n")
+    end
+  end
+
+  def write_names(white, black)
+    File.open(@filename, 'a' do |file|
+    end
   end
 
   def record_move(board, player, origin, destination)
     piece = board.spots[origin]
     target_spot = board.spots[destination]
 
-    File.open('game.pgn', 'a') do |file|
+    File.open(@filename, 'a') do |file|
       if player.color == 'W'
         file.write("\n#{@round}. ")
         @round += 1
@@ -52,8 +64,7 @@ class Logger
       else
         file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
         if @uncommon[:checkmate]
-          win_text = (player.color == 'W' ? "1-0" : " 0-1")
-          file.write("#{win_text}")
+          file.write("#{@uncommon[:checkmate]}")
         end
       end
     end
@@ -76,9 +87,6 @@ class Logger
   def reset_uncommon
     @uncommon.each do |flag, value|
       @uncommon[flag] = false
-    end
-    @symbols.each do |symbol, value|
-      @symbols[symbol] = ""
     end
   end
 
