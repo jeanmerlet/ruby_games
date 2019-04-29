@@ -148,8 +148,11 @@ class Board
       return matches.first
     else
       matches.each do |spot|
-        if (@@letter_index.index(file) + 1).to_i == @spots[spot][0]
-          return @spots[spot]
+        print file
+        print spot
+        print (@@letter_index.index(file) + 1).to_i
+        if (@@letter_index.index(file) + 1).to_i == spot[0]
+          return spot
         end
       end
     end
