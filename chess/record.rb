@@ -1,13 +1,14 @@
 class Serialize
 
   def initialize
-    @letter_index = ("a".."h").to_a
   end
 
-  def restore(filename, logger, white, black)
+  def restore(filename, logger)
     data = File.read(filename).gsub(/[\n\r]/, "")
+    tags = data.scan(/(\[[A-Za-z]+\s"[A-Za-z]+"\])/).flatten
     rounds = data.scan(/\d+[.]\s?(\S+\s\S+)/).flatten
     moveset = []
+    logger.import_tags(tags)
     rounds.each_with_index do |round, i|
       moveset << round.scan(/(\S+)\s(\S+)/).flatten
     end
@@ -16,18 +17,15 @@ class Serialize
 end
 
 class Logger
-  attr_accessor :savefile, :uncommon, :symbols
+  attr_accessor :savefile, :tokens, :symbols
 
   def initialize
     @savefile = File.open('game.pgn', 'w+')
     @filename = 'game.pgn'
-    @letter_index = ("a".."h").to_a
-    @tokens = { promotion: false, castle: false, check: false, end_game: false }
-    write_default_STR
-    @round = 1
+    @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
   end
 
-  def write_default_STR
+  def write_default_tags
     File.open(@filename, 'a') do |file|
       file.write("[Event \"casual game\"]\n")
       file.write("[Site \"Knoxville, TN USA\"]\n")
@@ -39,54 +37,49 @@ class Logger
     end
   end
 
+  def import_tags(tags)
+    File.open(@filename, 'a') do |file|
+      tags.each { |tag| file.write("#{tag}\n") }
+    end
+  end
+
   def write_names(white, black)
     File.open(@filename, 'a' do |file|
     end
   end
 
-  def record_move(board, player, origin, destination)
+  def record_move(board, round, player, origin, destination)
     piece = board.spots[origin]
     target_spot = board.spots[destination]
 
     File.open(@filename, 'a') do |file|
-      if player.color == 'W'
-        file.write("\n#{@round}. ")
-        @round += 1
-      end
-
+      file.write("\n#{round}. ") if player.color == 'W'
       letter = piece.letter
       letter << disambiguation(board, piece, origin, destination)
+      capture, rankfile, promotion, check = *assign_values(board, destination)
 
-      assign_values(board, destination)
-
-      if @uncommon[:castle]
-        file.write("#{@uncommon[:castle]} ")
+      if @tokens[:castle]
+        file.write("#{@tokens[:castle]} ")
       else
         file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
-        if @uncommon[:checkmate]
-          file.write("#{@uncommon[:checkmate]}")
-        end
       end
+      file.write("#{@tokens[:end_game]}") if @tokens[:end_game]
     end
-    reset_uncommon
+    reset_tokens
   end
 
   def assign_values(board, destination)
     capture = (board.spots[destination] == 0 ? "" : "x")
-    capture = "x" if @uncommon[:en_passant]
-    rankfile = @letter_index[destination[0] - 1].to_s + destination[1].to_s
-    if @uncommon[:promotion]
-      promotion = ("=" + @uncommon[:promotion])
-    else
-      promotion = ""
-    end
-    check = "+" if @uncommon[:check]
-    check = "#" if @uncommon[:checkmate]
+    capture = "x" if @tokens[:en_passant]
+    rankfile = @@letter_index[destination[0] - 1].to_s + destination[1].to_s
+    promotion = (@tokens[:promotion] ? ("=" + @tokens[:promotion]) : "")
+    check = (@tokens[:check] ? @tokens[:check] : "")
+    [capture, rankfile, promotion, check]
   end
 
-  def reset_uncommon
-    @uncommon.each do |flag, value|
-      @uncommon[flag] = false
+  def reset_tokens
+    @token.each do |flag, value|
+      @token[flag] = false
     end
   end
 
@@ -100,7 +93,7 @@ class Logger
       current_piece.color == moving_piece.color &&
       current_piece.letter == moving_piece.letter &&
       current_piece.generate_moves(board, spot).include?(destination)
-        file = @letter_index[origin[0]-1] if spot[0] != origin[0]
+        file = @@letter_index[origin[0]-1] if spot[0] != origin[0]
         rank = origin[1].to_s if spot[1] != origin[1]
       end
     end

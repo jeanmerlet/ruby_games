@@ -87,7 +87,7 @@ class Board
         else
           passed_pawn_spot = [destination[0], destination[1] + 1]
         end
-        log.uncommon[:en_passant] = true
+        logger.tokens[:en_passant] = true
         @spots[passed_pawn_spot] = 0
       end
     end
@@ -103,11 +103,11 @@ class Board
       if destination[0] == 2
         rook_origin[0] == 1
         rook_destination[0] == 3
-        log.uncommon[:castle] = "O-O"
+        logger.tokens[:castle] = "O-O"
       else
         rook_origin[0] == 8
         rook_destination[0] == 6
-        log.uncommon[:castle] = "O-O-O"
+        logger.tokens[:castle] = "O-O-O"
       end
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
@@ -118,7 +118,6 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    #print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
@@ -149,7 +148,7 @@ class Board
       return matches.first
     else
       matches.each do |spot|
-        if (@letter_index.index(file) + 1).to_i == @spots[spot][0]
+        if (@@letter_index.index(file) + 1).to_i == @spots[spot][0]
           return @spots[spot]
         end
       end

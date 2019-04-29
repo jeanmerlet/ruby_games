@@ -2,11 +2,12 @@ require './board.rb'
 require './player.rb'
 require './record.rb'
 
+@@letter_index = [*('a'..'h')]
+
 class Chess
   attr_reader :black
 
   def initialize
-    @letter_index = [*('a'..'h')]
     @board = Board.new
     @board.place_pieces
     @white = Human.new('W')
@@ -25,7 +26,7 @@ class Chess
         origin, destination = *fetch_move_input(round, player, @restore)
         if @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
-          #@logger.record_move(@board, round, player, origin, destination)
+          @logger.record_move(@board, round, player, origin, destination)
           round += 1 if player.color == "B"
           @board.update(origin, destination, @logger)
           break
@@ -47,7 +48,7 @@ class Chess
   def check_for_check(color)
     if @board.spot_in_check?(color, @board.find_king(color))
       puts 'Check!'
-      @logger.uncommon[:check] = true
+      @logger.tokens[:check] = true
     end
   end
 
@@ -61,7 +62,7 @@ class Chess
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
     output = [input[0..1].split(''), input[2..3].split('')]
     output.each do |x|
-      x[0] = @letter_index.index(x[0]) + 1
+      x[0] = @@letter_index.index(x[0]) + 1
       x[1] = x[1].to_i
     end
     output
@@ -73,7 +74,7 @@ class Chess
     origin_SAN = move_parts[1]
     destination_SAN = move_parts[2]
 
-    destination = [@letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
+    destination = [@@letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
     if !(origin_SAN =~ /\A[a-h][1-8]\z/)
       origin = @board.find_SAN_piece(piece, color, origin_SAN, destination)
     else
@@ -85,7 +86,7 @@ class Chess
     def check_for_promotion(player, player_color, origin, destination)
     if @board.need_promote?(origin, destination)
       @board.promotion = [player.pawn_promote, player_color]
-      @logger.uncommon[:promotion] = @board.promotion[0]
+      @logger.tokens[:promotion] = @board.promotion[0]
     end
   end
 
@@ -180,12 +181,14 @@ class Chess
   end
 
   def new_game
-    name_player(@white, "white")
-    name_player(@black, "black")
+    name_player(@white)
+    name_player(@black)
+    @logger.write_default_tags
+    @logger.write_names(@white, @black)
   end
 
-  def name_player(player, color)
-    puts "enter name for #{color}:"
+  def name_player(player)
+    puts "enter name for #{player.pretty_color}:"
     loop do
       input = gets.chomp
       player.name = input if /\A[a-z]{2, 35}\s[a-z]{2, 35}\z/ === input
@@ -194,7 +197,7 @@ class Chess
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
-    @restore = file_loader.restore(filename, @board, @white, @black)
+    @restore = file_loader.restore(filename, @logger)
     play(@black)
   end
 end

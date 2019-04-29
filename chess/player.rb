@@ -1,6 +1,6 @@
 class Player
   attr_accessor :name
-  attr_reader :color
+  attr_reader :color, :pretty_color
 end
 
 class Human < Player
@@ -45,6 +45,7 @@ class AI < Player
 
   def initialize(color)
     @color = color
+    @pretty_color = (@color == 'W' ? "white" : "black")
     @difficulty = 0
     @name = "Rob Berto"
   end
