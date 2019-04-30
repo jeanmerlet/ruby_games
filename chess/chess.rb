@@ -13,17 +13,18 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
-    @restore = false
+    @draw = false
   end
 
-  def play(player)
+  def play(player, restore = false)
     round = 1
     while !(checkmate(player) || draw?(player))
       player, player_color = *swap_players(player)
       loop do
         @board.render
         check_for_check(player_color)
-        origin, destination = *fetch_move_input(round, player, @restore)
+        origin, destination = *fetch_move_input(round, player, restore)
+        #proposed_draw(player) if origin == "draw"
         if @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
           @logger.record_move(@board, round, player, origin, destination)
@@ -48,7 +49,7 @@ class Chess
   def check_for_check(color)
     if @board.spot_in_check?(color, @board.find_king(color))
       puts 'Check!'
-      @logger.tokens[:check] = true
+      @logger.tokens[:check] = "+"
     end
   end
 
@@ -56,6 +57,7 @@ class Chess
     return parse_player_input(player.take_turn) if !restore
     color = player.color
     player = (player == @white ? 0 : 1)
+    print restore[round - 1][player]
     parse_SAN(restore[round - 1][player], color)
   end
 
@@ -76,6 +78,8 @@ class Chess
       else
         destination = (color == 'W' ? [3, 1] : [3, 8])
       end
+    elsif move == "1/2-1/2"
+      @draw = true
     else
       move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
       piece = move_parts[0]
@@ -135,8 +139,7 @@ class Chess
   def draw?(player)
     color = player.color
     spots = @board.spots
-    if stalemate(spots, color) || dead_position || threefold_repetition ||
-       fifty_move_rule
+    if stalemate(spots, color) || dead_position || @draw
       puts "It's a draw."
       @logger.tokens[:end_game] = "1/2-1/2"
       return true
@@ -206,8 +209,8 @@ class Chess
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
-    @restore = file_loader.restore(filename, @logger)
-    play(@black)
+    restore = file_loader.restore(filename, @logger)
+    play(@black, restore)
   end
 end
 

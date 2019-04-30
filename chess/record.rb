@@ -53,15 +53,17 @@ class Logger
     target_spot = board.spots[destination]
 
     File.open(@filename, 'a') do |file|
-      file.write("\n#{round}. ") if player.color == 'W'
-      letter = piece.letter
+      file.write("#{round}. ") if player.color == 'W'
+      letter = piece.letter.dup
       letter << disambiguation(board, piece, origin, destination)
       capture, rankfile, promotion, check = *assign_values(board, destination)
 
       if @tokens[:castle]
         file.write("#{@tokens[:castle]} ")
+        puts("\n#{@tokens[:castle]} ")
       else
         file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
+        puts("\n#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
       end
       file.write("#{@tokens[:end_game]}") if @tokens[:end_game]
     end
