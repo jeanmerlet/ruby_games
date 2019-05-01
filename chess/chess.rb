@@ -13,7 +13,6 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
-    @draw = false
   end
 
   def play(player, restore = false)
@@ -196,7 +195,7 @@ class Chess
     name_player(@white)
     name_player(@black)
     @logger.write_default_tags
-    @logger.write_names(@white, @black)
+    @logger.write_names(@white.name, @black.name)
   end
 
   def name_player(player)
@@ -209,7 +208,7 @@ class Chess
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
-    restore = file_loader.restore(filename, @logger)
+    restore = file_loader.restore(filename, @logger, @white, @black)
     play(@black, restore)
   end
 end

@@ -3,13 +3,16 @@ class Serialize
   def initialize
   end
 
-  def restore(filename, logger)
-    data = File.read(filename).gsub(/[\n\r]/, "")
+  def restore(filename, logger, white, black)
+    data = File.read(filename)
     tags = data.scan(/(\[[A-Za-z]+\s"[A-Za-z]+"\])/).flatten
-    rounds = data.scan(/\d+[.]\s?(\S+\s\S+)/).flatten
+    print tags
+    rounds = data.scan(/\d+\.\s?(\S+\s\S+)/).flatten
     logger.import_tags(tags)
+    logger.write_names(white, black)
     moveset = []
     rounds.each_with_index do |round, i|
+      round.gsub(/\n/, " ")
       moveset << round.scan(/(\S+)\s(\S+)/).flatten
     end
     moveset
@@ -43,7 +46,7 @@ class Logger
     end
   end
 
-  def write_names(white, black)
+  def write_names(white_name, black_name)
     File.open(@filename, 'a') do |file|
     end
   end
@@ -54,9 +57,10 @@ class Logger
 
     File.open(@filename, 'a') do |file|
       file.write("#{round}. ") if player.color == 'W'
+      capture, rankfile, promotion, check = *assign_values(board, destination)
       letter = piece.letter.dup
       letter << disambiguation(board, piece, origin, destination)
-      capture, rankfile, promotion, check = *assign_values(board, destination)
+      letter << @@letter_index[origin[0]-1] if letter == "" && capture == "x"
 
       if @tokens[:castle]
         file.write("#{@tokens[:castle]} ")
@@ -87,7 +91,9 @@ class Logger
 
   def disambiguation(board, moving_piece, origin, destination)
     spots = board.spots
-    file, rank = "", ""
+    file, rank = @@letter_index[origin[0]-1], origin[1].to_s
+    file_needed, rank_needed = false, false
+
     spots.each do |spot, piece|
       next if spot == origin
       current_piece = spots[spot]
@@ -95,10 +101,21 @@ class Logger
       current_piece.color == moving_piece.color &&
       current_piece.letter == moving_piece.letter &&
       current_piece.generate_moves(board, spot).include?(destination)
-        file = @@letter_index[origin[0]-1] if spot[0] != origin[0]
-        rank = origin[1].to_s if spot[1] != origin[1]
+        if spot[0] != origin[0]
+          file_needed = true
+        else
+          rank_needed = true
+        end
       end
     end
-    (file + rank)
+
+    if !file_needed && !rank_needed
+      file, rank = "", ""
+    elsif !file_needed
+      file = ""
+    elsif !rank_needed
+      rank = ""
+    end
+    file + rank
   end
 end
