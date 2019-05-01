@@ -8,6 +8,7 @@ class Human < Player
   def initialize(color)
     @color = color
     @pretty_color = (@color == 'W' ? "white" : "black")
+    @name = @pretty_color.dup
   end
 
   def take_turn
@@ -32,11 +33,18 @@ class Human < Player
     end
   end
 
-  def name
+  def name_player
     puts "enter name for #{@pretty_color}:"
     loop do
       input = gets.chomp
-      @name = input if /\A[a-z]{2, 35}\s[a-z]{2, 35}\z/ === input
+      if /\A[A-Za-z]{2,35}[ ]?[A-Za-z]{2,35}\z/ === input
+        @name = input
+        break
+      elsif input == ""
+        break
+      else
+        puts "invalid name format"
+      end
     end
   end
 end

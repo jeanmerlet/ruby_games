@@ -23,12 +23,11 @@ class Chess
         @board.render
         check_for_check(player_color)
         origin, destination = *fetch_move_input(round, player, restore)
-        #proposed_draw(player) if origin == "draw"
+        non_chess_move(player, origin) if !origin.is_a? Array
         if @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
-          @logger.record_move(@board, round, player, origin, destination)
+          @board.update(round, player, origin, destination, @logger)
           round += 1 if player.color == "B"
-          @board.update(origin, destination, @logger)
           break
         else
           puts 'invalid move'
@@ -50,6 +49,10 @@ class Chess
       puts 'Check!'
       @logger.tokens[:check] = "+"
     end
+  end
+
+  def non_chess_move(player, input)
+    print input
   end
 
   def fetch_move_input(round, player, restore)
@@ -192,28 +195,21 @@ class Chess
   end
 
   def new_game
-    name_player(@white)
-    name_player(@black)
+    @white.name_player
+    @black.name_player
     @logger.write_default_tags
     @logger.write_names(@white.name, @black.name)
-  end
-
-  def name_player(player)
-    puts "enter name for #{player.pretty_color}:"
-    loop do
-      input = gets.chomp
-      player.name = input if /\A[a-z]{2, 35}\s[a-z]{2, 35}\z/ === input
-    end
+    play(@black)
   end
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
-    restore = file_loader.restore(filename, @logger, @white, @black)
+    restore = file_loader.restore(filename, @logger)
     play(@black, restore)
   end
 end
 
 chess = Chess.new
 #chess.new_game
-#chess.play(chess.black)
-chess.load_game
+#chess.load_game
+chess.menu

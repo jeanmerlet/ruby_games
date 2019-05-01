@@ -44,7 +44,7 @@ class Board
   end
 
   def render
-    print "\n\n"
+    print "\n"
     8.times do |y|
       print "#{8-y}"
       8.times do |x|
@@ -63,7 +63,7 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination, logger)
+  def update(round, player, origin, destination, logger)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
       pawn_update(piece, origin, destination, logger)
@@ -72,6 +72,7 @@ class Board
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
+    logger.record_move(self, round, player, origin, destination)
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 

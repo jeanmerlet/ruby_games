@@ -3,13 +3,12 @@ class Serialize
   def initialize
   end
 
-  def restore(filename, logger, white, black)
+  def restore(filename, logger)
     data = File.read(filename)
-    tags = data.scan(/(\[[A-Za-z]+\s"[A-Za-z]+"\])/).flatten
+    tags = data.scan(/(\[\S+\s".+"\])/).flatten
     print tags
     rounds = data.scan(/\d+\.\s?(\S+\s\S+)/).flatten
     logger.import_tags(tags)
-    logger.write_names(white, black)
     moveset = []
     rounds.each_with_index do |round, i|
       round.gsub(/\n/, " ")
@@ -29,6 +28,7 @@ class Logger
   end
 
   def write_default_tags
+    time = Time.new
     File.open(@filename, 'a') do |file|
       file.write("[Event \"casual game\"]\n")
       file.write("[Site \"Knoxville, TN USA\"]\n")
@@ -43,6 +43,7 @@ class Logger
   def import_tags(tags)
     File.open(@filename, 'a') do |file|
       tags.each { |tag| file.write("#{tag}\n") }
+      file.write("\n")
     end
   end
 
