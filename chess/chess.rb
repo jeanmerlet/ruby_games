@@ -211,5 +211,5 @@ end
 
 chess = Chess.new
 #chess.new_game
-#chess.load_game
-chess.menu
+chess.load_game
+#chess.menu

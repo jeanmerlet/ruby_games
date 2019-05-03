@@ -4,17 +4,31 @@ class Serialize
   end
 
   def restore(filename, logger)
-    data = File.read(filename)
-    tags = data.scan(/(\[\S+\s".+"\])/).flatten
-    print tags
-    rounds = data.scan(/\d+\.\s?(\S+\s\S+)/).flatten
+    tags, rounds = *read_tags_and_moves(filename)
     logger.import_tags(tags)
+    rounds = rounds.scan(/\d+\.\s?(\S+\s\S+)/).flatten
+    print rounds
+    print "\n\n"
     moveset = []
     rounds.each_with_index do |round, i|
       round.gsub(/\n/, " ")
       moveset << round.scan(/(\S+)\s(\S+)/).flatten
     end
+    print moveset
+    print "\n\n"
+    pause
     moveset
+  end
+
+  def read_tags_and_moves(filename)
+    tags, rounds = [], []
+    File.foreach(filename, "\n\n").with_index do |blob, i|
+      tags = blob if i == 0
+      rounds = blob if i == 1
+    end
+    print rounds
+    print "\n\n"
+    [tags, rounds]
   end
 end
 
@@ -22,7 +36,7 @@ class Logger
   attr_accessor :savefile, :tokens, :symbols
 
   def initialize
-    @savefile = File.open('game.pgn', 'w+')
+    File.open('game.pgn', 'w+') {|file| }
     @filename = 'game.pgn'
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
   end
@@ -41,10 +55,7 @@ class Logger
   end
 
   def import_tags(tags)
-    File.open(@filename, 'a') do |file|
-      tags.each { |tag| file.write("#{tag}\n") }
-      file.write("\n")
-    end
+    File.open(@filename, 'a') {|file| file.write(tags) }
   end
 
   def write_names(white_name, black_name)
