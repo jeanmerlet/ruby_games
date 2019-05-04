@@ -16,17 +16,19 @@ class Chess
   end
 
   def play(player, restore = false)
+    @board.render
     round = 1
     player_color = player.color
-    while !(checkmate(round, player) || draw?(player))
+    while !(checkmate(round, player) || draw(player))
       loop do
-        @board.render
-        check_for_check(player_color)
         origin, destination = *fetch_move_input(round, player, restore)
-        non_chess_move(player, origin) if !origin.is_a? Array
-        if @board.validate_move(player_color, origin, destination)
+        if !origin.is_a? Array
+          non_chess_move(player, origin)
+        elsif @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
+          check_for_check(round, player, origin, destination)
           @board.update(round, player, origin, destination, @logger)
+          @board.render
           round += 1 if player.color == "B"
           player, player_color = *swap_players(player)
           break
@@ -46,15 +48,21 @@ class Chess
     [player, player_color]
   end
 
-  def check_for_check(color)
-    if @board.spot_in_check?(color, @board.find_king(color))
+  def check_for_check(round, player, origin, destination)
+    player, color = *swap_players(player)
+    clone_board = @board.dup
+    clone_board.spots = @board.spots.dup
+    clone_board.update(round, player, origin, destination)
+    if clone_board.spot_in_check?(color, clone_board.find_king(color))
       puts 'Check!'
       @logger.tokens[:check] = "+"
     end
   end
 
   def non_chess_move(player, input)
-    print input
+    draw(player, true) if input == "draw"
+    win(swap_players(player)[0], true) if input == "win"
+    exit
   end
 
   def fetch_move_input(round, player, restore)
@@ -84,6 +92,8 @@ class Chess
       end
     elsif move == "1/2-1/2"
       origin, destination = "draw", ""
+    elsif move == "1-0" || move == "0-1"
+      origin, destination = "win", ""
     else
       move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
       piece = move_parts[0]
@@ -115,7 +125,7 @@ class Chess
         return false 
       elsif !non_king_move_can_prevent_check?(round, player, king_spot)
         puts "Checkmate #{player.name}!"
-        @logger.tokens[:end_game] = (player.color == 'W' ? "0-1" : "1-0")
+        win(swap_players(player)[0])
         return true
       end
     end
@@ -131,10 +141,7 @@ class Chess
           clone_board = @board.dup
           clone_board.spots = @board.spots.dup
           clone_board.update(round, player, spot, move)
-          if !clone_board.spot_in_check?(player.color, king_spot)
-            clone_board.render
-            return true
-          end
+          return true if !clone_board.spot_in_check?(player.color, king_spot)
           clone_board.spots = @board.spots.dup
         end
       end
@@ -142,10 +149,16 @@ class Chess
     false
   end
 
-  def draw?(player)
+  def win(player, input = false)
+    print "#{player.name} wins"
+    puts (input ? " by forfeit." : ".")
+    @logger.tokens[:end_game] = (player.color == 'W' ? "1-0" : "0-1")
+  end
+
+  def draw(player, input = false)
     color = player.color
     spots = @board.spots
-    if stalemate(spots, color) || dead_position || @draw
+    if stalemate(spots, color) || dead_position || input
       puts "It's a draw."
       @logger.tokens[:end_game] = "1/2-1/2"
       return true
@@ -178,11 +191,6 @@ class Chess
 
   def fifty_move_rule
     false
-  end
-
-  def win(player)
-    winning_color = (player.color == 'W' ? 'Black' : 'White')
-    puts "#{winning_color} wins."
   end
 
   def menu

@@ -88,7 +88,7 @@ class Board
         else
           passed_pawn_spot = [destination[0], destination[1] + 1]
         end
-        logger.tokens[:en_passant] = true
+        logger.tokens[:en_passant] = true if logger
         @spots[passed_pawn_spot] = 0
       end
     end
@@ -104,11 +104,11 @@ class Board
       if destination[0] == 3
         rook_origin[0] = 1
         rook_destination[0] = 4
-        logger.tokens[:castle] = "O-O-O"
+        logger.tokens[:castle] = "O-O-O" if logger
       else
         rook_origin[0] = 8
         rook_destination[0] = 6
-        logger.tokens[:castle] = "O-O"
+        logger.tokens[:castle] = "O-O" if logger
       end
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
@@ -119,7 +119,7 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    print piece.generate_moves(self, origin, true)
+    #print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
@@ -129,7 +129,7 @@ class Board
       piece = @spots[spot]
       if piece != 0 && piece.color != player_color &&
          piece.generate_moves(self, spot).include?(target_spot)
-        return true
+        return true if !(piece.is_a?(Pawn) && spot[0] == target_spot[0])
       end
     end
     false
