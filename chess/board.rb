@@ -63,7 +63,7 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(round, player, origin, destination, logger)
+  def update(round, player, origin, destination, logger = false)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
       pawn_update(piece, origin, destination, logger)
@@ -72,7 +72,7 @@ class Board
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
-    logger.record_move(self, round, player, origin, destination)
+    logger.record_move(self, round, player, origin, destination) if logger
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
@@ -139,7 +139,7 @@ class Board
     @spots.find {|spot, piece| piece.is_a?(King) && piece.color == color}.first
   end
 
-  def find_SAN_piece(piece_type, color, file, destination)
+  def find_SAN_piece(piece_type, color, origin_SAN, destination)
     matches = @spots.select do |spot, piece|
       @spots[spot] != 0 &&
       @spots[spot].letter == piece_type &&
@@ -150,8 +150,15 @@ class Board
       return matches.first
     else
       matches.each do |spot|
-        if (@@letter_index.index(file) + 1).to_i == spot[0]
-          return spot
+        if /\A[a-h]\z/ === origin_SAN
+          return spot if (@@letter_index.index(origin_SAN) + 1).to_i == spot[0]
+        elsif /\A[1-8]\z/ === origin_SAN
+          return spot if origin_SAN.to_i == spot[1]
+        else
+          if (@@letter_index.index(origin_SAN) + 1).to_i == spot[0] &&
+             origin_SAN.to_i == spot[1]
+            return spot
+          end
         end
       end
     end

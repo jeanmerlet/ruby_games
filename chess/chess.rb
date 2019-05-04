@@ -17,8 +17,8 @@ class Chess
 
   def play(player, restore = false)
     round = 1
-    while !(checkmate(player) || draw?(player))
-      player, player_color = *swap_players(player)
+    player_color = player.color
+    while !(checkmate(round, player) || draw?(player))
       loop do
         @board.render
         check_for_check(player_color)
@@ -28,6 +28,7 @@ class Chess
           check_for_promotion(player, player_color, origin, destination)
           @board.update(round, player, origin, destination, @logger)
           round += 1 if player.color == "B"
+          player, player_color = *swap_players(player)
           break
         else
           puts 'invalid move'
@@ -106,13 +107,13 @@ class Chess
     end
   end
 
-  def checkmate(player)
+  def checkmate(round, player)
     king_spot = @board.find_king(player.color)
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player.color, king_spot)
       if king.generate_moves(@board, king_spot, true).size != 0
         return false 
-      elsif !non_king_move_can_prevent_check?(player, king_spot)
+      elsif !non_king_move_can_prevent_check?(round, player, king_spot)
         puts "Checkmate #{player.name}!"
         @logger.tokens[:end_game] = (player.color == 'W' ? "0-1" : "1-0")
         return true
@@ -121,17 +122,19 @@ class Chess
     false
   end
 
-  def non_king_move_can_prevent_check?(player, king_spot)
-    clone_board = @board.dup
-    clone_board.spots = @board.spots.dup
-    
+  def non_king_move_can_prevent_check?(round, player, king_spot)
     @board.spots.each do |spot, piece|
       piece = @board.spots[spot]
-      if piece != 0 && piece.color == player.color
+      if piece != 0 && piece.color == player.color && !piece.is_a?(King)
         moves = @board.spots[spot].generate_moves(@board, spot)
         moves.each do |move|
-          clone_board.update(spot, move)
-          return true if !clone_board.spot_in_check?(player.color, king_spot)
+          clone_board = @board.dup
+          clone_board.spots = @board.spots.dup
+          clone_board.update(round, player, spot, move)
+          if !clone_board.spot_in_check?(player.color, king_spot)
+            clone_board.render
+            return true
+          end
           clone_board.spots = @board.spots.dup
         end
       end
@@ -192,7 +195,7 @@ class Chess
       when "quit", "q" then exit
       end
     end
-    play(@black)
+    play(@white)
   end
 
   def new_game
@@ -200,13 +203,13 @@ class Chess
     @black.name_player
     @logger.write_default_tags
     @logger.write_names(@white.name, @black.name)
-    play(@black)
+    play(@white)
   end
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
     restore = file_loader.restore(filename, @logger)
-    play(@black, restore)
+    play(@white, restore)
   end
 end
 
