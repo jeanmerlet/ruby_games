@@ -10,13 +10,9 @@ class Serialize
     print rounds
     print "\n\n"
     moveset = []
-    rounds.each_with_index do |round, i|
-      round.gsub(/\n/, " ")
-      moveset << round.scan(/(\S+)\s(\S+)/).flatten
-    end
+    rounds.each {|round| moveset << round.scan(/(\S+)\s(\S+)/).flatten }
     print moveset
     print "\n\n"
-    pause
     moveset
   end
 

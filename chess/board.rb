@@ -101,9 +101,9 @@ class Board
   def castle_update(king, origin, destination, logger)
     if king.horizontal_distance(origin, destination) > 1
       rook_origin, rook_destination = destination.dup, destination.dup
-      if destination[0] == 2
+      if destination[0] == 3
         rook_origin[0] = 1
-        rook_destination[0] = 3
+        rook_destination[0] = 4
         logger.tokens[:castle] = "O-O-O"
       else
         rook_origin[0] = 8
@@ -119,6 +119,7 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
+    print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
@@ -286,7 +287,7 @@ class King < ChessPiece
     @color = color
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
-    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-3, 0, 1], [2, 0, 1]]
+    @moves = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-2, 0, 1], [2, 0, 1]]
     @value = 10000
   end
 
@@ -310,11 +311,11 @@ class King < ChessPiece
   def can_castle?(board, king_spot, destination, x_distance)
     all_spots = board.spots
     rook_spot = destination.dup
-    rook_spot[0] = (destination[0] == 2 ? 1 : 8)
+    rook_spot[0] = (destination[0] == 3 ? 1 : 8)
     rook = all_spots[rook_spot]
     return false if !(rook.is_a?(Rook) && rook.has_moved == 0)
 
-    x = (destination[0] == 2 ? -1 : 1)
+    x = (destination[0] == 3 ? -1 : 1)
     x_distance.times do |i|
       spot = all_spots[[king_spot[0] + (x*(1 + i)), king_spot[1]]]
       if spot != 0

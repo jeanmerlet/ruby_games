@@ -31,6 +31,7 @@ class Chess
           break
         else
           puts 'invalid move'
+          exit
         end
       end
     end
@@ -81,7 +82,7 @@ class Chess
         destination = (color == 'W' ? [3, 1] : [3, 8])
       end
     elsif move == "1/2-1/2"
-      @draw = true
+      origin, destination = "draw", ""
     else
       move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
       piece = move_parts[0]
