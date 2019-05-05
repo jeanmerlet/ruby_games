@@ -95,7 +95,7 @@ class Board
     if destination[1] == 8 || destination[1] == 1
       @spots[origin] = create_promotion_piece(@promotion)
     end
-    piece.moves.pop if piece.moves.size == 4
+    piece.moves[0][2] = 1
   end
 
   def castle_update(king, origin, destination, logger)
@@ -119,7 +119,7 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    #print piece.generate_moves(self, origin, true)
+    print piece.generate_moves(self, origin, true)
     return false if !piece.generate_moves(self, origin, true).include?(destination)
     true
   end
@@ -154,11 +154,9 @@ class Board
           return spot if (@@letter_index.index(origin_SAN) + 1).to_i == spot[0]
         elsif /\A[1-8]\z/ === origin_SAN
           return spot if origin_SAN.to_i == spot[1]
-        else
-          if (@@letter_index.index(origin_SAN) + 1).to_i == spot[0] &&
-             origin_SAN.to_i == spot[1]
-            return spot
-          end
+        elsif (@@letter_index.index(origin_SAN) + 1).to_i == spot[0] &&
+              origin_SAN.to_i == spot[1]
+          return spot
         end
       end
     end
@@ -213,15 +211,15 @@ class ChessPiece
 end
 
 class Pawn < ChessPiece
-  attr_accessor :double_moved
+  attr_accessor :double_moved, :moves
 
   def initialize(color)
     @color = color
     @double_moved = 0
     @icon = (@color == 'B' ? "\u265F" : "\u2659")
     @letter = ''
-    @moves = (@color == 'W' ? [[0, 1, 1],[-1, 1, 1], [1, 1, 1], [0, 2, 1]] :
-                              [[0, -1, 1], [-1, -1, 1], [1, -1, 1], [0, -2, 1]])
+    @moves = (@color == 'W' ? [[0, 1, 2],[-1, 1, 1], [1, 1, 1]] :
+                              [[0, -1, 2], [-1, -1, 1], [1, -1, 1]])
     @value = 1
   end
 
@@ -232,8 +230,9 @@ class Pawn < ChessPiece
       x_distance = horizontal_distance(pawn_spot, spot)
       if x_distance == 0 && all_spots[spot] != 0
         legal_spots -= [spot]
-      elsif x_distance != 0 && all_spots[spot] == 0
-        legal_spots -= [spot] unless can_take_en_passant?(all_spots, pawn_spot, spot)
+      elsif x_distance != 0 && all_spots[spot] == 0 &&
+            !can_take_en_passant?(all_spots, pawn_spot, spot)
+        legal_spots -= [spot]
       end
     end
     legal_spots

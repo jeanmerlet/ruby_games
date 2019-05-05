@@ -1,19 +1,17 @@
 [Event "Lloyds Bank op"]
 [Site "London"]
 [Date "1984.??.??"]
-[Round "3"]
+[Round "9"]
 [White "Adams, Michael"]
-[Black "Dickenson, Neil F"]
+[Black "Saeed, Saeed Ahmed"]
 [Result "1-0"]
 [WhiteElo ""]
-[BlackElo "2230"]
-[ECO "C07"]
+[BlackElo "2430"]
+[ECO "B56"]
 
-1.e4 e6 2.d4 d5 3.Nd2 c5 4.exd5 Qxd5 5.Ngf3 cxd4 6.Bc4 Qd6 7.O-O Nf6 8.Nb3 Nc6
-9.Nbxd4 Nxd4 10.Nxd4 a6 11.Nf3 b5 12.Bd3 Bb7 13.a4 Ng4 14.Re1 Qb6 15.Qe2 Bc5
-16.Rf1 b4 17.h3 Nf6 18.Bg5 Nh5 19.Be3 Bxe3 20.Qxe3 Qxe3 21.fxe3 Ng3 22.Rfe1 Ne4
-23.Ne5 Nc5 24.Bc4 Ke7 25.a5 Rhd8 26.Red1 Rac8 27.b3 Rc7 28.Rxd8 Kxd8 29.Nd3 Nxd3
-30.Bxd3 Rc5 31.Ra4 Kc7 32.Kf2 g6 33.g4 Bc6 34.Rxb4 Rxa5 35.Rf4 f5 36.g5 Rd5
-37.Rh4 Rd7 38.Bxa6 Rd2+ 39.Ke1 Rxc2 40.Rxh7+ Kd6 41.Bc4 Bd5 42.Rg7 Rh2 43.Rxg6 Rxh3
-44.Kd2 Rg3 45.Rg8 Bxc4 46.bxc4 Kc5 47.g6 Kd6 48.c5+ Kc7 49.g7 Kb7 50.c6+  1-0
+1.e4 c5 2.Nf3 Nc6 3.d4 cxd4 4.Nxd4 Nf6 5.Nc3 d6 6.Be3 Ng4 7.Bg5 Qb6 8.Bb5 Bd7
+9.O-O Qxd4 10.Bxc6 Qxd1 11.Bxd7+ Kxd7 12.Raxd1 g6 13.h3 Ne5 14.Nd5 Nc6 15.b4 h6
+16.Bh4 f5 17.f4 Rg8 18.b5 Na5 19.e5 Nc4 20.Rd4 Rc8 21.e6+ Ke8 22.b6 axb6
+23.Rb1 g5 24.Rb4 b5 25.Rxb5 Bg7 26.Rxc4 Rxc4 27.Rxb7 Bd4+ 28.Bf2 Bxf2+ 29.Kxf2 Kf8
+30.Rxe7 Rg7 31.Rd7 Rxc2+ 32.Kf3 Rg6 33.Rd8+ Kg7 34.e7 g4+ 35.hxg4 fxg4+ 36.Kg3  1-0
 
