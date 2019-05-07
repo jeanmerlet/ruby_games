@@ -1,29 +1,21 @@
 class Serialize
-
-  def initialize
-  end
-
   def restore(filename, logger)
     tags, rounds = *read_tags_and_moves(filename)
     logger.import_tags(tags)
     rounds = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
-    print rounds
-    print "\n\n"
     moveset = []
     rounds.each {|round| moveset << round.scan(/(\S+)[ ]{1,2}(\S+)/).flatten }
+    moveset << tags.scan(/\[Result \"(\S+)\"\]/).flatten
     print moveset
-    print "\n\n"
     moveset
   end
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\n\n").with_index do |blob, i|
+    File.foreach(filename, "\r\n\r\n").with_index do |blob, i|
       tags = blob if i == 0
       rounds = blob if i == 1
     end
-    print rounds
-    print "\n\n"
     [tags, rounds]
   end
 end

@@ -5,25 +5,26 @@ require './record.rb'
 @@letter_index = [*('a'..'h')]
 
 class Chess
-  attr_reader :black
-
   def initialize
     @board = Board.new
     @board.place_pieces
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
+    @next = false
   end
 
   def play(player, restore = false)
     @board.render
     round = 1
     player_color = player.color
-    while !(checkmate(round, player) || draw(player))
+    while !(checkmate(round, player) || draw(player) || @next)
       loop do
         origin, destination = *fetch_move_input(round, player, restore)
         if !origin.is_a? Array
           non_chess_move(player, origin)
+          @next = true
+          break
         elsif @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, player_color, origin, destination)
           check_for_check(round, player, origin, destination)
@@ -38,8 +39,8 @@ class Chess
         end
       end
     end
-    @board.render
-    menu #does this eventually cause memory problems?
+    #@board.render
+    #menu
   end
 
   def swap_players(player)
@@ -62,7 +63,6 @@ class Chess
   def non_chess_move(player, input)
     draw(player, true) if input == "draw"
     win(swap_players(player)[0], true) if input == "win"
-    exit
   end
 
   def fetch_move_input(round, player, restore)
@@ -121,7 +121,7 @@ class Chess
     king_spot = @board.find_king(player.color)
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player.color, king_spot)
-      if king.generate_moves(@board, king_spot, true).size != 0
+      if king.generate_moves(@board, king_spot).size != 0
         return false 
       elsif !non_king_move_can_prevent_check?(round, player, king_spot)
         puts "Checkmate #{player.name}!"
@@ -136,7 +136,7 @@ class Chess
     @board.spots.each do |spot, piece|
       piece = @board.spots[spot]
       if piece != 0 && piece.color == player.color && !piece.is_a?(King)
-        moves = @board.spots[spot].generate_moves(@board, spot)
+        moves = @board.spots[spot].generate_moves(@board, spot, false)
         moves.each do |move|
           clone_board = @board.dup
           clone_board.spots = @board.spots.dup
@@ -172,7 +172,7 @@ class Chess
         current_piece = spots[spot]
         if current_piece != 0 &&
            current_piece.color == color &&
-           current_piece.generate_moves(@board, spot).size != 0
+           current_piece.generate_moves(@board, spot, false).size != 0
           return false
         end
       end
@@ -221,7 +221,19 @@ class Chess
   end
 end
 
-chess = Chess.new
+#chess = Chess.new
 #chess.new_game
-chess.load_game
+#chess.load_game
 #chess.menu
+
+filename = "adams.pgn"
+File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
+  chess = Chess.new
+  p game
+  File.open('test.pgn', 'w+') do |current_game|
+    current_game.write("[") if i != 0
+    current_game.write(game)
+  end
+  chess.load_game
+  sleep(1)
+end
