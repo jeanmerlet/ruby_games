@@ -78,7 +78,7 @@ class Board
 
   def pawn_update(piece, origin, destination, logger)
     if (destination[1] - origin[1]).abs == 2
-      piece.double_moved = 1
+      piece.en_passable = true
     else
       if piece.horizontal_distance(origin, destination) == 1 &&
          @spots[destination] == 0
@@ -94,7 +94,7 @@ class Board
     if destination[1] == 8 || destination[1] == 1
       @spots[origin] = create_promotion_piece(@promotion)
     end
-    piece.moves[0][2] = 1
+    piece.move_steps[0][2] = 1
   end
 
   def castle_update(king, origin, destination, logger)
@@ -111,19 +111,19 @@ class Board
       end
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
-    2.times {king.moves.pop} if king.moves.size == 10
+    2.times {king.move_steps.pop} if king.move_steps.size == 10
   end
 
   def validate_move(player_color, origin, destination)
     piece = @spots[origin]
+    print @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
     #print piece.generate_moves(self, origin)
     return false if !piece.generate_moves(self, origin).include?(destination)
     true
   end
-
-  def spot_in_check?(color, target_spot)
+def spot_in_check?(color, target_spot)
     @spots.each do |spot, piece|
       piece = @spots[spot]
       if piece != 0 && piece.color != color &&
@@ -187,13 +187,15 @@ class ChessPiece
   def generate_moves(board, origin, check_for_check = true)
     spots = board.spots
     moves = []
-    king_spot = board.find_king(@color)
+    king_spot = board.find_king(@color) if check_for_check
     @move_steps.each do |move_step|
       move = increment_move(origin, move_step)
       move_step[2].times do
         break if spots[move] == nil
         break if spots[move] != 0 && spots[move].color == @color
-        break if moving_self_checks(board, origin, move, king_spot)
+        if !self.is_a?(King) && check_for_check
+          break if moving_self_checks(board, origin, move, king_spot)
+        end
         moves << move
         break if spots[move] != 0
         move = increment_move(move, move_step)
@@ -203,7 +205,6 @@ class ChessPiece
   end
 
   def moving_self_checks(board, origin, move, king_spot)
-    return false if self.is_a?(King)
     _board = board.dup
     _board.spots = board.spots.dup
     _board.spots[origin], _board.spots[move] = 0, _board.spots[origin]
@@ -335,7 +336,7 @@ class King < ChessPiece
     rook_spot = move.dup
     rook_spot[0] = (move[0] == 3 ? 1 : 8)
     rook = spots[rook_spot]
-    return false if !(rook.is_a?(Rook) && rook.has_moved)
+    return false if !rook.is_a?(Rook) && rook.has_moved
 
     x = (move[0] == 3 ? -1 : 1)
     x_move.times do |i|

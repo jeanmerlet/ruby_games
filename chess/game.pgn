@@ -1,12 +1,12 @@
-[Event "BCF-ch"]
-[Site "Edinburgh"]
-[Date "1985.??.??"]
-[Round "4"]
-[White "Muir, Andrew J"]
-[Black "Adams, Michael"]
+[Event "Lloyds Bank op"]
+[Site "London"]
+[Date "1984.??.??"]
+[Round "6"]
+[White "Adams, Michael"]
+[Black "Levitt, Jonathan"]
 [Result "1/2-1/2"]
-[WhiteElo "2285"]
-[BlackElo "2360"]
-[ECO "E45"]
+[WhiteElo ""]
+[BlackElo "2370"]
+[ECO "B99"]
 
-1. d4 Nf6 2. c4 e6 3. Nc3 Bb4 4. e3 b6 
+1. e4 c5 2. Nf3 d6 3. d4 cxd4 4. Nxd4 Nf6 5. Nc3 a6 6. Bg5 e6 7. f4 Be7 8. Qf3 Qc7 9. O-O-O Nbd7 10. Bd3 b5 11. Rhe1 Bb7 12. Qg3 b4 13. Nd5 exd5 14. e5 dxe5 15. fxe5 O-O-O 16. Nf5 Bc5 17. exf6 Qxg3 18. hxg3 gxf6 19. Bf4 Ne5 20. Bxe5 fxe5 21. Rxe5 Rde8 22. Rxe8+ 
