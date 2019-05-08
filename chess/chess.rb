@@ -51,13 +51,12 @@ class Chess
 
   def check_for_check(round, player, origin, destination)
     player, color = *swap_players(player)
-    clone_board = @board.dup
-    clone_board.spots = @board.spots.dup
-    clone_board.update(round, player, origin, destination)
-    if clone_board.spot_in_check?(color, clone_board.find_king(color))
+    @board.update(round, player, origin, destination)
+    if @board.spot_in_check?(color, @board.find_king(color))
       puts 'Check!'
       @logger.tokens[:check] = "+"
     end
+    @board.process_undos
   end
 
   def non_chess_move(player, input)
@@ -138,11 +137,9 @@ class Chess
       if piece != 0 && piece.color == player.color && !piece.is_a?(King)
         moves = @board.spots[spot].generate_moves(@board, spot, false)
         moves.each do |move|
-          clone_board = @board.dup
-          clone_board.spots = @board.spots.dup
-          clone_board.update(round, player, spot, move)
-          return true if !clone_board.spot_in_check?(player.color, king_spot)
-          clone_board.spots = @board.spots.dup
+          @board.update(round, player, spot, move)
+          return true if !@board.spot_in_check?(player.color, king_spot)
+          @board.process_undos
         end
       end
     end
@@ -221,12 +218,13 @@ class Chess
   end
 end
 
-#chess = Chess.new
+chess = Chess.new
 #chess.new_game
-#chess.load_game
+chess.load_game
 #chess.menu
 
-filename = "adams.pgn"
+=begin
+filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
   p game

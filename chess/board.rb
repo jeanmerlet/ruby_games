@@ -2,11 +2,15 @@ require 'colorize'
 
 class Board
   attr_accessor :spots, :promotion
+  attr_reader   :undo, :castle_undo, :en_passant_undo
 
   def initialize
     #hash with [x, y] coordinate arrays as keys and 0 as default values
     @spots = Hash[[*1..8].repeated_permutation(2).map {|x| [x, 0]}]
     @promotion = false
+    @undo = []
+    @castle_undo = []
+    @en_passant_undo = []
   end
 
   def place_pieces
@@ -72,7 +76,11 @@ class Board
     elsif piece.is_a?(Rook)
       piece.has_moved = 1
     end
-    logger.record_move(self, round, player, origin, destination) if logger
+    if logger
+      logger.record_move(self, round, player, origin, destination)
+    else
+      @undo = [[origin.dup, @spots[origin].dup], [destination.dup, @spots[destination].dup]]
+    end
     @spots[origin], @spots[destination] = 0, @spots[origin]
   end
 
@@ -87,14 +95,18 @@ class Board
         else
           passed_pawn_spot = [destination[0], destination[1] + 1]
         end
-        logger.tokens[:en_passant] = true if logger
+        if logger
+          logger.tokens[:en_passant] = true
+        else
+          @en_passant_undo = [true, passed_pawn_spot.dup, @spots[passed_pawn_spot].dup]
+        end
         @spots[passed_pawn_spot] = 0
       end
     end
-    if destination[1] == 8 || destination[1] == 1
+    if (destination[1] == 8 || destination[1] == 1) && logger
       @spots[origin] = create_promotion_piece(@promotion)
     end
-    piece.move_steps[0][2] = 1
+    piece.move_steps[0][2] = 1 if logger
   end
 
   def castle_update(king, origin, destination, logger)
@@ -109,21 +121,44 @@ class Board
         rook_destination[0] = 6
         logger.tokens[:castle] = "O-O" if logger
       end
+      @castle_undo = [true, rook_origin.dup, rook_destination.dup] if !logger
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
-    2.times {king.move_steps.pop} if king.move_steps.size == 10
+    2.times {king.move_steps.pop} if king.move_steps.size == 10 && logger
+  end
+
+  def process_undos
+    piece = @undo[0][1]
+    piece.en_passable = false if piece.is_a?(Pawn) && piece.en_passable
+    if @en_passant_undo[0]
+      @spots[@en_passant_undo[1]] = @en_passant_undo[2]
+    end
+    if @castle_undo[0]
+      @spots[@castle_undo[1]], @spots[@castle_undo[2]] = @spots[@castle_undo[2]], 0
+    end
+    print "\n\n"
+    print @undo[0][0], @undo[0][1], @undo[1][0], @undo[1][1]
+    print "\n\n"
+    @spots[@undo[0][0]], @spots[@undo[1][0]] = @undo[0][1], @undo[1][1]
+    undo_reset
+  end
+
+  def undo_reset
+    @undo = []
+    @en_passant_undo = [false]
+    @castle_undo = [false]
   end
 
   def validate_move(player_color, origin, destination)
     piece = @spots[origin]
-    print @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
     #print piece.generate_moves(self, origin)
     return false if !piece.generate_moves(self, origin).include?(destination)
     true
   end
-def spot_in_check?(color, target_spot)
+
+  def spot_in_check?(color, target_spot)
     @spots.each do |spot, piece|
       piece = @spots[spot]
       if piece != 0 && piece.color != color &&
@@ -139,6 +174,7 @@ def spot_in_check?(color, target_spot)
   end
 
   def find_SAN_piece(piece_type, color, origin_SAN, destination)
+    print @spots[[1, 7]].move_steps if @spots[[1, 7]] != 0
     matches = @spots.select do |spot, piece|
       @spots[spot] != 0 &&
       @spots[spot].letter == piece_type &&
@@ -205,10 +241,14 @@ class ChessPiece
   end
 
   def moving_self_checks(board, origin, move, king_spot)
-    _board = board.dup
-    _board.spots = board.spots.dup
-    _board.spots[origin], _board.spots[move] = 0, _board.spots[origin]
-    return true if _board.spot_in_check?(@color, king_spot)
+    if !board.spot_in_check?(@color, king_spot)
+      _board = board.dup
+      _board.spots = board.spots.dup
+      _board.spots[origin], _board.spots[move] = 0, _board.spots[origin]
+      if _board.spot_in_check?(@color, king_spot)
+        return true
+      end
+    end
     false
   end
 
