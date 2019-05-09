@@ -74,7 +74,7 @@ class Board
     elsif piece.is_a?(King)
       castle_update(piece, origin, destination, logger)
     elsif piece.is_a?(Rook)
-      piece.has_moved = true
+      piece.has_moved = true if logger
     end
     if logger
       logger.record_move(self, round, player, origin, destination)

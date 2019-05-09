@@ -228,11 +228,12 @@ class Chess
   end
 end
 
-#chess = Chess.new
+chess = Chess.new
 #chess.new_game
-#chess.load_game
+chess.load_game
 #chess.menu
 
+=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
@@ -244,3 +245,4 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
+=end
