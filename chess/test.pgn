@@ -1,18 +1,17 @@
-[Event "BCF-ch"]
-[Site "Edinburgh"]
+[Event "Lloyds Bank op"]
+[Site "London"]
 [Date "1985.??.??"]
-[Round "6"]
+[Round "?"]
 [White "Bowden, Karl"]
 [Black "Adams, Michael"]
-[Result "1/2-1/2"]
+[Result "1-0"]
 [WhiteElo "2250"]
 [BlackElo "2360"]
 [ECO "B10"]
 
-1.e4 c6 2.c4 d5 3.cxd5 cxd5 4.exd5 Nf6 5.Bb5+ Nbd7 6.Nc3 a6 7.Be2 b5 8.d6 e6
-9.d4 Bxd6 10.Bf3 Rb8 11.Nge2 O-O 12.O-O Qc7 13.Ng3 b4 14.Na4 Bb7 15.Bxb7 Qxb7
-16.Bg5 Qd5 17.Bxf6 Nxf6 18.Qd3 Rfd8 19.Rfd1 a5 20.Nf1 Qg5 21.Rac1 Nd5 22.Nd2 Nf4
-23.Qf3 Qb5 24.Nc4 Qxa4 25.Nxd6 Rxd6 26.Qxf4 Rbd8 27.Qxd6 Qxd1+ 28.Rxd1 Rxd6
-29.Rc1 g6 30.Rc4 e5 31.Kf1 exd4 32.Ke2 d3+ 33.Kd2 Rd5 34.Re4 Kg7 35.Re3  1/2-1/2
+1.e4 c6 2.c4 d5 3.exd5 cxd5 4.cxd5 Nf6 5.Bb5+ Nbd7 6.Nc3 a6 7.Qa4 Rb8 8.Bxd7+ Bxd7
+9.Qb3 b5 10.d3 b4 11.Ne4 Qa5 12.Nxf6+ gxf6 13.Ne2 Rg8 14.O-O Ba4 15.Qc4 Rd8
+16.b3 Bb5 17.Qe4 Qb6 18.Be3 Qb7 19.Nf4 e5 20.Rfe1 Rd7 21.d4 Kd8 22.dxe5 fxe5
+23.Qxh7 Rg4 24.Qh8  1-0
 
 [

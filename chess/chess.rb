@@ -138,8 +138,12 @@ class Chess
         moves = @board.spots[spot].generate_moves(@board, spot, false)
         moves.each do |move|
           @board.update(round, player, spot, move)
-          return true if !@board.spot_in_check?(player.color, king_spot)
-          @board.process_undos
+          if !@board.spot_in_check?(player.color, king_spot)
+            @board.process_undos
+            return true
+          else
+            @board.process_undos
+          end
         end
       end
     end
@@ -227,7 +231,7 @@ chess.load_game
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
-  p game
+  #p game
   File.open('test.pgn', 'w+') do |current_game|
     current_game.write("[") if i != 0
     current_game.write(game)
@@ -235,3 +239,4 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
+=end

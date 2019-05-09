@@ -74,7 +74,7 @@ class Board
     elsif piece.is_a?(King)
       castle_update(piece, origin, destination, logger)
     elsif piece.is_a?(Rook)
-      piece.has_moved = 1
+      piece.has_moved = true
     end
     if logger
       logger.record_move(self, round, player, origin, destination)
@@ -136,9 +136,9 @@ class Board
     if @castle_undo[0]
       @spots[@castle_undo[1]], @spots[@castle_undo[2]] = @spots[@castle_undo[2]], 0
     end
-    print "\n\n"
-    print @undo[0][0], @undo[0][1], @undo[1][0], @undo[1][1]
-    print "\n\n"
+    #print "\n\n"
+    #print @undo[0][0], @undo[0][1], @undo[1][0], @undo[1][1]
+    #print "\n\n"
     @spots[@undo[0][0]], @spots[@undo[1][0]] = @undo[0][1], @undo[1][1]
     undo_reset
   end
@@ -174,13 +174,13 @@ class Board
   end
 
   def find_SAN_piece(piece_type, color, origin_SAN, destination)
-    print @spots[[1, 7]].move_steps if @spots[[1, 7]] != 0
     matches = @spots.select do |spot, piece|
       @spots[spot] != 0 &&
       @spots[spot].letter == piece_type &&
       @spots[spot].color == color &&
       @spots[spot].generate_moves(self, spot).include?(destination)
     end.keys
+    #print matches
     if matches.size == 1
       return matches.first
     else
@@ -242,12 +242,13 @@ class ChessPiece
 
   def moving_self_checks(board, origin, move, king_spot)
     if !board.spot_in_check?(@color, king_spot)
-      _board = board.dup
-      _board.spots = board.spots.dup
-      _board.spots[origin], _board.spots[move] = 0, _board.spots[origin]
-      if _board.spot_in_check?(@color, king_spot)
+      undo = [board.spots[origin].dup, board.spots[move].dup]
+      board.spots[origin], board.spots[move] = 0, board.spots[origin]
+      if board.spot_in_check?(@color, king_spot)
+        board.spots[origin], board.spots[move] = board.spots[move], 0
         return true
       end
+      board.spots[origin], board.spots[move] = undo[0], undo[1]
     end
     false
   end
@@ -376,7 +377,11 @@ class King < ChessPiece
     rook_spot = move.dup
     rook_spot[0] = (move[0] == 3 ? 1 : 8)
     rook = spots[rook_spot]
-    return false if !rook.is_a?(Rook) && rook.has_moved
+    if !rook.is_a?(Rook)
+      return false
+    elsif rook.has_moved
+      return false
+    end
 
     x = (move[0] == 3 ? -1 : 1)
     x_move.times do |i|

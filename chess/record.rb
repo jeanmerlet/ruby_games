@@ -6,7 +6,7 @@ class Serialize
     moveset = []
     rounds.each {|round| moveset << round.scan(/(\S+)[ ]{1,2}(\S+)/).flatten }
     moveset << tags.scan(/\[Result \"(\S+)\"\]/).flatten
-    print moveset
+    #print moveset
     moveset
   end
 
