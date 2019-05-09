@@ -82,9 +82,9 @@ class Chess
   end
 
   def parse_SAN(move, color)
-    if move == "O-O" || move == "O-O-O"
+    if /O-O\S+/ === move
       origin = @board.find_king(color)
-      if move == "O-O"
+      if /\AO-O[+#]/ === move 
         destination = (color == 'W' ? [7, 1] : [7, 8])
       else
         destination = (color == 'W' ? [3, 1] : [3, 8])
