@@ -1,2 +1,4 @@
 #ignore PGN files
 *.pgn
+#vim edit files
+*.swp

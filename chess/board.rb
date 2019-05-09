@@ -238,15 +238,13 @@ class ChessPiece
   end
 
   def moving_self_checks(board, origin, move, king_spot)
-    if !board.spot_in_check?(@color, king_spot)
-      undo = [board.spots[origin].dup, board.spots[move].dup]
-      board.spots[origin], board.spots[move] = 0, board.spots[origin]
-      if board.spot_in_check?(@color, king_spot)
-        board.spots[origin], board.spots[move] = undo[0], undo[1]
-        return true
-      end
+    undo = [board.spots[origin].dup, board.spots[move].dup]
+    board.spots[origin], board.spots[move] = 0, board.spots[origin]
+    if board.spot_in_check?(@color, king_spot)
       board.spots[origin], board.spots[move] = undo[0], undo[1]
+      return true
     end
+    board.spots[origin], board.spots[move] = undo[0], undo[1]
     false
   end
 
