@@ -22,8 +22,6 @@ class Chess
       loop do
         origin, destination = *fetch_move_input(round, player, restore)
         if !origin.is_a? Array
-          print "\n"
-          print origin
           non_chess_move(player, origin)
           @next = true
           break
@@ -98,7 +96,8 @@ class Chess
     else
       if /=/ === move
         @board.promotion = [move.scan(/=([BNRKQ])/).flatten.first, color]
-        move = move.scan(/\A(\S+)=[BNRKQ]\z/).flatten.first
+        move = move.scan(/\A(\S+)=\S+\z/).flatten.first
+        print move
       end
       move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
       piece = move_parts[0]
@@ -228,12 +227,11 @@ class Chess
   end
 end
 
-chess = Chess.new
+#chess = Chess.new
 #chess.new_game
-chess.load_game
+#chess.load_game
 #chess.menu
 
-=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
@@ -245,4 +243,3 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
-=end
