@@ -68,7 +68,7 @@ class Hangman
 
     def initialize(secret_word, guess)
       if secret_word == nil
-        word_list = File.readlines("word_list.txt")
+        word_list = File.readlines("../word_list.txt")
         word_list.each { |word| word.sub!(/\r\n/, "") }
         word_list.select! { |word| word.length > 4 && word.length < 13 }
         @secret_word = word_list[rand(word_list.length-1)]
