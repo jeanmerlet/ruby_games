@@ -103,8 +103,9 @@ class Board
         @spots[passed_pawn_spot] = 0
       end
     end
-    if (destination[1] == 8 || destination[1] == 1) && logger
-      @spots[origin] = create_promotion_piece(@promotion)
+    if @promotion && logger
+      @spots[origin] = create_promotion_piece
+      @promotion = false
     end
     piece.move_steps[0][2] = 1 if logger
   end
@@ -136,9 +137,6 @@ class Board
     if @castle_undo[0]
       @spots[@castle_undo[1]], @spots[@castle_undo[2]] = @spots[@castle_undo[2]], 0
     end
-    #print "\n\n"
-    #print @undo[0][0], @undo[0][1], @undo[1][0], @undo[1][1]
-    #print "\n\n"
     @spots[@undo[0][0]], @spots[@undo[1][0]] = @undo[0][1], @undo[1][1]
     undo_reset
   end
@@ -153,7 +151,6 @@ class Board
     piece = @spots[origin]
     return false if piece == 0
     return false if player_color != piece.color
-    #print piece.generate_moves(self, origin)
     return false if !piece.generate_moves(self, origin).include?(destination)
     true
   end

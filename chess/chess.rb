@@ -22,11 +22,13 @@ class Chess
       loop do
         origin, destination = *fetch_move_input(round, player, restore)
         if !origin.is_a? Array
+          print "\n"
+          print origin
           non_chess_move(player, origin)
           @next = true
           break
         elsif @board.validate_move(player_color, origin, destination)
-          check_for_promotion(player, player_color, origin, destination)
+          check_for_promotion(player, origin, destination) if !restore
           check_for_check(round, player, origin, destination)
           @board.update(round, player, origin, destination, @logger)
           @board.render
@@ -94,6 +96,10 @@ class Chess
     elsif move == "1-0" || move == "0-1"
       origin, destination = "win", ""
     else
+      if /=/ === move
+        @board.promotion = [move.scan(/=([BNRKQ])/).flatten.first, color]
+        move = move.scan(/\A(\S+)=[BNRKQ]\z/).flatten.first
+      end
       move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
       piece = move_parts[0]
       origin_SAN = move_parts[1]
@@ -109,9 +115,9 @@ class Chess
     [origin, destination]
   end
 
-    def check_for_promotion(player, player_color, origin, destination)
+    def check_for_promotion(player, origin, destination)
     if @board.need_promote?(origin, destination)
-      @board.promotion = [player.pawn_promote, player_color]
+      @board.promotion = [player.pawn_promote, player.color]
       @logger.tokens[:promotion] = @board.promotion[0]
     end
   end
@@ -227,7 +233,6 @@ end
 #chess.load_game
 #chess.menu
 
-#=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
@@ -239,4 +244,3 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
-#=end
