@@ -243,4 +243,3 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
-=end

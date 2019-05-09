@@ -177,7 +177,6 @@ class Board
       @spots[spot].color == color &&
       @spots[spot].generate_moves(self, spot).include?(destination)
     end.keys
-    #print matches
     if matches.size == 1
       return matches.first
     else
@@ -226,8 +225,10 @@ class ChessPiece
       move_step[2].times do
         break if spots[move] == nil
         break if spots[move] != 0 && spots[move].color == @color
-        if !self.is_a?(King) && check_for_check
-          break if moving_self_checks(board, origin, move, king_spot)
+        if !self.is_a?(King) && check_for_check &&
+           moving_self_checks(board, origin, move, king_spot)
+          move = increment_move(move, move_step)
+          next
         end
         moves << move
         break if spots[move] != 0
