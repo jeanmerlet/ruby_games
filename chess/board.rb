@@ -245,7 +245,7 @@ class ChessPiece
       undo = [board.spots[origin].dup, board.spots[move].dup]
       board.spots[origin], board.spots[move] = 0, board.spots[origin]
       if board.spot_in_check?(@color, king_spot)
-        board.spots[origin], board.spots[move] = board.spots[move], 0
+        board.spots[origin], board.spots[move] = undo[0], undo[1]
         return true
       end
       board.spots[origin], board.spots[move] = undo[0], undo[1]
