@@ -97,7 +97,6 @@ class Chess
       if /=/ === move
         @board.promotion = [move.scan(/=([BNRKQ])/).flatten.first, color]
         move = move.scan(/\A(\S+)=\S+\z/).flatten.first
-        print move
       end
       move_parts = move.scan(/([BNRKQ]?)([a-h]?\d?)x?([a-h]\d)\S?/).flatten
       piece = move_parts[0]

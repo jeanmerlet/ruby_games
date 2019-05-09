@@ -177,7 +177,6 @@ class Board
       @spots[spot].color == color &&
       @spots[spot].generate_moves(self, spot).include?(destination)
     end.keys
-    print matches
     if matches.size == 1
       return matches.first
     else
@@ -241,13 +240,13 @@ class ChessPiece
   end
 
   def moving_self_checks(board, origin, move, king_spot)
-    undo = [board.spots[origin].dup, board.spots[move].dup]
-    board.spots[origin], board.spots[move] = 0, board.spots[origin]
+    round, player = "placeholder", "placeholder"
+    board.update(round, player, origin, move)
     if board.spot_in_check?(@color, king_spot)
-      board.spots[origin], board.spots[move] = undo[0], undo[1]
+      board.process_undos
       return true
     end
-    board.spots[origin], board.spots[move] = undo[0], undo[1]
+    board.process_undos
     false
   end
 
