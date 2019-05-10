@@ -8,6 +8,7 @@ class Chess
   def initialize
     @board = Board.new
     @board.place_pieces
+    @board.king_spot = [5, 1]
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
@@ -28,14 +29,15 @@ class Chess
         elsif @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, origin, destination) if !restore
           check_for_check(round, player, origin, destination)
-          @board.update(round, player, origin, destination, @logger)
+          @board.update(origin, destination, round, player, @logger)
           @board.render
-          round += 1 if player.color == "B"
+          round += 1 if player_color == "B"
           player, player_color = *swap_players(player)
+          @board.king_spot = @board.find_king(player_color)
           break
         else
           puts 'invalid move'
-          exit
+          exit if restore
         end
       end
     end
@@ -51,7 +53,7 @@ class Chess
 
   def check_for_check(round, player, origin, destination)
     player, color = *swap_players(player)
-    @board.update(round, player, origin, destination)
+    @board.update(origin, destination)
     if @board.spot_in_check?(color, @board.find_king(color))
       puts 'Check!'
       @logger.tokens[:check] = "+"
@@ -124,7 +126,7 @@ class Chess
     king_spot = @board.find_king(player.color)
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player.color, king_spot)
-      if king.generate_moves(@board, king_spot).size != 0
+      if king.generate_moves(@board, king_spot, king_spot, true).size != 0
         return false 
       elsif !non_king_move_can_prevent_check?(round, player, king_spot)
         puts "Checkmate #{player.name}!"
@@ -139,9 +141,9 @@ class Chess
     @board.spots.each do |spot, piece|
       piece = @board.spots[spot]
       if piece != 0 && piece.color == player.color && !piece.is_a?(King)
-        moves = @board.spots[spot].generate_moves(@board, spot, false)
+        moves = @board.spots[spot].generate_moves(@board, spot)
         moves.each do |move|
-          @board.update(round, player, spot, move)
+          @board.update(spot, move)
           if !@board.spot_in_check?(player.color, king_spot)
             @board.process_undos
             return true
@@ -177,7 +179,7 @@ class Chess
         current_piece = spots[spot]
         if current_piece != 0 &&
            current_piece.color == color &&
-           current_piece.generate_moves(@board, spot, false).size != 0
+           current_piece.generate_moves(@board, spot).size != 0
           return false
         end
       end
@@ -216,6 +218,8 @@ class Chess
     @black.name_player
     @logger.write_default_tags
     @logger.write_names(@white.name, @black.name)
+    print @board.king_spot
+    exit
     play(@white)
   end
 
