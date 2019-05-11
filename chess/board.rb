@@ -2,11 +2,13 @@ require 'colorize'
 
 class Board
   attr_accessor :spots, :king_spot, :promotion
+  attr_reader   :en_passant
 
   def initialize
     #hash with [x, y] coordinate arrays as keys and 0 as default values
     @spots = Hash[[*1..8].repeated_permutation(2).map {|x| [x, 0]}]
     @king_spot = []
+    @en_passant = false
     @promotion = false
     @undo = []
     @castle_undo = []
@@ -71,10 +73,13 @@ class Board
     piece = @spots[origin]
     if piece.is_a?(Pawn)
       pawn_update(piece, origin, destination, logger)
-    elsif piece.is_a?(King)
-      castle_update(piece, origin, destination, logger)
-    elsif piece.is_a?(Rook)
-      piece.has_moved = true if logger
+    else
+      @en_passant = false
+      if piece.is_a?(King)
+        castle_update(piece, origin, destination, logger)
+      elsif piece.is_a?(Rook)
+        piece.has_moved = true if logger
+      end
     end
     if logger
       logger.record_move(self, round, player, origin, destination)
@@ -86,22 +91,19 @@ class Board
 
   def pawn_update(piece, origin, destination, logger)
     if (destination[1] - origin[1]).abs == 2
-      piece.en_passable = true
-    else
-      if piece.horizontal_distance(origin, destination) == 1 &&
-         @spots[destination] == 0
-        if piece.color == 'W'
-          passed_pawn_spot = [destination[0], destination[1] - 1]
-        else
-          passed_pawn_spot = [destination[0], destination[1] + 1]
-        end
-        if logger
-          logger.tokens[:en_passant] = true
-        else
-          @en_passant_undo = [true, passed_pawn_spot.dup, @spots[passed_pawn_spot].dup]
-        end
-        @spots[passed_pawn_spot] = 0
+      @en_passant = destination.dup if logger
+    elsif piece.horizontal_distance(origin, destination) == 1 &&
+          @spots[destination] == 0 && @en_passant
+      if logger
+        logger.tokens[:en_passant] = true
+        @spots[@en_passant] = 0
+        @en_passant = false
+      else
+        @en_passant_undo = [true, @en_passant.dup, @spots[@en_passant].dup]
+        @spots[@en_passant] = 0
       end
+    else
+      @en_passant = false
     end
     if @promotion && logger
       @spots[origin] = create_promotion_piece
@@ -278,9 +280,9 @@ class Pawn < ChessPiece
       x_distance = horizontal_distance(pawn_spot, move)
       if x_distance == 0 && spots[move] != 0
         true
-      elsif x_distance != 0 && spots[move] == 0 &&
-            !can_take_en_passant?(spots, pawn_spot, move)
-        true
+      elsif x_distance != 0 && spots[move] == 0
+        true if !board.en_passant
+        !can_take_en_passant?(board, spots, pawn_spot, move)
       else
         false
       end
@@ -288,15 +290,13 @@ class Pawn < ChessPiece
     moves
   end
 
-  def can_take_en_passant?(spots, pawn_spot, move)
+  def can_take_en_passant?(board, spots, pawn_spot, move)
     if @color == 'W'
-      target_pawn = spots[[move[0], move[1] - 1]]
+      target_pawn_spot = [move[0], move[1] - 1]
     else
-      target_pawn = spots[[move[0], move[1] + 1]]
+      target_pawn_spot = [move[0], move[1] + 1]
     end
-    return false if !(target_pawn.is_a?(Pawn) &&
-                      target_pawn.color != @color &&
-                      target_pawn.en_passable)
+    return false if target_pawn_spot != board.en_passant
     true
   end
 end
