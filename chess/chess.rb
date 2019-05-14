@@ -28,7 +28,7 @@ class Chess
           break
         elsif @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, origin, destination) if !restore
-          check_for_check(round, player, origin, destination)
+          check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, @logger)
           @board.render
           round += 1 if player_color == "B"
@@ -36,7 +36,7 @@ class Chess
           @board.king_spot = @board.find_king(player_color)
           break
         else
-          puts 'invalid move'
+          puts "\nInvalid move."
           exit if restore
         end
       end
@@ -51,7 +51,7 @@ class Chess
     [player, player_color]
   end
 
-  def check_for_check(round, player, origin, destination)
+  def check_for_check(player, origin, destination)
     player, color = *swap_players(player)
     @board.update(origin, destination)
     if @board.spot_in_check?(color, @board.find_king(color))
@@ -70,7 +70,7 @@ class Chess
     return parse_player_input(player.take_turn) if !restore
     color = player.color
     player = (player == @white ? 0 : 1)
-    print restore[round - 1][player]
+    #print restore[round - 1][player]
     parse_SAN(restore[round - 1][player], color)
   end
 
@@ -218,8 +218,6 @@ class Chess
     @black.name_player
     @logger.write_default_tags
     @logger.write_names(@white.name, @black.name)
-    print @board.king_spot
-    exit
     play(@white)
   end
 
@@ -230,15 +228,15 @@ class Chess
   end
 end
 
-#chess = Chess.new
-#chess.new_game
+chess = Chess.new
+chess.new_game
 #chess.load_game
 #chess.menu
 
+=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
-  #p game
   File.open('test.pgn', 'w+') do |current_game|
     current_game.write("[") if i != 0
     current_game.write(game)
@@ -246,3 +244,4 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
+=end

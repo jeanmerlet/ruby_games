@@ -53,7 +53,6 @@ class Logger
 
   def record_move(board, round, player, origin, destination)
     piece = board.spots[origin]
-    target_spot = board.spots[destination]
 
     File.open(@filename, 'a') do |file|
       file.write("#{round}. ") if player.color == 'W'
@@ -63,11 +62,11 @@ class Logger
       letter << @@letter_index[origin[0]-1] if letter == "" && capture == "x"
 
       if @tokens[:castle]
-        file.write("#{@tokens[:castle]} ")
-        puts("\n#{@tokens[:castle]} ")
+        file.write("#{@tokens[:castle]}#{check} ")
+        #puts("\n#{@tokens[:castle]}#{check} ")
       else
         file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
-        puts("\n#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
+        #puts("\n#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
       end
       file.write("#{@tokens[:end_game]}") if @tokens[:end_game]
     end

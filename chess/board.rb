@@ -74,11 +74,11 @@ class Board
     if piece.is_a?(Pawn)
       pawn_update(piece, origin, destination, logger)
     else
-      @en_passant = false
+      @en_passant = false if logger
       if piece.is_a?(King)
         castle_update(piece, origin, destination, logger)
-      elsif piece.is_a?(Rook)
-        piece.has_moved = true if logger
+      elsif piece.is_a?(Rook) && logger
+        piece.has_moved = true
       end
     end
     if logger
@@ -103,7 +103,7 @@ class Board
         @spots[@en_passant] = 0
       end
     else
-      @en_passant = false
+      @en_passant = false if logger
     end
     if @promotion && logger
       @spots[origin] = create_promotion_piece
@@ -159,7 +159,7 @@ class Board
   end
 
   def spot_in_check?(color, target_spot)
-    @spots.each do |spot, piece|
+    @spots.each do |spot, value|
       piece = @spots[spot]
       if piece != 0 && piece.color != color &&
          piece.generate_moves(self, spot).include?(target_spot)
@@ -286,8 +286,11 @@ class Pawn < ChessPiece
       if x_distance == 0 && spots[move] != 0
         true
       elsif x_distance != 0 && spots[move] == 0
-        true if !board.en_passant
-        !can_take_en_passant?(board, spots, pawn_spot, move)
+        if !board.en_passant
+          true
+        else
+          !can_take_en_passant?(board, spots, pawn_spot, move)
+        end
       else
         false
       end
