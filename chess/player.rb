@@ -12,19 +12,19 @@ class Human < Player
   end
 
   def take_turn
-    puts "#{@pretty_color}'s turn:"
+    puts "#{@name}'s turn:"
     loop do
       input = gets.chomp
       case input
       when /\A[a-h][1-8][a-h][1-8]\z/ then return input
       else
-        puts "incorrect input format. ex: a2a4"
+        puts "Incorrect input format. ex: a2a4"
       end
     end
   end
 
   def pawn_promote
-    puts "enter pawn promotion (one of BNRQ):"
+    puts "Enter pawn promotion (one of BNRQ):"
     loop do
       input = gets.chomp
       case input
@@ -34,7 +34,7 @@ class Human < Player
   end
 
   def name_player
-    puts "enter name for #{@pretty_color}:"
+    puts "Enter name for #{@pretty_color}:"
     loop do
       input = gets.chomp
       if /\A[A-Za-z]{2,35}[ ]?[A-Za-z]{2,35}\z/ === input
@@ -43,7 +43,7 @@ class Human < Player
       elsif input == ""
         break
       else
-        puts "invalid name format"
+        puts "Invalid name format."
       end
     end
   end
