@@ -5,7 +5,7 @@ class Board
   attr_reader   :en_passant
 
   def initialize
-    #hash with [x, y] coordinate arrays as keys and 0 as default values
+    # hash with [x, y] coordinate arrays as keys and 0 as default values
     @spots = Hash[[*1..8].repeated_permutation(2).map {|x| [x, 0]}]
     @king_spot = []
     @en_passant = false
@@ -151,9 +151,10 @@ class Board
 
   def validate_move(player_color, origin, destination)
     piece = @spots[origin]
-    return false if piece == 0
-    return false if player_color != piece.color
-    return false if !piece.generate_moves(self, origin, @king_spot, true).include?(destination)
+    if piece == 0 || player_color != piece.color ||
+    !piece.generate_moves(self, origin, true).include?(destination)
+      return false
+    end
     true
   end
 
@@ -177,7 +178,7 @@ class Board
       @spots[spot] != 0 &&
       @spots[spot].letter == piece_type &&
       @spots[spot].color == color &&
-      @spots[spot].generate_moves(self, spot, @king_spot, true).include?(destination)
+      @spots[spot].generate_moves(self, spot, true).include?(destination)
     end.keys
     if matches.size == 1
       return matches.first
@@ -218,7 +219,11 @@ end
 class ChessPiece
   attr_reader :color, :icon, :move_steps, :letter
 
-  def generate_moves(board, origin, king_spot = nil, check_for_check = false)
+  # checking is needed to prevent infinite loops when, for example,
+  # removing self-checking moves calls generate_moves for the other king.
+
+  def generate_moves(board, origin, checking = false)
+    king_spot = board.king_spot
     spots = board.spots
     moves = []
     @move_steps.each do |move_step|
@@ -226,7 +231,7 @@ class ChessPiece
       move_step[2].times do
         break if spots[move] == nil
         break if spots[move] != 0 && spots[move].color == @color
-        if !self.is_a?(King) && check_for_check &&
+        if !self.is_a?(King) && checking &&
            moving_self_checks(board, origin, move, king_spot)
           break if spots[move] != 0
           move = increment_move(move, move_step)
@@ -273,7 +278,7 @@ class Pawn < ChessPiece
     @value = 1
   end
 
-  def generate_moves(board, pawn_spot, needless_1 = nil, needless_2 = false)
+  def generate_moves(board, pawn_spot, checking = false)
     spots = board.spots
     moves = super
     moves.delete_if do |move|
@@ -347,11 +352,9 @@ class King < ChessPiece
     @value = 10000
   end
 
-  def generate_moves(board, king_spot, needless = nil, check_for_check = false)
+  def generate_moves(board, king_spot, checking = false)
     moves = super
-    # check_for_check is needed to prevent an infinite loop when calling
-    # spot_in_check verifies the opposing king's threatened spots
-    if check_for_check
+    if checking
       moves.delete_if do |move|
         x_move = horizontal_distance(king_spot, move)
         if board.spot_in_check?(@color, move)

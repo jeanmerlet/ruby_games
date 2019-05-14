@@ -123,10 +123,10 @@ class Chess
   end
 
   def checkmate(round, player)
-    king_spot = @board.find_king(player.color)
+    king_spot = @board.king_spot
     king = @board.spots[king_spot]
     if @board.spot_in_check?(player.color, king_spot)
-      if king.generate_moves(@board, king_spot, king_spot, true).size != 0
+      if king.generate_moves(@board, king_spot, true).size != 0
         return false 
       elsif !non_king_move_can_prevent_check?(round, player, king_spot)
         puts "Checkmate #{player.name}!"
@@ -174,7 +174,7 @@ class Chess
   end
 
   def stalemate(spots, color)
-    if !@board.spot_in_check?(color, @board.find_king(color))
+    if !@board.spot_in_check?(color, @board.king_spot)
       spots.each do |spot, piece|
         current_piece = spots[spot]
         if current_piece != 0 &&
