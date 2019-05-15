@@ -1,4 +1,4 @@
-Hello! Welcome to the readme for my command-line Ruby chess game for 2-player hotseat.
+Hello! Welcome to my command-line Ruby chess game for 2-player hotseat.
 
 All standard chess rules have been coded, including king- and queen-side castling, pawn en-passant captures, and pawn promotions.
 
