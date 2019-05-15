@@ -2,17 +2,17 @@ class Serialize
   def restore(filename, logger)
     tags, rounds = *read_tags_and_moves(filename)
     logger.import_tags(tags)
+    rounds.gsub!("\n", "")
     rounds = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
     moveset = []
     rounds.each {|round| moveset << round.scan(/(\S+)[ ]{1,2}(\S+)/).flatten }
     moveset << tags.scan(/\[Result \"(\S+)\"\]/).flatten
-    #print moveset
     moveset
   end
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\r\n\r\n").with_index do |blob, i|
+    File.foreach(filename, "\n\n").with_index do |blob, i|
       tags = blob if i == 0
       rounds = blob if i == 1
     end
@@ -51,7 +51,7 @@ class Logger
     end
   end
 
-  def record_move(board, round, player, origin, destination)
+  def record_move(board, round, player, opponent, origin, destination)
     piece = board.spots[origin]
 
     File.open(@filename, 'a') do |file|
@@ -63,12 +63,13 @@ class Logger
 
       if @tokens[:castle]
         file.write("#{@tokens[:castle]}#{check} ")
-        #puts("\n#{@tokens[:castle]}#{check} ")
+        puts("\n#{@tokens[:castle]}#{check} ")
       else
         file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
-        #puts("\n#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
+        puts("\n#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
       end
       file.write("#{@tokens[:end_game]}") if @tokens[:end_game]
+      opponent.pieces -= 1 if capture == "x"
     end
     reset_tokens
   end

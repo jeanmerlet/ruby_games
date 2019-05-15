@@ -18,6 +18,7 @@ class Chess
     @board.render
     round = 1
     player_color = player.color
+    opponent = *swap_players(player)[0]
     while !(checkmate(round, player) || draw(player) || @next)
       loop do
         origin, destination = *fetch_move_input(round, player, restore)
@@ -28,10 +29,10 @@ class Chess
         elsif @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, origin, destination) if !restore
           check_for_check(player, origin, destination)
-          @board.update(origin, destination, round, player, @logger)
+          @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
           round += 1 if player_color == "B"
-          player, player_color = *swap_players(player)
+          player, player_color, opponent = *swap_players(player), player
           @board.king_spot = @board.find_king(player_color)
           break
         else
@@ -203,16 +204,17 @@ class Chess
         puts "on the same color - dead position."
         return true
       end
-    elsif player.pieces == 2 || opponent.pieces == 2
+    elsif (player.pieces == 2 && opponent.pieces == 1) ||
+          (player.pieces == 1 && opponent.pieces == 2)
       spots.each do |spot, value|
         piece = spots[spot]
         if piece != 0 && (piece.is_a?(Knight) || piece.is_a?(Bishop))
-          piece_name = (piece.letter == "K" ? "knight" : "bishop")
+          piece_name = (piece.letter == "N" ? "knight" : "bishop")
           puts "King and #{piece_name} vs. king - dead position"
           return true
         end
       end
-    else
+    elsif player.pieces == 1 && opponent.pieces == 1
       puts "King vs. king - dead position."
       return true
     end
@@ -259,12 +261,14 @@ end
 #chess.new_game
 
 #testing stuff below
-#chess.load_game
-#chess.menu
+chess = Chess.new
+chess.load_game
 
-filename = "Adams.pgn"
-File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
+=begin
+filename = "dead_position.pgn"
+File.foreach(filename, "\n\n[").with_index do |game, i|
   chess = Chess.new
+  p game
   File.open('test.pgn', 'w+') do |current_game|
     current_game.write("[") if i != 0
     current_game.write(game)
@@ -272,3 +276,4 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
+=end

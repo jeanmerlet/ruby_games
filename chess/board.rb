@@ -23,13 +23,13 @@ class Board
         elsif spot[0] == 2 || spot[0] == 7
           @spots[spot] = Knight.new('W')
         elsif spot[0] == 3
-          @spots[spot] = Bishop.new('W', "even")
+          @spots[spot] = Bishop.new('W', "odd")
         elsif spot[0] == 4
           @spots[spot] = Queen.new('W')
         elsif spot[0] == 5
           @spots[spot] = King.new('W')
         elsif spot[0] == 6
-          @spots[spot] = Bishop.new('B', "odd")
+          @spots[spot] = Bishop.new('W', "even")
         end
       elsif spot[1] == 2
         @spots[spot] = Pawn.new('W')
@@ -73,7 +73,7 @@ class Board
     print "  a  b  c  d  e  f  g  h\n\n"
   end
 
-  def update(origin, destination, round = nil, player = nil, logger = nil)
+  def update(origin, destination, round = nil, player = nil, opponent = nil, logger = nil)
     piece = @spots[origin]
     if piece.is_a?(Pawn)
       pawn_update(piece, origin, destination, logger)
@@ -86,7 +86,7 @@ class Board
       end
     end
     if logger
-      logger.record_move(self, round, player, origin, destination)
+      logger.record_move(self, round, player, opponent, origin, destination)
     else
       @undo = [[origin.dup, @spots[origin].dup], [destination.dup, @spots[destination].dup]]
     end
@@ -338,6 +338,7 @@ class Knight < ChessPiece
 end
 
 class Bishop < ChessPiece
+  attr_accessor :parity
 
   def initialize(color, parity)
     @color = color

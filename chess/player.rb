@@ -1,5 +1,5 @@
 class Player
-  attr_accessor :name
+  attr_accessor :name, :pieces
   attr_reader :color, :pretty_color
 
   def initialize(color)
