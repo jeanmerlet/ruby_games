@@ -24,7 +24,7 @@ class Chess
         origin, destination = *fetch_move_input(round, player, restore)
         if !origin.is_a? Array
           non_chess_move(player, origin)
-          @next = true
+          @next = true if restore
           break
         elsif @board.validate_move(player_color, origin, destination)
           check_for_promotion(player, origin, destination) if !restore
@@ -61,7 +61,10 @@ class Chess
   end
 
   def non_chess_move(player, input)
-    draw(player, true) if input == "draw"
+    if input == "draw"
+      opponent = swap_players(player)[0]
+      draw(player, "draw", opponent) 
+    end
     win(swap_players(player)[0], true) if input == "win"
   end
 
@@ -74,6 +77,7 @@ class Chess
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
+    return [input, 0] if input == "draw"
     output = [input[0..1].split(''), input[2..3].split('')]
     output.each do |x|
       x[0] = @@letter_index.index(x[0]) + 1
@@ -161,15 +165,28 @@ class Chess
     @logger.tokens[:end_game] = (player.color == 'W' ? "1-0" : "0-1")
   end
 
-  def draw(player, input = false)
+  def draw(player, input = false, opponent = nil)
     color = player.color
     spots = @board.spots
     if stalemate(spots, color) || dead_position(player, spots) || input
+      answer = propose_draw(opponent) if input == "draw"
+      return false if !answer && input == "draw"
       puts "It's a draw."
       @logger.tokens[:end_game] = "1/2-1/2"
+      menu if input == "draw" && answer
       return true
     end
     false
+  end
+
+  def propose_draw(opponent)
+    if opponent.accept_draw?
+      puts "#{opponent.name} accepts draw offer."
+      return true
+    else
+      puts "#{opponent.name} rejects draw offer."
+      return false
+    end
   end
 
   def stalemate(spots, color)
@@ -221,25 +238,22 @@ class Chess
     false
   end
 
-  def threefold_repetition
-    false
-  end
-
-  def fifty_move_rule
-    false
-  end
-
   def menu
     puts "(n)ew game, (l)oad game, or (q)uit?"
     loop do
       input = gets.chomp
       case input
-      when "new game", "new", "n" then new_game
+      when "new game", "new", "n" then new_chess
       when "load game", "load", "l" then load_game
       when "quit", "q" then exit
       end
     end
     play(@white)
+  end
+
+  def new_chess
+    chess = Chess.new
+    chess.new_game
   end
 
   def new_game
@@ -257,8 +271,8 @@ class Chess
   end
 end
 
-#chess = Chess.new
-#chess.new_game
+chess = Chess.new
+chess.new_game
 
 #testing stuff below
 chess = Chess.new

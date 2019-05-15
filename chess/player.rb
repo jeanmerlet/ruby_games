@@ -19,6 +19,7 @@ class Human < Player
       input = gets.chomp
       case input
       when /\A[a-h][1-8][a-h][1-8]\z/ then return input
+      when "draw" then return input
       else
         puts "Incorrect input format. ex: a2a4"
       end
@@ -49,6 +50,17 @@ class Human < Player
       end
     end
   end
+
+  def accept_draw?
+    puts "Draw proposed. Do you accept? (y)es or (n)o."
+    loop do
+      input = gets.chomp
+      case input
+      when "y", "yes" then return true
+      when "n", "no"  then return false
+      end
+    end
+  end
 end
 
 class AI < Player
@@ -61,5 +73,9 @@ class AI < Player
   end
 
   def pawn_promote
+  end
+
+  def accept_draw?
+    true
   end
 end
