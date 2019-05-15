@@ -7,7 +7,7 @@ class Board
   def initialize
     # hash with [x, y] coordinate arrays as keys and 0 as default values
     @spots = Hash[[*1..8].repeated_permutation(2).map {|x| [x, 0]}]
-    @king_spot = []
+    @king_spot = [5, 1]
     @en_passant = false
     @promotion = false
     @undo = []
@@ -22,12 +22,14 @@ class Board
           @spots[spot] = Rook.new('W')
         elsif spot[0] == 2 || spot[0] == 7
           @spots[spot] = Knight.new('W')
-        elsif spot[0] == 3 || spot[0] == 6
-          @spots[spot] = Bishop.new('W')
+        elsif spot[0] == 3
+          @spots[spot] = Bishop.new('W', "even")
         elsif spot[0] == 4
           @spots[spot] = Queen.new('W')
         elsif spot[0] == 5
           @spots[spot] = King.new('W')
+        elsif spot[0] == 6
+          @spots[spot] = Bishop.new('B', "odd")
         end
       elsif spot[1] == 2
         @spots[spot] = Pawn.new('W')
@@ -38,12 +40,14 @@ class Board
           @spots[spot] = Rook.new('B')
         elsif spot[0] == 2 || spot[0] == 7
           @spots[spot] = Knight.new('B')
-        elsif spot[0] == 3 || spot[0] == 6
-          @spots[spot] = Bishop.new('B')
+        elsif spot[0] == 3
+          @spots[spot] = Bishop.new('B', "even")
         elsif spot[0] == 4
           @spots[spot] = Queen.new('B')
         elsif spot[0] == 5
           @spots[spot] = King.new('B')
+        elsif spot[0] == 6
+          @spots[spot] = Bishop.new('B', "odd")
         end
       end
     end
@@ -335,12 +339,13 @@ end
 
 class Bishop < ChessPiece
 
-  def initialize(color)
+  def initialize(color, parity)
     @color = color
     @icon = (@color == 'B' ? "\u265D" : "\u2657")
     @letter = 'B'
     @move_steps = [[1, 1, 7], [1, -1, 7], [-1, 1, 7], [-1, -1, 7]]
     @value = 3
+    @parity = parity
   end
 end
 

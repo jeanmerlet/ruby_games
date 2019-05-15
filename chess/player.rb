@@ -1,15 +1,17 @@
 class Player
   attr_accessor :name
   attr_reader :color, :pretty_color
-end
-
-class Human < Player
 
   def initialize(color)
     @color = color
     @pretty_color = (@color == 'W' ? "white" : "black")
     @name = @pretty_color.dup
+    @pieces = 16
+    setup if self.is_a?(AI)
   end
+end
+
+class Human < Player
 
   def take_turn
     puts "#{@name}'s turn:"
@@ -51,10 +53,7 @@ end
 
 class AI < Player
 
-  def initialize(color)
-    @color = color
-    @pretty_color = (@color == 'W' ? "white" : "black")
-    @difficulty = 0
+  def setup
     @name = "Rob Berto"
   end
 

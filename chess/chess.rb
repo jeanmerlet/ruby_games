@@ -8,7 +8,6 @@ class Chess
   def initialize
     @board = Board.new
     @board.place_pieces
-    @board.king_spot = [5, 1]
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
@@ -41,8 +40,7 @@ class Chess
         end
       end
     end
-    #@board.render
-    #menu
+    menu if !restore
   end
 
   def swap_players(player)
@@ -165,7 +163,7 @@ class Chess
   def draw(player, input = false)
     color = player.color
     spots = @board.spots
-    if stalemate(spots, color) || dead_position || input
+    if stalemate(spots, color) || dead_position(player, spots) || input
       puts "It's a draw."
       @logger.tokens[:end_game] = "1/2-1/2"
       return true
@@ -188,7 +186,36 @@ class Chess
     end
   end
 
-  def dead_position
+  def dead_position(player, spots)
+    player_a, player_b = [], []
+    opponent = swap_players(player)[0]
+    piece_a, piece_b = 0, 0
+    if player.pieces == 2 && opponent.pieces == 2
+      spots.each do |spot, value|
+        piece = spots[spot]
+        if piece != 0 && piece.is_a?(Bishop)
+          piece_a = piece if piece.color == player.color
+          piece_b = piece if piece.color == opponent.color
+        end
+      end
+      if piece_a != 0 && piece_b != 0 && piece_a.parity == piece_b.parity
+        puts "King and bishop vs. king and bishop with bishops"
+        puts "on the same color - dead position."
+        return true
+      end
+    elsif player.pieces == 2 || opponent.pieces == 2
+      spots.each do |spot, value|
+        piece = spots[spot]
+        if piece != 0 && (piece.is_a?(Knight) || piece.is_a?(Bishop))
+          piece_name = (piece.letter == "K" ? "knight" : "bishop")
+          puts "King and #{piece_name} vs. king - dead position"
+          return true
+        end
+      end
+    else
+      puts "King vs. king - dead position."
+      return true
+    end
     false
   end
 
@@ -228,12 +255,13 @@ class Chess
   end
 end
 
-chess = Chess.new
-chess.new_game
+#chess = Chess.new
+#chess.new_game
+
+#testing stuff below
 #chess.load_game
 #chess.menu
 
-=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
@@ -244,4 +272,3 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
-=end
