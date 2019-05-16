@@ -1,8 +1,9 @@
 class Serialize
   def restore(filename, logger)
     tags, rounds = *read_tags_and_moves(filename)
+    tags.gsub!(/\r/, "")
     logger.import_tags(tags)
-    rounds.gsub!("\n", "")
+    rounds.gsub!(/\n/, "")
     rounds = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
     moveset = []
     rounds.each {|round| moveset << round.scan(/(\S+)[ ]{1,2}(\S+)/).flatten }
@@ -24,7 +25,8 @@ class Logger
   attr_accessor :savefile, :tokens, :symbols
 
   def initialize(filename = 'game.pgn')
-    File.open('game.pgn', 'w+') {|file| }
+    @newline = 0
+    File.open('game.pgn', 'w+') {|file|}
     @filename = filename
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
   end
@@ -50,20 +52,30 @@ class Logger
     piece = board.spots[origin]
 
     File.open(@filename, 'a') do |file|
-      file.write("#{round}. ") if player.color == 'W'
+      if @tokens[:end_game]
+        file.write(" #{@tokens[:end_game]}\n")
+        break
+      end
+      if player.color == 'W'
+        move = "#{round}. "
+        newline_check(move, file)
+        file.write(move)
+      end
       capture, rankfile, promotion, check = *assign_values(board, destination)
       letter = piece.letter.dup
       letter << disambiguation(board, piece, origin, destination)
       letter << @@letter_index[origin[0]-1] if letter == "" && capture == "x"
 
       if @tokens[:castle]
-        file.write("#{@tokens[:castle]}#{check} ")
-        puts("\n#{@tokens[:castle]}#{check} ")
+        move = "#{@tokens[:castle]}#{check} "
+      elsif @tokens[:promotion]
+        move = "#{rankfile}#{promotion}#{check} "
       else
-        file.write("#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
-        puts("\n#{letter}#{capture}#{rankfile}#{promotion}#{check} ")
+        move = "#{letter}#{capture}#{rankfile}#{promotion}#{check} "
       end
-      file.write("#{@tokens[:end_game]}") if @tokens[:end_game]
+      puts move
+      newline_check(move, file)
+      file.write(move)
       opponent.pieces -= 1 if capture == "x"
     end
     reset_tokens
@@ -81,6 +93,14 @@ class Logger
   def record_game_result
     File.open(@filename, 'a') do |file|
       file.write(" #{@tokens[:end_game]}")
+    end
+  end
+
+  def newline_check(move, file)
+    @newline += move.size
+    if @newline >= 80
+      file.write("\n")
+      @newline = move.size
     end
   end
 

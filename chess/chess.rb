@@ -117,7 +117,6 @@ class Chess
     def check_for_promotion(player, origin, destination, restore)
     if @board.need_promote?(origin, destination) && !restore
       @board.promotion = [player.pawn_promote, player.color]
-      @logger.tokens[:promotion] = @board.promotion[0]
     end
   end
 
@@ -269,12 +268,12 @@ class Chess
   end
 end
 
-chess = Chess.new
-chess.new_game
+#chess = Chess.new
+#chess.new_game
 
 #testing stuff below
-#chess = Chess.new
-#chess.load_game
+chess = Chess.new
+chess.load_game
 
 =begin
 filename = "Adams.pgn"

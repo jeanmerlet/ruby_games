@@ -110,7 +110,8 @@ class Board
       @en_passant = false if logger
     end
     if @promotion && logger
-      @spots[origin] = create_promotion_piece
+      @spots[origin] = create_promotion_piece(origin)
+      logger.tokens[:promotion] = @promotion[0].dup
       @promotion = false
     end
     piece.move_steps[0][2] = 1 if logger
@@ -207,14 +208,20 @@ class Board
     true
   end
 
-  def create_promotion_piece
+  def create_promotion_piece(origin)
     piece_type = @promotion[0]
     color = @promotion[1]
     promotion = case piece_type
     when "Q" then Queen.new(color)
     when "R" then Rook.new(color)
     when "N" then Knight.new(color) 
-    when "B" then Bishop.new(color) 
+    when "B"
+      if (origin[0]%2 != 0 && color == 'W') || (origin[0]%2 == 0 && color = 'B')
+        parity = "even"
+      else
+        parity = "odd"
+      end
+      Bishop.new(color, parity) 
     end
     promotion
   end
