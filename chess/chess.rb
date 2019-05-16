@@ -11,29 +11,25 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
-    @next = false
   end
 
-  def play(player, restore = false)
+  def play(player, color, opponent, restore = false, tester = false, round = 1)
     @board.render
-    round = 1
-    player_color = player.color
-    opponent = *swap_players(player)[0]
-    while !(checkmate(round, player) || draw(player) || @next)
+    while !(checkmate(round, player) || draw(player) || tester )
       loop do
         origin, destination = *fetch_move_input(round, player, restore)
         if !origin.is_a? Array
           non_chess_move(player, origin)
-          @next = true if restore
+          tester = true if restore
           break
-        elsif @board.validate_move(player_color, origin, destination)
-          check_for_promotion(player, origin, destination) if !restore
+        elsif @board.validate_move(color, origin, destination)
+          check_for_promotion(player, origin, destination, restore)
           check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
-          round += 1 if player_color == "B"
-          player, player_color, opponent = *swap_players(player), player
-          @board.king_spot = @board.find_king(player_color)
+          round += 1 if color == "B"
+          player, color, opponent = *swap_players(player), player
+          @board.king_spot = @board.find_king(color)
           break
         else
           puts "\nInvalid move."
@@ -118,8 +114,8 @@ class Chess
     [origin, destination]
   end
 
-    def check_for_promotion(player, origin, destination)
-    if @board.need_promote?(origin, destination)
+    def check_for_promotion(player, origin, destination, restore)
+    if @board.need_promote?(origin, destination) && !restore
       @board.promotion = [player.pawn_promote, player.color]
       @logger.tokens[:promotion] = @board.promotion[0]
     end
@@ -163,6 +159,7 @@ class Chess
     print "#{player.name} wins"
     puts (input ? " by forfeit." : ".")
     @logger.tokens[:end_game] = (player.color == 'W' ? "1-0" : "0-1")
+    @logger.record_game_result
   end
 
   def draw(player, input = false, opponent = nil)
@@ -173,6 +170,7 @@ class Chess
       return false if !answer && input == "draw"
       puts "It's a draw."
       @logger.tokens[:end_game] = "1/2-1/2"
+      @logger.record_game_result
       menu if input == "draw" && answer
       return true
     end
@@ -205,8 +203,9 @@ class Chess
   end
 
   def dead_position(player, spots)
-    player_a, player_b = [], []
     opponent = swap_players(player)[0]
+    return false if player.pieces > 2 || opponent.pieces > 2
+    player_a, player_b = [], []
     piece_a, piece_b = 0, 0
     if player.pieces == 2 && opponent.pieces == 2
       spots.each do |spot, value|
@@ -248,7 +247,7 @@ class Chess
       when "quit", "q" then exit
       end
     end
-    play(@white)
+    play(@white, 'W', @black)
   end
 
   def new_chess
@@ -259,15 +258,14 @@ class Chess
   def new_game
     @white.name_player
     @black.name_player
-    @logger.write_default_tags
-    @logger.write_names(@white.name, @black.name)
-    play(@white)
+    @logger.write_default_tags(@white.name, @black.name)
+    play(@white, 'W', @black)
   end
 
   def load_game(filename = "test.pgn")
     file_loader = Serialize.new
     restore = file_loader.restore(filename, @logger)
-    play(@white, restore)
+    play(@white, 'W', @black, restore)
   end
 end
 
@@ -275,14 +273,13 @@ chess = Chess.new
 chess.new_game
 
 #testing stuff below
-chess = Chess.new
-chess.load_game
+#chess = Chess.new
+#chess.load_game
 
 =begin
-filename = "dead_position.pgn"
-File.foreach(filename, "\n\n[").with_index do |game, i|
+filename = "Adams.pgn"
+File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
-  p game
   File.open('test.pgn', 'w+') do |current_game|
     current_game.write("[") if i != 0
     current_game.write(game)

@@ -12,7 +12,7 @@ class Serialize
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\n\n").with_index do |blob, i|
+    File.foreach(filename, "\r\n\r\n").with_index do |blob, i|
       tags = blob if i == 0
       rounds = blob if i == 1
     end
@@ -23,32 +23,27 @@ end
 class Logger
   attr_accessor :savefile, :tokens, :symbols
 
-  def initialize
+  def initialize(filename = 'game.pgn')
     File.open('game.pgn', 'w+') {|file| }
-    @filename = 'game.pgn'
+    @filename = filename
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
   end
 
-  def write_default_tags
+  def write_default_tags(white_name, black_name)
     time = Time.new
     File.open(@filename, 'a') do |file|
       file.write("[Event \"casual game\"]\n")
       file.write("[Site \"Knoxville, TN USA\"]\n")
       file.write("[Date \"#{time.year}.#{time.month}.#{time.day}\"]\n")
-      file.write("[Round \"1\"]\n")
-      file.write("[White \"?\"]\n")
-      file.write("[Black \"?\"]\n")
+      file.write("[Round \"-\"]\n")
+      file.write("[White \"#{white_name}\"]\n")
+      file.write("[Black \"#{black_name}\"]\n")
       file.write("[Result \"*\"]\n\n")
     end
   end
 
   def import_tags(tags)
     File.open(@filename, 'a') {|file| file.write(tags) }
-  end
-
-  def write_names(white_name, black_name)
-    File.open(@filename, 'a') do |file|
-    end
   end
 
   def record_move(board, round, player, opponent, origin, destination)
@@ -81,6 +76,12 @@ class Logger
     promotion = (@tokens[:promotion] ? ("=" + @tokens[:promotion]) : "")
     check = (@tokens[:check] ? @tokens[:check] : "")
     [capture, rankfile, promotion, check]
+  end
+
+  def record_game_result
+    File.open(@filename, 'a') do |file|
+      file.write(" #{@tokens[:end_game]}")
+    end
   end
 
   def reset_tokens
