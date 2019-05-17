@@ -3,13 +3,15 @@ class Serialize
     tags, rounds = *read_tags_and_moves(filename)
     tags.gsub!(/\r/, "")
     logger.import_tags(tags)
-    print tags
-    print "\n"
-    p rounds
     rounds.gsub!(/\n/, "")
-    rounds = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
+    turns = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
+    half_turn = rounds.scan(/\d+\.\s?(\S+[ ]{1,2})\z/).flatten
+    if half_turn != []
+      half_turn[0] << tags.scan(/\[Result \"(\S+)\"\]/).flatten[0]
+      turns << half_turn[0]
+    end
     moveset = []
-    rounds.each {|round| moveset << round.scan(/(\S+)[ ]{1,2}(\S+)/).flatten }
+    turns.each {|turn| moveset << turn.scan(/(\S+)[ ]{1,2}(\S*)/).flatten }
     moveset << tags.scan(/\[Result \"(\S+)\"\]/).flatten
     moveset
   end
@@ -27,11 +29,20 @@ end
 class Logger
   attr_accessor :savefile, :tokens, :symbols
 
-  def initialize(filename = 'game.pgn')
+  def initialize(filename = 'game.pgn.tmp')
     @newline = 0
-    File.open('game.pgn', 'w+') {|file|}
+    File.open(filename, 'w') {|file|}
     @filename = filename
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
+  end
+
+  def save
+    game = File.read(@filename)
+    File.open('game.pgn', 'w+') do |file|
+      file.write(game)
+      file.write("\n\n")
+    end
+    File.delete(@filename)
   end
 
   def write_default_tags(white_name, black_name)
@@ -94,13 +105,13 @@ class Logger
   end
 
   def record_game_result
-    File.open(@filename, 'a+') do |file|
-      file.write(" #{@tokens[:end_game]}")
-      game = file.read
+    game = ""
+    File.open(@filename, 'a') {|file| file.write(" #{@tokens[:end_game]}\n\n")}
+    File.open(@filename, 'r') do |file|
+      game = File.read(file)
       game.sub!(/"\*"/, "\"#{@tokens[:end_game]}\"")
-      file.pos = 0
-      file.write(game)
     end
+    File.open(@filename, 'w') {|file| file.write(game)}
   end
 
   def newline_check(move, file)

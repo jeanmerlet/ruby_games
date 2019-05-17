@@ -61,15 +61,19 @@ class Chess
     if input == "draw"
       opponent = swap_players(player)[0]
       draw(player, "draw", opponent) 
+    elsif input == "quit"
+      @logger.save
+      exit
+    elsif input == "win"
+      win(swap_players(player)[0], true)
     end
-    win(swap_players(player)[0], true) if input == "win"
   end
 
   def fetch_move_input(round, player)
     return parse_player_input(player.take_turn) if !@restore
     color = player.color
     player_index = (player == @white ? 0 : 1)
-    print @restore[round - 1][player_index]
+    #print @restore[round - 1][player_index]
     move = parse_SAN(@restore[round - 1][player_index], color)
     if move == "*"
       @restore = false
@@ -79,7 +83,7 @@ class Chess
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
-    return [input, 0] if input == "draw"
+    return [input, 0] if !(/\A[a-h][1-8][a-h][1-8]\z/ === input)
     output = [input[0..1].split(''), input[2..3].split('')]
     output.each do |x|
       x[0] = @@letter_index.index(x[0]) + 1
@@ -287,12 +291,12 @@ class Chess
   end
 end
 
-#chess = Chess.new
-#chess.new_game
+chess = Chess.new
+chess.menu
 
 #testing stuff below
-chess = Chess.new
-chess.load_game
+#chess = Chess.new
+#chess.load_game
 
 =begin
 filename = "Adams.pgn"

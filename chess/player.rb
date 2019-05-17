@@ -19,7 +19,7 @@ class Human < Player
       input = gets.chomp
       case input
       when /\A[a-h][1-8][a-h][1-8]\z/ then return input
-      when "draw" then return input
+      when "draw", "quit" then return input
       else
         puts "Incorrect input format. ex: a2a4"
       end
