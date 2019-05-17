@@ -216,7 +216,7 @@ class Board
     when "R" then Rook.new(color)
     when "N" then Knight.new(color) 
     when "B"
-      if (origin[0]%2 != 0 && color == 'W') || (origin[0]%2 == 0 && color = 'B')
+      if (origin[0]%2 != 0 && color == 'W') || (origin[0]%2 == 0 && color == 'B')
         parity = "even"
       else
         parity = "odd"
@@ -242,8 +242,7 @@ class ChessPiece
       move_step[2].times do
         break if spots[move] == nil
         break if spots[move] != 0 && spots[move].color == @color
-        if !self.is_a?(King) && checking &&
-           moving_self_checks(board, origin, move, king_spot)
+        if checking && moving_self_checks(board, origin, move, king_spot)
           break if spots[move] != 0
           move = increment_move(move, move_step)
           next
@@ -258,7 +257,10 @@ class ChessPiece
 
   def moving_self_checks(board, origin, move, king_spot)
     board.update(origin, move)
-    if board.spot_in_check?(@color, king_spot)
+    if board.spot_in_check?(@color, king_spot) && !self.is_a?(King)
+      board.process_undos
+      return true
+    elsif self.is_a?(King) && board.spot_in_check?(@color, move)
       board.process_undos
       return true
     end
@@ -373,9 +375,7 @@ class King < ChessPiece
     if checking
       moves.delete_if do |move|
         x_move = horizontal_distance(king_spot, move)
-        if board.spot_in_check?(@color, move)
-          true
-        elsif x_move > 1 && !can_castle?(board, king_spot, move, x_move)
+        if x_move > 1 && !can_castle?(board, king_spot, move, x_move)
           true
         else
           false

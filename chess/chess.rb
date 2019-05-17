@@ -11,19 +11,20 @@ class Chess
     @white = Human.new('W')
     @black = Human.new('B')
     @logger = Logger.new
+    @restore = false
   end
 
-  def play(player, color, opponent, restore = false, tester = false, round = 1)
+  def play(player, color, opponent, tester = false, round = 1)
     @board.render
     while !(checkmate(round, player) || draw(player) || tester )
       loop do
-        origin, destination = *fetch_move_input(round, player, restore)
+        origin, destination = *fetch_move_input(round, player)
         if !origin.is_a? Array
           non_chess_move(player, origin)
-          tester = true if restore
+          tester = true if @restore
           break
         elsif @board.validate_move(color, origin, destination)
-          check_for_promotion(player, origin, destination, restore)
+          check_for_promotion(player, origin, destination)
           check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
@@ -33,11 +34,11 @@ class Chess
           break
         else
           puts "\nInvalid move."
-          exit if restore
+          exit if @restore
         end
       end
     end
-    menu if !restore
+    menu if !@restore
   end
 
   def swap_players(player)
@@ -64,12 +65,17 @@ class Chess
     win(swap_players(player)[0], true) if input == "win"
   end
 
-  def fetch_move_input(round, player, restore)
-    return parse_player_input(player.take_turn) if !restore
+  def fetch_move_input(round, player)
+    return parse_player_input(player.take_turn) if !@restore
     color = player.color
-    player = (player == @white ? 0 : 1)
-    #print restore[round - 1][player]
-    parse_SAN(restore[round - 1][player], color)
+    player_index = (player == @white ? 0 : 1)
+    print @restore[round - 1][player_index]
+    move = parse_SAN(@restore[round - 1][player_index], color)
+    if move == "*"
+      @restore = false
+      return parse_player_input(player.take_turn)
+    end
+    move
   end
 
   def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
@@ -94,6 +100,8 @@ class Chess
       origin, destination = "draw", ""
     elsif move == "1-0" || move == "0-1"
       origin, destination = "win", ""
+    elsif move == "*"
+      return move
     else
       if /=/ === move
         @board.promotion = [move.scan(/=([BNRKQ])/).flatten.first, color]
@@ -114,8 +122,8 @@ class Chess
     [origin, destination]
   end
 
-    def check_for_promotion(player, origin, destination, restore)
-    if @board.need_promote?(origin, destination) && !restore
+    def check_for_promotion(player, origin, destination)
+    if @board.need_promote?(origin, destination) && !@restore
       @board.promotion = [player.pawn_promote, player.color]
     end
   end
@@ -261,10 +269,21 @@ class Chess
     play(@white, 'W', @black)
   end
 
-  def load_game(filename = "test.pgn")
+  def load_game
+    puts "Enter filename:"
+    filename = ""
+    loop do
+      filename = gets.chomp
+      if File.file?(filename)
+        break
+      elsif filename == ""
+        filename = "game.pgn"
+        break
+      end
+    end
     file_loader = Serialize.new
-    restore = file_loader.restore(filename, @logger)
-    play(@white, 'W', @black, restore)
+    @restore = file_loader.restore(filename, @logger)
+    play(@white, 'W', @black)
   end
 end
 

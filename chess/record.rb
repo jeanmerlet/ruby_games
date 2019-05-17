@@ -3,6 +3,9 @@ class Serialize
     tags, rounds = *read_tags_and_moves(filename)
     tags.gsub!(/\r/, "")
     logger.import_tags(tags)
+    print tags
+    print "\n"
+    p rounds
     rounds.gsub!(/\n/, "")
     rounds = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
     moveset = []
@@ -13,7 +16,7 @@ class Serialize
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\r\n\r\n").with_index do |blob, i|
+    File.foreach(filename, "\n\n").with_index do |blob, i|
       tags = blob if i == 0
       rounds = blob if i == 1
     end
@@ -91,8 +94,12 @@ class Logger
   end
 
   def record_game_result
-    File.open(@filename, 'a') do |file|
+    File.open(@filename, 'a+') do |file|
       file.write(" #{@tokens[:end_game]}")
+      game = file.read
+      game.sub!(/"\*"/, "\"#{@tokens[:end_game]}\"")
+      file.pos = 0
+      file.write(game)
     end
   end
 
