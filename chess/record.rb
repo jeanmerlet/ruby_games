@@ -18,7 +18,7 @@ class Serialize
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\n\n").with_index do |blob, i|
+    File.foreach(filename, "\r\n\r\n").with_index do |blob, i|
       tags = blob if i == 0
       rounds = blob if i == 1
     end
@@ -40,7 +40,6 @@ class Logger
     game = File.read(@filename)
     File.open('game.pgn', 'w+') do |file|
       file.write(game)
-      file.write("\n\n")
     end
     File.delete(@filename)
   end
@@ -87,7 +86,7 @@ class Logger
       else
         move = "#{letter}#{capture}#{rankfile}#{promotion}#{check} "
       end
-      puts move
+      #puts move
       newline_check(move, file)
       file.write(move)
       opponent.pieces -= 1 if capture == "x"

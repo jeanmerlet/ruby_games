@@ -64,6 +64,8 @@ class Chess
     elsif input == "quit"
       @logger.save
       exit
+    elsif input == "san_draw"
+      draw(player, true, opponent)
     elsif input == "win"
       win(swap_players(player)[0], true)
     end
@@ -101,7 +103,7 @@ class Chess
         destination = (color == 'W' ? [3, 1] : [3, 8])
       end
     elsif move == "1/2-1/2"
-      origin, destination = "draw", ""
+      origin, destination = "san_draw", ""
     elsif move == "1-0" || move == "0-1"
       origin, destination = "win", ""
     elsif move == "*"
@@ -274,6 +276,7 @@ class Chess
   end
 
   def load_game
+=begin
     puts "Enter filename:"
     filename = ""
     loop do
@@ -285,20 +288,22 @@ class Chess
         break
       end
     end
+=end
+    filename = 'test.pgn'
     file_loader = Serialize.new
     @restore = file_loader.restore(filename, @logger)
     play(@white, 'W', @black)
   end
 end
 
-chess = Chess.new
-chess.menu
+#chess = Chess.new
+#chess.menu
 
 #testing stuff below
 #chess = Chess.new
 #chess.load_game
 
-=begin
+#=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
@@ -309,4 +314,4 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
-=end
+#=end

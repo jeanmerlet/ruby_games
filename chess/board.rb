@@ -124,7 +124,7 @@ class Board
         rook_origin[0] = 1
         rook_destination[0] = 4
         logger.tokens[:castle] = "O-O-O" if logger
-      else
+      elsif destination[0] == 7
         rook_origin[0] = 8
         rook_destination[0] = 6
         logger.tokens[:castle] = "O-O" if logger
@@ -132,7 +132,11 @@ class Board
       @castle_undo = [true, rook_origin.dup, rook_destination.dup] if !logger
       @spots[rook_origin], @spots[rook_destination] = 0, @spots[rook_origin]
     end
-    2.times {king.move_steps.pop} if king.move_steps.size == 10 && logger
+    if logger
+      king.move_steps[0][2] = 1
+      king.move_steps[1][2] = 1
+      king.castle_check = false
+    end
   end
 
   def process_undos
@@ -230,8 +234,8 @@ end
 class ChessPiece
   attr_reader :color, :icon, :move_steps, :letter
 
-  # checking is needed to prevent infinite loops when, for example,
-  # removing self-checking moves calls generate_moves for the other king.
+  # checking is needed to prevent infinite loops when removing
+  # self-checking moves calls spot_in_check?, which calls generate_moves
 
   def generate_moves(board, origin, checking = false)
     king_spot = board.king_spot
@@ -360,34 +364,29 @@ class Bishop < ChessPiece
 end
 
 class King < ChessPiece
-  attr_writer :move_steps
+  attr_writer :move_steps, :castle_check
 
   def initialize(color)
     @color = color
     @icon = (@color == 'B' ? "\u265A" : "\u2654")
     @letter = 'K'
-    @move_steps = [[0, 1, 1], [1, 1, 1], [1, 0, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 0, 1], [-1, 1, 1], [-2, 0, 1], [2, 0, 1]]
+    @move_steps = [[-1, 0, 2], [1, 0, 2], [0, 1, 1], [1, 1, 1], [1, -1, 1], [0, -1, 1], [-1, -1, 1], [-1, 1, 1]]
     @value = 10000
+    @castle_check = true
   end
 
   def generate_moves(board, king_spot, checking = false)
     moves = super
-    if checking
+    if @castle_check
       moves.delete_if do |move|
         x_move = horizontal_distance(king_spot, move)
-        if x_move > 1 && !can_castle?(board, king_spot, move, x_move)
-          true
-        else
-          false
-        end
+        true if x_move > 1 && !can_castle?(board.spots, king_spot, move)
       end
     end
     moves
   end
 
-  def can_castle?(board, king_spot, move, x_move)
-    spots = board.spots
-    return false if !(move[0] == 3 || move[0] == 7)
+  def can_castle?(spots, king_spot, move)
     rook_spot = move.dup
     rook_spot[0] = (move[0] == 3 ? 1 : 8)
     rook = spots[rook_spot]
@@ -396,16 +395,7 @@ class King < ChessPiece
     elsif rook.has_moved
       return false
     end
-
-    x = (move[0] == 3 ? -1 : 1)
-    x_move.times do |i|
-      spot = spots[[king_spot[0] + (x*(i + 1)), king_spot[1]]]
-      if spot != 0
-        return false
-      elsif board.spot_in_check?(@color, spot)
-        return false
-      end
-    end
+    return false if rook_spot[0] == 1 && spots[[2, 1]] != 0
     true
   end
 end
