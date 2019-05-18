@@ -1,7 +1,8 @@
 class Serialize
-  def restore(filename, logger)
+  def restore(filename, logger, black, white)
     tags, rounds = *read_tags_and_moves(filename)
     tags.gsub!(/\r/, "")
+    restore_names(tags, white, black)
     logger.import_tags(tags)
     rounds.gsub!(/\n/, "")
     turns = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
@@ -18,11 +19,22 @@ class Serialize
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\r\n\r\n").with_index do |blob, i|
+    File.foreach(filename, "\n\n").with_index do |blob, i|
       tags = blob if i == 0
       rounds = blob if i == 1
     end
     [tags, rounds]
+  end
+
+  def restore_names(tags, white, black)
+    tags = tags.split("\n")
+    tags.each do |tag|
+      if /White/ === tag
+        white.name = tag.scan(/\"(.+)\"/).flatten.first
+      elsif /Black/ === tag
+        black.name = tag.scan(/\"(.+)\"/).flatten.first
+      end
+    end
   end
 end
 

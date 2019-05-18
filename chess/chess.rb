@@ -276,7 +276,6 @@ class Chess
   end
 
   def load_game
-=begin
     puts "Enter filename:"
     filename = ""
     loop do
@@ -288,22 +287,21 @@ class Chess
         break
       end
     end
-=end
-    filename = 'test.pgn'
+    #filename = 'test.pgn'
     file_loader = Serialize.new
-    @restore = file_loader.restore(filename, @logger)
+    @restore = file_loader.restore(filename, @logger, @black, @white)
     play(@white, 'W', @black)
   end
 end
 
-#chess = Chess.new
-#chess.menu
+chess = Chess.new
+chess.menu
 
 #testing stuff below
 #chess = Chess.new
 #chess.load_game
 
-#=begin
+=begin
 filename = "Adams.pgn"
 File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess = Chess.new
@@ -314,4 +312,4 @@ File.foreach(filename, "\r\n\r\n[").with_index do |game, i|
   chess.load_game
   sleep(1)
 end
-#=end
+=end
