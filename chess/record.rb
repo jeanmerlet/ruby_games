@@ -78,7 +78,7 @@ class Logger
       capture, rankfile, promotion, check = *assign_values(board, destination)
       letter = piece.letter.dup
       letter << disambiguation(board, piece, origin, destination)
-      letter << @@letter_index[origin[0]-1] if letter == "" && capture == "x"
+      letter << $letter_index[origin[0]-1] if letter == "" && capture == "x"
 
       if @tokens[:castle]
         move = "#{@tokens[:castle]}#{check} "
@@ -98,7 +98,7 @@ class Logger
   def assign_values(board, destination)
     capture = (board.spots[destination] == 0 ? "" : "x")
     capture = "x" if @tokens[:en_passant]
-    rankfile = @@letter_index[destination[0] - 1].to_s + destination[1].to_s
+    rankfile = $letter_index[destination[0] - 1].to_s + destination[1].to_s
     promotion = (@tokens[:promotion] ? ("=" + @tokens[:promotion]) : "")
     check = (@tokens[:check] ? @tokens[:check] : "")
     [capture, rankfile, promotion, check]
@@ -130,7 +130,7 @@ class Logger
 
   def disambiguation(board, moving_piece, origin, destination)
     spots = board.spots
-    file, rank = @@letter_index[origin[0]-1], origin[1].to_s
+    file, rank = $letter_index[origin[0]-1], origin[1].to_s
     file_needed, rank_needed = false, false
 
     spots.each do |spot, piece|

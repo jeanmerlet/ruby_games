@@ -2,7 +2,7 @@ require './board.rb'
 require './player.rb'
 require './record.rb'
 
-@@letter_index = [*('a'..'h')]
+$letter_index = [*('a'..'h')]
 
 class Chess
   def initialize
@@ -86,7 +86,7 @@ class Chess
     return [input, 0] if !(/\A[a-h][1-8][a-h][1-8]\z/ === input)
     output = [input[0..1].split(''), input[2..3].split('')]
     output.each do |x|
-      x[0] = @@letter_index.index(x[0]) + 1
+      x[0] = $letter_index.index(x[0]) + 1
       x[1] = x[1].to_i
     end
     output
@@ -116,7 +116,7 @@ class Chess
       origin_SAN = move_parts[1]
       destination_SAN = move_parts[2]
 
-      destination = [@@letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
+      destination = [$letter_index.index(destination_SAN[0]) + 1, destination_SAN[1].to_i]
       if !(origin_SAN =~ /\A[a-h][1-8]\z/)
         origin = @board.find_SAN_piece(piece, color, origin_SAN, destination)
       else

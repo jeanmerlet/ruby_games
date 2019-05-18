@@ -190,10 +190,10 @@ class Board
     else
       matches.each do |spot|
         if /\A[a-h]\z/ === origin_SAN
-          return spot if (@@letter_index.index(origin_SAN) + 1).to_i == spot[0]
+          return spot if ($letter_index.index(origin_SAN) + 1).to_i == spot[0]
         elsif /\A[1-8]\z/ === origin_SAN
           return spot if origin_SAN.to_i == spot[1]
-        elsif (@@letter_index.index(origin_SAN) + 1).to_i == spot[0] &&
+        elsif ($letter_index.index(origin_SAN) + 1).to_i == spot[0] &&
               origin_SAN.to_i == spot[1]
           return spot
         end
