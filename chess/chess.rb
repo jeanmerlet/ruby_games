@@ -294,5 +294,5 @@ class Chess
   end
 end
 
-#chess = Chess.new
-#chess.menu
+chess = Chess.new
+chess.menu

@@ -6,14 +6,14 @@ class Serialize
     logger.import_tags(tags_to_roster(tags))
 
     rounds = rounds_to_string(rounds)
-    turns = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
-    half_turn = rounds.scan(/\d+\.\s?(\S+[ ]{1,2})\z/).flatten
-    if half_turn != []
-      half_turn[0] << tags.scan(/\[Result \"(\S+)\"\]/).flatten[0]
-      turns << half_turn[0]
+    half_round = rounds.scan(/\d+\.\s?(\S+[ ]{1,2})\z/).flatten
+    rounds = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
+    if half_round != []
+      half_round[0] << get_result(tags)[0]
+      rounds << half_round[0]
     end
     moveset = []
-    turns.each {|turn| moveset << turn.scan(/(\S+)[ ]{1,2}(\S*)/).flatten }
+    rounds.each {|round| moveset << round.scan(/(\S+)[ ]{1,2}(\S*)/).flatten }
     moveset << get_result(tags)
     moveset
   end
