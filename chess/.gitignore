@@ -2,3 +2,5 @@
 *.pgn
 #vim edit files
 *.swp
+#testing
+test.rb

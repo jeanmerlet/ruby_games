@@ -1,10 +1,11 @@
 class Serialize
   def restore(filename, logger, black, white)
     tags, rounds = *read_tags_and_moves(filename)
-    tags.gsub!(/\r/, "")
+
     restore_names(tags, white, black)
-    logger.import_tags(tags)
-    rounds.gsub!(/\n/, "")
+    logger.import_tags(tags_to_roster(tags))
+
+    rounds = rounds_to_string(rounds)
     turns = rounds.scan(/\d+\.\s?(\S+[ ]{1,2}\S+)/).flatten
     half_turn = rounds.scan(/\d+\.\s?(\S+[ ]{1,2})\z/).flatten
     if half_turn != []
@@ -13,27 +14,50 @@ class Serialize
     end
     moveset = []
     turns.each {|turn| moveset << turn.scan(/(\S+)[ ]{1,2}(\S*)/).flatten }
-    moveset << tags.scan(/\[Result \"(\S+)\"\]/).flatten
+    moveset << get_result(tags)
     moveset
   end
 
   def read_tags_and_moves(filename)
     tags, rounds = [], []
-    File.foreach(filename, "\n\n").with_index do |blob, i|
-      tags = blob if i == 0
-      rounds = blob if i == 1
+    swap = false
+    File.foreach(filename, chomp: true) do |line|
+      if swap == false && line != ""
+        tags << line
+      elsif swap == false && line == ""
+        swap = true
+      else
+        rounds << line
+      end
     end
     [tags, rounds]
   end
 
   def restore_names(tags, white, black)
-    tags = tags.split("\n")
     tags.each do |tag|
-      if /White/ === tag
+      if /White / === tag
         white.name = tag.scan(/\"(.+)\"/).flatten.first
-      elsif /Black/ === tag
+      elsif /Black / === tag
         black.name = tag.scan(/\"(.+)\"/).flatten.first
       end
+    end
+  end
+
+  def tags_to_roster(tags)
+    new_tags = ""
+    tags.each {|tag| new_tags << tag + "\n"}
+    new_tags
+  end
+
+  def rounds_to_string(rounds)
+    new_rounds = ""
+    rounds.each {|round| new_rounds << (round + " ")}
+    new_rounds
+  end
+
+  def get_result(tags)
+    tags.each do |tag|
+      return tag.scan(/\"(.+)\"/).flatten if /Result/ === tag
     end
   end
 end
@@ -43,14 +67,14 @@ class Logger
 
   def initialize(filename = 'game.pgn.tmp')
     @newline = 0
-    File.open(filename, 'w') {|file|}
+    File.open(filename, 'wt') {|file|}
     @filename = filename
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
   end
 
   def save
-    game = File.read(@filename)
-    File.open('game.pgn', 'w+') do |file|
+    game = File.read(@filename, mode: 'rt')
+    File.open('game.pgn', 'wt') do |file|
       file.write(game)
     end
     File.delete(@filename)
@@ -58,7 +82,7 @@ class Logger
 
   def write_default_tags(white_name, black_name)
     time = Time.new
-    File.open(@filename, 'a') do |file|
+    File.open(@filename, 'at') do |file|
       file.write("[Event \"casual game\"]\n")
       file.write("[Site \"Knoxville, TN USA\"]\n")
       file.write("[Date \"#{time.year}.#{time.month}.#{time.day}\"]\n")
@@ -70,13 +94,13 @@ class Logger
   end
 
   def import_tags(tags)
-    File.open(@filename, 'a') {|file| file.write(tags) }
+    File.open(@filename, 'at') {|file| file.write("#{tags}\n") }
   end
 
   def record_move(board, round, player, opponent, origin, destination)
     piece = board.spots[origin]
 
-    File.open(@filename, 'a') do |file|
+    File.open(@filename, 'at') do |file|
       if @tokens[:end_game]
         file.write(" #{@tokens[:end_game]}\n")
         break
@@ -117,12 +141,12 @@ class Logger
 
   def record_game_result
     game = ""
-    File.open(@filename, 'a') {|file| file.write(" #{@tokens[:end_game]}\n\n")}
-    File.open(@filename, 'r') do |file|
+    File.open(@filename, 'at') {|file| file.write(" #{@tokens[:end_game]}\n\n")}
+    File.open(@filename, 'rt') do |file|
       game = File.read(file)
       game.sub!(/"\*"/, "\"#{@tokens[:end_game]}\"")
     end
-    File.open(@filename, 'w') {|file| file.write(game)}
+    File.open(@filename, 'wt') {|file| file.write(game)}
   end
 
   def newline_check(move, file)
