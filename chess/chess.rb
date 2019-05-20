@@ -9,33 +9,36 @@ class Chess
   def initialize
     @board = Board.new
     @board.place_pieces
-    @white = Human.new('W')
-    @black = Human.new('B')
+    #@white = Human.new('W')
+    #@black = Human.new('B')
+    @white = AI.new('W')
+    @black = AI.new('B')
     @logger = Logger.new
     @restore = false
   end
 
-  def play(player, color, opponent, tester = false, round = 1)
+  def play(player, color, opponent, test_next = false, round = 1)
     @board.render
-    while !(checkmate(round, player) || draw(player) || tester )
+    while !(checkmate(round, player) || draw(player) || test_next)
       loop do
-        origin, destination = *fetch_move_input(round, player)
+        origin, destination = *fetch_move_input(round, player, @board)
         if !origin.is_a? Array
           non_chess_move(player, origin)
-          tester = true if @restore
+          test_next = true if @restore
           break
         elsif @board.validate_move(color, origin, destination)
           check_for_promotion(player, origin, destination)
-          check_for_check(player, origin, destination)
+          #check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
+          #sleep 1
           round += 1 if color == "B"
           player, color, opponent = *swap_players(player), player
           @board.king_spot = @board.find_king(color)
           break
         else
           puts "\nInvalid move."
-          exit if @restore
+          exit
         end
       end
     end
@@ -72,20 +75,21 @@ class Chess
     end
   end
 
-  def fetch_move_input(round, player)
-    return parse_player_input(player.take_turn) if !@restore
+  def fetch_move_input(round, player, board)
+    return parse_player_input(player, player.take_turn(board)) if !@restore
     color = player.color
     player_index = (player == @white ? 0 : 1)
     #print @restore[round - 1][player_index]
     move = parse_SAN(@restore[round - 1][player_index], color)
     if move == "*"
       @restore = false
-      return parse_player_input(player.take_turn)
+      return parse_player_input(player, player.take_turn(board))
     end
     move
   end
 
-  def parse_player_input(input)         #converts ex:'a2a4' to [[1, 2], [1, 4]]
+  def parse_player_input(player, input)
+    return input if player.is_a?(AI)
     return [input, 0] if !(/\A[a-h][1-8][a-h][1-8]\z/ === input)
     output = [input[0..1].split(''), input[2..3].split('')]
     output.each do |x|

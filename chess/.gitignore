@@ -1,6 +1,8 @@
 #ignore PGN files
 *.pgn
-#vim edit files
+#ignore temp PGN savefiles
+*.tmp
+#ignore vim edit files
 *.swp
-#testing
+#ignore testing
 test.rb

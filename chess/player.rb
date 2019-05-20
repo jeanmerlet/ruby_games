@@ -13,7 +13,7 @@ end
 
 class Human < Player
 
-  def take_turn
+  def take_turn(board)
     puts "#{@name}'s turn:"
     loop do
       input = gets.chomp
@@ -69,10 +69,31 @@ class AI < Player
     @name = "Rob Berto"
   end
 
-  def take_turn
+  def take_turn(board)
+    loop do
+      file = 1 + rand(7)
+      rank = 1 + rand(7)
+      origin = [file, rank]
+      piece = board.spots[origin]
+      if piece != 0 && piece.color == @color
+        moves = piece.generate_moves(board, origin, true)
+        if moves != []
+          print "origin:"
+          p origin
+          destination = moves[rand(moves.size)]
+          print "destination:"
+          p destination
+          return [origin, destination]
+        end
+      end
+    end
   end
 
   def pawn_promote
+    'Q'
+  end
+
+  def name_player
   end
 
   def accept_draw?
