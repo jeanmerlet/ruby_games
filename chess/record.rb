@@ -78,14 +78,6 @@ class Logger
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
   end
 
-  def save
-    game = File.read(@filename, mode: 'rt')
-    File.open('game.pgn', 'wt') do |file|
-      file.write(game)
-    end
-    File.delete(@filename)
-  end
-
   def write_default_tags(white_name, black_name)
     time = Time.new
     File.open(@filename, 'at') do |file|
@@ -108,7 +100,9 @@ class Logger
 
     File.open(@filename, 'at') do |file|
       if @tokens[:end_game]
+        print "meow"
         file.write(" #{@tokens[:end_game]}\n")
+        save
         break
       end
       if player.color == 'W'
@@ -152,7 +146,8 @@ class Logger
       game = File.read(file)
       game.sub!(/"\*"/, "\"#{@tokens[:end_game]}\"")
     end
-    File.open(@filename, 'wt') {|file| file.write(game)}
+    File.open('game.pgn', 'wt') {|file| file.write(game)}
+    File.delete(@filename)
   end
 
   def newline_check(move, file)

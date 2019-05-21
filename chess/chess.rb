@@ -9,10 +9,10 @@ class Chess
   def initialize
     @board = Board.new
     @board.place_pieces
-    @white = Human.new('W')
-    @black = Human.new('B')
-    #@white = AI.new('W')
-    #@black = AI.new('B')
+    #@white = Human.new('W')
+    #@black = Human.new('B')
+    @white = AI.new('W')
+    @black = AI.new('B')
     @logger = Logger.new
     @restore = false
   end
@@ -31,7 +31,7 @@ class Chess
           check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
-          #sleep 1
+          #sleep 0.1
           round += 1 if color == "B"
           player, color, opponent = *swap_players(player), player
           @board.king_spot = @board.find_king(color)
@@ -296,5 +296,5 @@ class Chess
   end
 end
 
-#chess = Chess.new
-#chess.menu
+chess = Chess.new
+chess.menu

@@ -77,11 +77,11 @@ class AI < Player
       piece = board.spots[origin]
       moves = piece.generate_moves(board, origin, true)
       if moves != []
-        print "origin:"
-        p origin
+        #print "origin:"
+        #p origin
         destination = moves[rand(moves.size)]
-        print "destination:"
-        p destination
+        #print "destination:"
+        #p destination
         return [origin, destination]
       else
         pieces.delete(origin)
