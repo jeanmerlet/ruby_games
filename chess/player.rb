@@ -70,20 +70,24 @@ class AI < Player
   end
 
   def take_turn(board)
+    spots = board.spots
+    pieces = spots.select {|spot, piece| piece != 0 && piece.color == @color}
     loop do
-      file = 1 + rand(7)
-      rank = 1 + rand(7)
-      origin = [file, rank]
+      origin = pieces.keys.sample(1).first
       piece = board.spots[origin]
-      if piece != 0 && piece.color == @color
-        moves = piece.generate_moves(board, origin, true)
-        if moves != []
-          print "origin:"
-          p origin
-          destination = moves[rand(moves.size)]
-          print "destination:"
-          p destination
-          return [origin, destination]
+      moves = piece.generate_moves(board, origin, true)
+      if moves != []
+        print "origin:"
+        p origin
+        destination = moves[rand(moves.size)]
+        print "destination:"
+        p destination
+        return [origin, destination]
+      else
+        pieces.delete(origin)
+        if pieces == {}
+          p "meow"
+          exit
         end
       end
     end
@@ -97,6 +101,6 @@ class AI < Player
   end
 
   def accept_draw?
-    true
+    false
   end
 end

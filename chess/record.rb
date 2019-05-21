@@ -51,7 +51,13 @@ class Serialize
 
   def rounds_to_string(rounds)
     new_rounds = ""
-    rounds.each {|round| new_rounds << (round + " ")}
+    rounds.each do |round|
+      if round[-1] != " "
+        new_rounds << (round + " ") 
+      else
+        new_rounds << round
+      end
+    end
     new_rounds
   end
 

@@ -9,10 +9,10 @@ class Chess
   def initialize
     @board = Board.new
     @board.place_pieces
-    #@white = Human.new('W')
-    #@black = Human.new('B')
-    @white = AI.new('W')
-    @black = AI.new('B')
+    @white = Human.new('W')
+    @black = Human.new('B')
+    #@white = AI.new('W')
+    #@black = AI.new('B')
     @logger = Logger.new
     @restore = false
   end
@@ -28,7 +28,7 @@ class Chess
           break
         elsif @board.validate_move(color, origin, destination)
           check_for_promotion(player, origin, destination)
-          #check_for_check(player, origin, destination)
+          check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
           #sleep 1
@@ -79,7 +79,7 @@ class Chess
     return parse_player_input(player, player.take_turn(board)) if !@restore
     color = player.color
     player_index = (player == @white ? 0 : 1)
-    #print @restore[round - 1][player_index]
+    print @restore[round - 1][player_index]
     move = parse_SAN(@restore[round - 1][player_index], color)
     if move == "*"
       @restore = false
@@ -206,18 +206,16 @@ class Chess
   end
 
   def stalemate(spots, color)
-    if !@board.spot_in_check?(color, @board.king_spot)
-      spots.each do |spot, piece|
-        current_piece = spots[spot]
-        if current_piece != 0 &&
-           current_piece.color == color &&
-           current_piece.generate_moves(@board, spot).size != 0
-          return false
-        end
+    spots.each do |spot, piece|
+      current_piece = spots[spot]
+      if current_piece != 0 &&
+         current_piece.color == color &&
+         current_piece.generate_moves(@board, spot, true).size != 0
+        return false
       end
-      puts 'Stalemate!'
-      return true
     end
+    puts 'Stalemate!'
+    return true
   end
 
   def dead_position(player, spots)
@@ -298,5 +296,5 @@ class Chess
   end
 end
 
-chess = Chess.new
-chess.menu
+#chess = Chess.new
+#chess.menu
