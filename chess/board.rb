@@ -234,8 +234,8 @@ end
 class ChessPiece
   attr_reader :color, :icon, :move_steps, :letter
 
-  # checking is needed to prevent infinite loops when removing
-  # self-checking moves calls spot_in_check?, which calls generate_moves
+  # checking is needed to prevent infinite loops when removing self-checking
+  # moves calls spot_in_check?, which in turn calls generate_moves
 
   def generate_moves(board, origin, checking = false)
     king_spot = board.king_spot
