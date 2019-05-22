@@ -14,14 +14,13 @@ class Chess
     @restore = false
   end
 
-  def play(player, color, opponent, test_next = false, round = 1)
+  def play(player, color, opponent, round = 1)
     @board.render
-    while !(checkmate(round, player) || draw(player) || test_next)
+    while !(checkmate(round, player) || draw(player))
       loop do
         origin, destination = *fetch_move_input(round, player, @board)
         if !origin.is_a? Array
           non_chess_move(player, origin)
-          test_next = true if @restore
           break
         elsif @board.validate_move(color, origin, destination)
           check_for_promotion(player, origin, destination)
