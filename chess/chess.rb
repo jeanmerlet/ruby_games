@@ -127,7 +127,7 @@ class Chess
     [origin, destination]
   end
 
-    def check_for_promotion(player, origin, destination)
+  def check_for_promotion(player, origin, destination)
     if @board.need_promote?(origin, destination) && !@restore
       @board.promotion = [player.pawn_promote, player.color]
     end
