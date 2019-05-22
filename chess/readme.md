@@ -11,3 +11,5 @@ Move commands are simply the file and rank of the piece you wish to move followe
 You may play against the AI, "Rob Berto". However, Berto currently just plays a random move, so it may not be much of a challenge.
 
 This program requires one gem to function properly, the colorize gem, which is used solely to ease the rendering of the chessboard in terminal.
+
+To play, install the colorize gem, fork this repo, and type 'ruby chess.rb' into your terminal.
