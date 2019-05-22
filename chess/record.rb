@@ -69,18 +69,18 @@ class Serialize
 end
 
 class Logger
-  attr_accessor :savefile, :tokens, :symbols
+  attr_accessor :tokens, :symbols
 
   def initialize(filename = 'game.pgn.tmp')
-    @newline = 0
     File.open(filename, 'wt') {|file|}
-    @filename = filename
+    @temp_file = filename
     @tokens = { promotion: false, castle: false, check: false, en_passant: false, end_game: false }
+    @newline = 0
   end
 
   def write_default_tags(white_name, black_name)
     time = Time.new
-    File.open(@filename, 'at') do |file|
+    File.open(@temp_file, 'at') do |file|
       file.write("[Event \"casual game\"]\n")
       file.write("[Site \"Knoxville, TN USA\"]\n")
       file.write("[Date \"#{time.year}.#{time.month}.#{time.day}\"]\n")
@@ -92,13 +92,13 @@ class Logger
   end
 
   def import_tags(tags)
-    File.open(@filename, 'at') {|file| file.write("#{tags}\n") }
+    File.open(@temp_file, 'at') {|file| file.write("#{tags}\n") }
   end
 
   def record_move(board, round, player, opponent, origin, destination)
     piece = board.spots[origin]
 
-    File.open(@filename, 'at') do |file|
+    File.open(@temp_file, 'at') do |file|
       if @tokens[:end_game]
         print "meow"
         file.write(" #{@tokens[:end_game]}\n")
@@ -141,13 +141,31 @@ class Logger
 
   def record_game_result
     game = ""
-    File.open(@filename, 'at') {|file| file.write(" #{@tokens[:end_game]}\n\n")}
-    File.open(@filename, 'rt') do |file|
+    File.open(@temp_file, 'at') {|file| file.write(" #{@tokens[:end_game]}\n\n")}
+    File.open(@temp_file, 'rt') do |file|
       game = File.read(file)
       game.sub!(/"\*"/, "\"#{@tokens[:end_game]}\"")
     end
-    File.open('game.pgn', 'wt') {|file| file.write(game)}
-    File.delete(@filename)
+    game
+  end
+
+  def read_temp_file
+    game = ""
+    File.open(@temp_file, 'rt') {|file| game = File.read(file)}
+    game
+  end
+
+  def save(game_end = false)
+    game = ""
+    File.open('game.pgn', 'wt') do |file|
+      if game_end
+        game = record_game_result
+      else
+        game = read_temp_file
+      end
+      file.write(game)
+    end
+    File.delete(@temp_file)
   end
 
   def newline_check(move, file)

@@ -7,7 +7,6 @@ class Player
     @pretty_color = (@color == 'W' ? "white" : "black")
     @name = @pretty_color.dup
     @pieces = 16
-    setup if self.is_a?(AI)
   end
 end
 
@@ -65,10 +64,6 @@ end
 
 class AI < Player
 
-  def setup
-    @name = "Rob Berto"
-  end
-
   def take_turn(board)
     spots = board.spots
     pieces = spots.select {|spot, piece| piece != 0 && piece.color == @color}
@@ -77,11 +72,7 @@ class AI < Player
       piece = board.spots[origin]
       moves = piece.generate_moves(board, origin, true)
       if moves != []
-        #print "origin:"
-        #p origin
         destination = moves[rand(moves.size)]
-        #print "destination:"
-        #p destination
         return [origin, destination]
       else
         pieces.delete(origin)
@@ -98,6 +89,7 @@ class AI < Player
   end
 
   def name_player
+    @name = 'Rob Berto'
   end
 
   def accept_draw?

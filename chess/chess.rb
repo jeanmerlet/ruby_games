@@ -4,15 +4,12 @@ require './record.rb'
 
 $letter_index = [*('a'..'h')]
 $stdin.set_encoding("utf-8")
+$game_number = 1
 
 class Chess
   def initialize
     @board = Board.new
     @board.place_pieces
-    #@white = Human.new('W')
-    #@black = Human.new('B')
-    @white = AI.new('W')
-    @black = AI.new('B')
     @logger = Logger.new
     @restore = false
   end
@@ -31,18 +28,18 @@ class Chess
           check_for_check(player, origin, destination)
           @board.update(origin, destination, round, player, opponent, @logger)
           @board.render
-          #sleep 0.1
           round += 1 if color == "B"
           player, color, opponent = *swap_players(player), player
           @board.king_spot = @board.find_king(color)
           break
         else
           puts "\nInvalid move."
-          exit
         end
       end
     end
-    menu if !@restore
+    $game_number += 1
+    p $game_number
+    menu
   end
 
   def swap_players(player)
@@ -177,7 +174,7 @@ class Chess
     print "#{player.name} wins"
     puts (input ? " by forfeit." : ".")
     @logger.tokens[:end_game] = (player.color == 'W' ? "1-0" : "0-1")
-    @logger.record_game_result
+    @logger.save(true)
   end
 
   def draw(player, input = false, opponent = nil)
@@ -188,8 +185,7 @@ class Chess
       return false if !answer && input == "draw"
       puts "It's a draw."
       @logger.tokens[:end_game] = "1/2-1/2"
-      @logger.record_game_result
-      menu if input == "draw" && answer
+      @logger.save(true)
       return true
     end
     false
@@ -253,29 +249,55 @@ class Chess
     false
   end
 
+  def reset
+    @board = Board.new
+    @board.place_pieces
+    @logger = Logger.new
+    @restore = false
+  end
+
+  def setup_players
+    @white = choose_player_type('W')
+    @black = choose_player_type('B')
+    @white.name_player
+    @black.name_player
+  end
+
+  def choose_player_type(color)
+    pretty_color = (color == 'W' ? 'white' : 'black')
+    puts "Is #{pretty_color} a (H)uman or (R)obot player?"
+    loop do
+      input = gets.chomp
+      case input
+      when "Human", "human", "H", "h", "" then return Human.new(color)
+      when "Robot", "robot", "R", "r" then return AI.new(color)
+      else
+        puts "The options are (H)uman or (R)obot."
+      end
+    end
+  end
+
   def menu
     puts "(n)ew game, (l)oad game, or (q)uit?"
     loop do
       input = gets.chomp
       case input
-      when "new game", "new", "n" then new_chess
-      when "load game", "load", "l" then load_game
+      when "new game", "new", "n", ""
+        new_game
+        break
+      when "load game", "load", "l"
+        load_game
+        break
       when "quit", "q" then exit
       end
     end
     play(@white, 'W', @black)
   end
 
-  def new_chess
-    chess = Chess.new
-    chess.new_game
-  end
-
   def new_game
-    @white.name_player
-    @black.name_player
+    reset if $game_number > 1
+    setup_players
     @logger.write_default_tags(@white.name, @black.name)
-    play(@white, 'W', @black)
   end
 
   def load_game
@@ -288,11 +310,13 @@ class Chess
       elsif filename == ""
         filename = "game.pgn"
         break
+      else
+        puts "no such file exists :("
       end
     end
+    setup_players
     file_loader = Serialize.new
     @restore = file_loader.restore(filename, @logger, @black, @white)
-    play(@white, 'W', @black)
   end
 end
 
