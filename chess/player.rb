@@ -77,7 +77,6 @@ class AI < Player
       else
         pieces.delete(origin)
         if pieces == {}
-          p "meow"
           exit
         end
       end

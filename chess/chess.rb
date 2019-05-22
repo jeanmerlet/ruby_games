@@ -38,7 +38,6 @@ class Chess
       end
     end
     $game_number += 1
-    p $game_number
     menu
   end
 
@@ -76,7 +75,6 @@ class Chess
     return parse_player_input(player, player.take_turn(board)) if !@restore
     color = player.color
     player_index = (player == @white ? 0 : 1)
-    print @restore[round - 1][player_index]
     move = parse_SAN(@restore[round - 1][player_index], color)
     if move == "*"
       @restore = false

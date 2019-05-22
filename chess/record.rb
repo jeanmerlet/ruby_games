@@ -100,7 +100,6 @@ class Logger
 
     File.open(@temp_file, 'at') do |file|
       if @tokens[:end_game]
-        print "meow"
         file.write(" #{@tokens[:end_game]}\n")
         save
         break
@@ -122,7 +121,6 @@ class Logger
       else
         move = "#{letter}#{capture}#{rankfile}#{promotion}#{check} "
       end
-      #puts move
       newline_check(move, file)
       file.write(move)
       opponent.pieces -= 1 if capture == "x"
