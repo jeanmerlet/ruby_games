@@ -6,17 +6,21 @@ class Dungeon
   def initialize
     @start = Room.new(3, 3)
     @start.place_start_door
+    @player = Player.new
+    @start.floor[1][1] = @player
     @start.render
   end
 end
 
 class Room
+  attr_accessor :floor
 
   def initialize(height, width)
     @height = height
     @width = width
     create_walls
     create_floor
+    p @floor
   end
 
   def place_start_door
