@@ -1,4 +1,5 @@
 require "./structures.rb"
+require "./player.rb"
 
 class Dungeon
 
@@ -7,7 +8,6 @@ class Dungeon
     @start.place_start_door
     @start.render
   end
-
 end
 
 class Room
@@ -27,10 +27,16 @@ class Room
     when 2 then wall = @east_wall
     when 3 then wall = @west_wall
     end
+    door_spot = rand(3)
+    place_doors(wall, door_spot)
   end
 
   def place_doors(wall, door_spots)
-    door_spots = Array.new(length, false)
+    if wall == @north_wall || wall == @south_wall
+      wall[1 + door_spots] = Door.new
+    else
+      wall[door_spots] = Door.new
+    end
   end
 
   def create_walls
