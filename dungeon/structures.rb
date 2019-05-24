@@ -7,9 +7,11 @@ class Structure
 end
 
 class Floor < Structure
+  attr_accessor :contents
 
   def initialize
     @tile = "."
+    @contents = []
   end
 end
 

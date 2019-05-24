@@ -7,7 +7,8 @@ class Dungeon
     @start = Room.new(3, 3)
     @start.place_start_door
     @player = Player.new
-    @start.floor[1][1] = @player
+    @start.floor[1][1].contents.insert(0, @player)
+    p @start.floor
     @start.render
   end
 end
@@ -20,7 +21,6 @@ class Room
     @width = width
     create_walls
     create_floor
-    p @floor
   end
 
   def place_start_door
@@ -81,7 +81,13 @@ class Room
     print "\n"
     @height.times do |i|
       print @west_wall[i].tile
-      @floor[i].each {|floor| print floor.tile}
+      @floor[i].each do |floor|
+        if floor.contents.empty?
+          print floor.tile
+        else
+          print floor.contents.first.tile
+        end
+      end
       print @east_wall[i].tile
       print "\n"
     end
