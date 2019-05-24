@@ -1,65 +1,84 @@
-class DungeonStructure
-  attr_reader :wall_EW, :wall_NS, :floor
+require "./structures.rb"
+
+class Dungeon
 
   def initialize
-    @wall_top = '_' 
-    @wall_bottom = "\u203E".encode('utf-8')
-    @wall_NS = '|'
-    @floor = '.'
+    @start = Room.new(3, 3)
+    @start.place_start_door
+    @start.render
   end
+
 end
 
-class Room < DungeonStructure
-attr_reader :contents
+class Room
 
-  def initialize
-    super
-    @seed = Random.new
-    @size = @seed.rand(5) + 3
-    @exits = @seed.rand(4) + 1
-    @display = Hash[[*1..@size].repeated_permutation(2).map {|x| [x, '']}]
+  def initialize(height, width)
+    @height = height
+    @width = width
+    create_walls
+    create_floor
+  end
+
+  def place_start_door
+    side = rand(4)
+    case side
+    when 0 then wall = @north_wall
+    when 1 then wall = @south_wall
+    when 2 then wall = @east_wall
+    when 3 then wall = @west_wall
+    end
+  end
+
+  def place_doors(wall, door_spots)
+    door_spots = Array.new(length, false)
+  end
+
+  def create_walls
+    @north_wall = create_horizontal_wall(@width)
+    @south_wall = create_horizontal_wall(@width)
+    @west_wall = create_vertical_wall(@height)
+    @east_wall = create_vertical_wall(@height)
+  end
+
+  def create_horizontal_wall(length)
+    wall = []
+    (length + 2).times do |i|
+      wall << Wall.new
+    end
+    wall
+  end
+
+  def create_vertical_wall(length)
+    wall = []
+    length.times do |i|
+      wall << Wall.new
+    end
+    wall
+  end
+
+  def create_floor
+    @floor = []
+    @height.times do |i|
+      @floor << []
+      @width.times do |j|
+        @floor[i] << Floor.new
+      end
+    end
   end
 
   def render
-    @size.times do |i|
+    @north_wall.each {|wall| print wall.tile}
+    print "\n"
+    @height.times do |i|
+      print @west_wall[i].tile
+      @floor[i].each {|floor| print floor.tile}
+      print @east_wall[i].tile
       print "\n"
-      @size.times do |j|
-        spot = [i+1, j+1]
-        print @display[spot]
-      end
     end
+    @south_wall.each {|wall| print wall.tile}
     print "\n"
   end
-
-  def place_doors
-    @exits.times do 
-      x = @seed.rand(@size) + 1
-      y = @seed.rand(@size) + 1
-      spot = [x, y]
-      @display[spot] = '@'
-    end
-  end
-
-  def populate_display
-    @display.each do |spot, icon|
-      if spot[0] == 1
-        @display[spot] = @wall_top
-      elsif spot[0] == @size
-        @display[spot] = @wall_bottom
-      elsif spot[1] == 1 || spot[1] == @size
-        @display[spot] = @wall_NS
-      else
-        @display[spot] = @floor
-      end
-    end
-  end
-
 end
 
-class Door < DungeonStructure
-end
 
-room = Room.new
-room.populate_display
-room.place_doors
-room.render
+dungeon = Dungeon.new
