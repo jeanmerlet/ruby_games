@@ -7,6 +7,7 @@ require './handle_keys.rb'
 
 Terminal.open
 Terminal.set("window: title='meow', size=#{@screen_width}x#{@screen_height}")
+Terminal.set("0x1000: ./tiles/arial10x10.png, size=10x10")
 
 def parse_action(action)
   move = action[:move]
@@ -23,7 +24,7 @@ end
 
 while !@close
   Terminal.clear
-  Terminal.print(@player_x, @player_y, '@')
+  Terminal.print(@player_x, @player_y, "0x1020")
   Terminal.refresh
 
   input = Terminal.read
