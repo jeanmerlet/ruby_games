@@ -12,5 +12,6 @@ def handle_input(key)
     dx = 1
   end
 
-  @player.move(dx, dy)
+  @player.x += dx
+  @player.y += dy
 end
