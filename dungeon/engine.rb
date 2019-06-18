@@ -10,7 +10,7 @@ class Game
   def initialize
     @screen_w, @screen_h = 80, 50
     @map_w, @map_h = 80, 45
-    #@map = GameMap.new(@map_w, @map_h)
+    @map = GameMap.new(@map_w, @map_h)
     BLT.open
     blt_config
     @entities = load_entities
@@ -25,7 +25,7 @@ class Game
       if key != BLT::TK_ESCAPE && key != BLT::TK_CLOSE
         clear_entities(@entities)
         handle_input(key)
-        render_entities(@entities)
+        render_all(@map, @entities)
       else
         break
       end
