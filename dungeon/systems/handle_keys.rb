@@ -16,7 +16,7 @@ def handle_input(key)
 end
 
 def move_player(dx, dy)
-  if !@map.tiles[@player.x + dx][@player.y + dy].blocked
+  if !@map.blocked?(@player.x + dx, @player.y + dy)
     @player.x += dx
     @player.y += dy
   end
