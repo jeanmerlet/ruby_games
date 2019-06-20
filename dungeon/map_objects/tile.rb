@@ -3,5 +3,7 @@ class Tile
 
   def initialize(blocked)
     @blocked = blocked
+    @block_sight = (@blocked == true ? true : false)
+    @explored = false
   end
 end
