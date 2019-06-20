@@ -18,8 +18,7 @@ class Game
     map_config
     @map = GameMap.new(@map_w, @map_h)
     @map.generate_level(@min_length, @max_length, @max_rooms, @player)
-    @fov_recompute = true
-    run
+    #@fov = Circle.new(@player.x, @player.y, @fov_radius)
   end
 
   def run
@@ -51,16 +50,14 @@ class Game
     @map_w, @map_h = 80, 45
     @min_length, @max_length = 6, 10
     @max_rooms = 30
-    @fov_algorithm = 0
-    @fov_light_walls = true
     @fov_radius = 10
   end
 
   def create_entities
-    @player = Entity.new(@screen_w/2, @screen_h/2, "0x1020", 'white')
-    #npc = Entity.new(@screen_w/2 - 5, @screen_h/2, "0x1020", 'yellow')
+    @player = Entity.new(@screen_w/2, @screen_h/2, "0x1020", 'amber')
     [@player]
   end
 end
 
-Game.new
+$game = Game.new
+$game.run
