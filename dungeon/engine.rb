@@ -48,8 +48,8 @@ class Game
 
   def map_config
     @map_w, @map_h = 80, 45
-    @min_length, @max_length = 6, 10
-    @max_rooms = 30
+    @min_length, @max_length = 3, 5
+    @max_rooms = 70
     @fov_radius = 10
   end
 

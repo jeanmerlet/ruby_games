@@ -24,6 +24,7 @@ class GameMap
         else
           prev_x, prev_y = *rooms.last.center
           toss = rand(2)
+=begin
           if toss == 0
             create_h_tunnel(prev_x, new_x, prev_y)
             create_v_tunnel(prev_y, new_y, new_x)
@@ -31,6 +32,7 @@ class GameMap
             create_v_tunnel(prev_y, new_y, prev_x)
             create_h_tunnel(prev_x, new_x, new_y)
           end
+=end
         end
         rooms << new_room
       end
@@ -87,7 +89,7 @@ class GameMap
   end
 
   def create_circ_room(room)
-    x, r = 0, room.r - 0.7
+    x, r = 0, room.r - 0.5
     quadrant = []
     room.r.times do |i|
       x += 1
