@@ -1,26 +1,23 @@
 module HandleKeys
 
-  def handle_input(key)
-    #movement
-    dx, dy = 0, 0
+  def parse_input(key)
+    action = {}
+
     case key
-    when Terminal::TK_UP, Terminal::TK_K
-      dy = -1
-    when Terminal::TK_DOWN, Terminal::TK_J
-      dy = 1
-    when Terminal::TK_LEFT, Terminal::TK_H
-      dx = -1
-    when Terminal::TK_RIGHT, Terminal::TK_L
-      dx = 1
+    #movement
+    when BLT::TK_UP, BLT::TK_K
+      action[:move] = [0, -1]
+    when BLT::TK_DOWN, BLT::TK_J
+      action[:move] = [0, 1]
+    when BLT::TK_LEFT, BLT::TK_H
+      action[:move] = [-1, 0]
+    when BLT::TK_RIGHT, BLT::TK_L
+      action[:move] = [1, 0]
+    #close game
+    when BLT::TK_ESCAPE, BLT::TK_CLOSE
+      action[:quit] = true
     end
 
-    move_player(dx, dy)
-  end
-
-  def move_player(dx, dy)
-    if !@map.blocked?(@player.x + dx, @player.y + dy)
-      @player.x += dx
-      @player.y += dy
-    end
+    action
   end
 end
