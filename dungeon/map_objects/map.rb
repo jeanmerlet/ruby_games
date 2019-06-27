@@ -2,10 +2,13 @@ class GameMap
   attr_reader :tiles
   include ShapeMath
 
-  def initialize(width, height)
+  def initialize(width, height, seed = nil)
     @width = width
     @height = height
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new(true) } }
+    seed = rand(10000) if seed.nil?
+    p seed
+    srand(seed)
   end
 
   def generate_level(min_length, max_length, max_rooms, player)
