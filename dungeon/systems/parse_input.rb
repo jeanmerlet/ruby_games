@@ -1,4 +1,4 @@
-module HandleKeys
+module ParseInput
 
   def parse_input(key)
     action = {}

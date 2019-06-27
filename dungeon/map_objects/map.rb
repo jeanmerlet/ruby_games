@@ -24,7 +24,6 @@ class GameMap
         else
           prev_x, prev_y = *rooms.last.center
           toss = rand(2)
-=begin
           if toss == 0
             create_h_tunnel(prev_x, new_x, prev_y)
             create_v_tunnel(prev_y, new_y, new_x)
@@ -32,7 +31,6 @@ class GameMap
             create_v_tunnel(prev_y, new_y, prev_x)
             create_h_tunnel(prev_x, new_x, new_y)
           end
-=end
         end
         rooms << new_room
       end
@@ -66,10 +64,6 @@ class GameMap
     else
       circ_rect_intersect?(room2, room1)
     end
-  end
-
-  def blocked?(x, y)
-    @tiles[x][y].blocked ? true : false
   end
 
   def create_room(room)
@@ -113,7 +107,7 @@ class GameMap
   end
 
   def connect_rooms(room1, room2)
-    
+    #A*
   end
 
   def create_h_tunnel(x1, x2, y)

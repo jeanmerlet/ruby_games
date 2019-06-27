@@ -6,9 +6,10 @@ Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
 BLT = Terminal
 
 class Game
-  include Render
-  include HandleKeys
+  include Action
   include FieldOfView
+  include ParseInput
+  include Render
 
   def initialize
     @screen_w, @screen_h = 80, 50
@@ -18,21 +19,19 @@ class Game
     map_config
     @map = GameMap.new(@map_w, @map_h)
     @map.generate_level(@min_length, @max_length, @max_rooms, @player)
-    #@fov = Circle.new(@player.x, @player.y, @fov_radius)
+    @fov_radius = 8
+    @refresh_fov = true
   end
 
   def run
-    render_all(@map, @entities)
     loop do
+      render_all(@map, @entities)
+      fov(@player.x, @player.y, @fov_radius) if @refresh_fov
       BLT.refresh
+      clear_entities(@entities)
       key = BLT.read
-      if key != BLT::TK_ESCAPE && key != BLT::TK_CLOSE
-        clear_entities(@entities)
-        handle_input(key)
-        render_all(@map, @entities)
-      else
-        break
-      end
+      action = parse_input(key)
+      action[:quit] ? break : do_action(action)
     end
     BLT.close
   end
@@ -50,7 +49,6 @@ class Game
     @map_w, @map_h = 80, 45
     @min_length, @max_length = 3, 5
     @max_rooms = 70
-    @fov_radius = 10
   end
 
   def create_entities
