@@ -49,7 +49,7 @@ class GameMap
     else
       w = 2*min_length + rand(2*(max_length - min_length) + 1)
       h = 2*min_length + rand(2*(max_length - min_length) + 1)
-      x, y = rand(@width - w), rand(@height - h)
+      x, y = rand(@width - w - 1), rand(@height - h - 1)
       Rect.new(x, y, w, h)
     end
   end
@@ -123,5 +123,9 @@ class GameMap
   def create_v_tunnel(y1, y2, x)
     y1, y2 = y2, y1 if y1 > y2
     @tiles[x][y1..y2].each { |tile| tile.blocked = false }
+  end
+
+  def in_bounds?(x, y)
+    0 <= x && x < @width && 0 <= y && y < @height
   end
 end

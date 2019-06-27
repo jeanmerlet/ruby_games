@@ -19,7 +19,7 @@ class Game
     map_config
     @map = GameMap.new(@map_w, @map_h)
     @map.generate_level(@min_length, @max_length, @max_rooms, @player)
-    @fov_radius = 8
+    @fov_radius = 5
     @refresh_fov = true
   end
 
