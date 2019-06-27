@@ -8,16 +8,12 @@ module FieldOfView
                 ] 
 
   def light(x, y)
-    tile = @map.tiles[x][y]
-    if tile.blocked
-      BLT.print(x, y, "[color=light_wall][0x1003]")
-    else
-      BLT.print(x, y, "[color=light_ground][0x100E]")
-    end
-    tile.explored = true
+    @map.tiles[x][y].explored = true
+    @map.fov_tiles[x][y] = @player.fov_id.dup
   end
 
   def fov(x, y, r)
+    light(x, y)
     8.times do |oct|
       shadowcast(x, y, 1, 1.0, 0.0, r,
         @@transform[0][oct], @@transform[1][oct],

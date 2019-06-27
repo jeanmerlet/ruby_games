@@ -1,7 +1,7 @@
 require './lib/BearLibTerminal/BearLibTerminal.rb'
 Dir["#{File.dirname(__FILE__)}/components/*.rb"].each { |file| require file }
-Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
+Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
 
 BLT = Terminal
 
@@ -18,15 +18,15 @@ class Game
     @entities = create_entities
     map_config
     @map = GameMap.new(@map_w, @map_h)
-    @map.generate_level(@min_length, @max_length, @max_rooms, @player)
-    @fov_radius = 5
+    @map.generate_level(@min_length, @max_length, @max_rooms, @entities, @monster_max)
+    @fov_radius = 8
     @refresh_fov = true
   end
 
   def run
     loop do
-      render_all(@map, @entities)
       fov(@player.x, @player.y, @fov_radius) if @refresh_fov
+      render_all(@map, @entities)
       BLT.refresh
       clear_entities(@entities)
       key = BLT.read
@@ -49,10 +49,11 @@ class Game
     @map_w, @map_h = 80, 45
     @min_length, @max_length = 3, 5
     @max_rooms = 70
+    @monster_max = 3
   end
 
   def create_entities
-    @player = Entity.new(@screen_w/2, @screen_h/2, "0x1020", 'amber')
+    @player = Entity.new(0, 0, "0x1020", 'amber', 'player')
     [@player]
   end
 end

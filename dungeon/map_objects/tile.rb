@@ -1,5 +1,5 @@
 class Tile
-  attr_accessor :blocked, :block_sight, :explored
+  attr_accessor :blocked, :explored
 
   def initialize(blocked)
     @blocked = blocked

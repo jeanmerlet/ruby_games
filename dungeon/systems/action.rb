@@ -3,6 +3,7 @@ module Action
  def do_action(action)
     if action[:move]
       move_player(*action[:move])
+      @player.fov_id += 1
       @refresh_fov = true
     elsif false
       #other fov-refreshing actions

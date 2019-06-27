@@ -1,18 +1,21 @@
 class GameMap
-  attr_reader :tiles
+  attr_reader :tiles, :fov_tiles
   include ShapeMath
+  include Populate
 
   def initialize(width, height, seed = nil)
     @width = width
     @height = height
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new(true) } }
+    @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
     seed = rand(10000) if seed.nil?
     p seed
     srand(seed)
   end
 
-  def generate_level(min_length, max_length, max_rooms, player)
+  def generate_level(min_length, max_length, max_rooms, entities, monster_max)
     rooms = []
+    player = entities.first
     max_rooms.times do |i|
       new_room = generate_new_room(min_length, max_length)
       if !any_intersection?(rooms, new_room)
@@ -25,6 +28,7 @@ class GameMap
             player.x, player.y = new_x + 1, new_y + 1
           end
         else
+          place_entities(new_room, entities, monster_max)
           prev_x, prev_y = *rooms.last.center
           toss = rand(2)
           if toss == 0
@@ -42,7 +46,7 @@ class GameMap
 
   def generate_new_room(min_length, max_length)
     toss = rand(2)
-    if toss == 0
+    if true #toss == 0
       r = min_length + 1 + rand(max_length - min_length + 2)
       x, y = r + rand(@width - 2*r), r + rand(@height - 2*r)
       Circle.new(x, y, r)
