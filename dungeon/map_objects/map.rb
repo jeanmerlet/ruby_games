@@ -13,10 +13,10 @@ class GameMap
     srand(seed)
   end
 
-  def new_level(side_min, side_max, room_max, entities, monster_max)
+  def new_level(side_min, side_max, room_tries, entities, monster_max)
     rooms = []
     player = entities.first
-    room_max.times do |i|
+    room_tries.times do |i|
       new_room = generate_new_room(side_min, side_max)
       if !any_intersection?(rooms, new_room)
         create_room(new_room)

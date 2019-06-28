@@ -1,26 +1,3 @@
-module ShapeMath
-  def circ_rect_intersect?(circ, rect)
-    r = circ.r + 1
-    if rect.x1 <= circ.x && circ.x <= rect.x2 && rect.y1 <= circ.y && circ.y <= rect.y2
-      (circ.y - rect.y1).abs <= r ||
-      (circ.y - rect.y2).abs <= r ||
-      (circ.x - rect.x1).abs <= r ||
-      (circ.x - rect.x2).abs <= r
-    elsif rect.x1 <= circ.x && circ.x <= rect.x2
-      (circ.y - rect.y1).abs <= r ||
-      (circ.y - rect.y2).abs <= r
-    elsif rect.y1 <= circ.y && circ.y <= rect.y2
-      (circ.x - rect.x1).abs <= r ||
-      (circ.x - rect.x2).abs <= r
-    else
-      (circ.x-rect.x1)**2 + (circ.y-rect.y1)**2 < r**2 ||
-      (circ.x-rect.x1)**2 + (circ.y-rect.y2)**2 < r**2 ||
-      (circ.x-rect.x2)**2 + (circ.y-rect.y1)**2 < r**2 ||
-      (circ.x-rect.x2)**2 + (circ.y-rect.y2)**2 < r**2
-    end
-  end
-end
-
 class Rect
   attr_reader :x1, :y1, :x2, :y2, :center
 
@@ -29,10 +6,10 @@ class Rect
     @y1 = y
     @x2 = x + w
     @y2 = y + h
-    @center = center
+    @center = find_center
   end
 
-  def center
+  def find_center
     center_x = (@x1 + @x2) / 2
     center_y = (@y1 + @y2) / 2
     [center_x, center_y]
