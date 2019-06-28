@@ -46,7 +46,7 @@ class GameMap
 
   def generate_new_room(side_min, side_max)
     toss = rand(2)
-    if true #toss == 0
+    if toss == 0
       r = side_min + 1 + rand(side_max - side_min + 2)
       x, y = r + rand(@width - 2*r), r + rand(@height - 2*r)
       Circle.new(x, y, r)
