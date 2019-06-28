@@ -1,4 +1,5 @@
 require './lib/BearLibTerminal/BearLibTerminal.rb'
+require './config/config.rb'
 Dir["#{File.dirname(__FILE__)}/components/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
@@ -6,21 +7,20 @@ Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
 BLT = Terminal
 
 class Game
+  include Config
   include Action
   include FieldOfView
   include ParseInput
   include Render
 
   def initialize
-    @screen_w, @screen_h = 80, 50
     BLT.open
     blt_config
-    @entities = create_entities
     map_config
+    fov_config
+    @entities = [create_player]
     @map = GameMap.new(@map_w, @map_h)
-    @map.generate_level(@min_length, @max_length, @max_rooms, @entities, @monster_max)
-    @fov_radius = 8
-    @refresh_fov = true
+    @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
   end
 
   def run
@@ -36,25 +36,8 @@ class Game
     BLT.close
   end
 
-  def blt_config
-    BLT.set("window: size=#{@screen_w.to_s}x#{@screen_h.to_s}")
-    BLT.set("0x1000: ./tilesets/arial10x10.png, size=10x10")
-    BLT.set("palette.dark_wall = 0,0,100")
-    BLT.set("palette.dark_ground = 50,50,150")
-    BLT.set("palette.light_wall = 130,110,50")
-    BLT.set("palette.light_ground = 200,180,50")
-  end
-
-  def map_config
-    @map_w, @map_h = 80, 45
-    @min_length, @max_length = 3, 5
-    @max_rooms = 70
-    @monster_max = 3
-  end
-
-  def create_entities
+  def create_player
     @player = Entity.new(0, 0, "0x1020", 'amber', 'player')
-    [@player]
   end
 end
 

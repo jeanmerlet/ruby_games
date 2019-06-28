@@ -13,11 +13,11 @@ class GameMap
     srand(seed)
   end
 
-  def generate_level(min_length, max_length, max_rooms, entities, monster_max)
+  def new_level(side_min, side_max, room_max, entities, monster_max)
     rooms = []
     player = entities.first
-    max_rooms.times do |i|
-      new_room = generate_new_room(min_length, max_length)
+    room_max.times do |i|
+      new_room = generate_new_room(side_min, side_max)
       if !any_intersection?(rooms, new_room)
         create_room(new_room)
         new_x, new_y = *new_room.center
@@ -44,15 +44,15 @@ class GameMap
     end
   end
 
-  def generate_new_room(min_length, max_length)
+  def generate_new_room(side_min, side_max)
     toss = rand(2)
     if true #toss == 0
-      r = min_length + 1 + rand(max_length - min_length + 2)
+      r = side_min + 1 + rand(side_max - side_min + 2)
       x, y = r + rand(@width - 2*r), r + rand(@height - 2*r)
       Circle.new(x, y, r)
     else
-      w = 2*min_length + rand(2*(max_length - min_length) + 1)
-      h = 2*min_length + rand(2*(max_length - min_length) + 1)
+      w = 2*side_min + rand(2*(side_max - side_min) + 1)
+      h = 2*side_min + rand(2*(side_max - side_min) + 1)
       x, y = rand(@width - w - 1), rand(@height - h - 1)
       Rect.new(x, y, w, h)
     end
@@ -127,9 +127,5 @@ class GameMap
   def create_v_tunnel(y1, y2, x)
     y1, y2 = y2, y1 if y1 > y2
     @tiles[x][y1..y2].each { |tile| tile.blocked = false }
-  end
-
-  def in_bounds?(x, y)
-    0 <= x && x < @width && 0 <= y && y < @height
   end
 end
