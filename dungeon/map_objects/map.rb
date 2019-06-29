@@ -1,5 +1,5 @@
 class GameMap
-  attr_reader :tiles, :fov_tiles
+  attr_reader :width, :height, :tiles, :fov_tiles
   include ShapeMath
   include Populate
 
@@ -42,6 +42,54 @@ class GameMap
         rooms << new_room
       end
     end
+    bevel_tiles
+  end
+
+  def bevel_tiles
+    @tiles.each_with_index do |tile_line, x|
+      next if x == 0
+      break if x == @width - 1
+      tile_line.each_with_index do |tile, y|
+        next if y == 0 || !tile.blocked
+        break if y == @height - 1
+        neighbors = neighbor_block_values(x, y)
+        block_count = neighbors.count(true)
+        if block_count < 3
+          n, s, e, w = *neighbors
+          if block_count == 2
+            if !n && !w
+              tile.bevel_nw = true
+            elsif !n && !e
+              tile.bevel_ne = true
+            elsif !s && !e
+              tile.bevel_se = true
+            elsif !s && !w
+              tile.bevel_sw = true
+            end
+          elsif block_count == 1
+            if n
+              tile.bevel_sw, tile.bevel_se = true, true
+            elsif s
+              tile.bevel_nw, tile.bevel_ne = true, true
+            elsif e
+              tile.bevel_nw, tile.bevel_sw = true, true
+            else
+              tile.bevel_ne, tile.bevel_se = true, true
+            end
+          else
+            tile.bevel_nw = true
+            tile.bevel_ne = true
+            tile.bevel_sw = true
+            tile.bevel_se = true
+          end
+        end
+      end
+    end
+  end
+
+  def neighbor_block_values(x, y)
+    [@tiles[x][y-1].blocked, @tiles[x][y+1].blocked,
+     @tiles[x+1][y].blocked, @tiles[x-1][y].blocked]
   end
 
   def generate_new_room(side_min, side_max)
