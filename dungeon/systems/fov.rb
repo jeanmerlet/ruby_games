@@ -1,5 +1,22 @@
 module FieldOfView
 
+  # this is a Ruby port of Adam Milazzo's modified recursive shadowcasting algorithm
+  # http://www.adammil.net/blog/v125_Roguelike_Vision_Algorithms.html
+  #
+  # the main differences between standard shadowcasting are as follows:
+  #
+  # 1. walls are beveled to allow for less blind corners. a wall can be beveled in 1,
+  # 2, or all 4 of its corners (nw, ne, se, sw). each of the corners is beveled if the
+  # two adjacent-most tiles are both non-blocking tiles. this could be implemented
+  # as part of the algorithm, but I chose to bevel all of my tiles on map creation.
+  #
+  # 2. non-blocking (e.g. wall) tiles are only lit if their inner square (width 1/2)
+  # is hit by the light cone, and wall tiles if their beveled shape is hit. this
+  # results in more expansive walls and more reasonable lighting through narrow spaces.
+  #
+  # 3. 0-width lightbeams do not project light. this is the only way to light
+  # diagonally with shadowcasting, but is no longer necessary with beveled walls.
+  #
   # multipliers for transforming the offsets from the origin, dx and dy, into
   # map coordinates for a standard roguelike left-handed coordinate system.
   # using these transformations prevents the need for 8 different pairs of
