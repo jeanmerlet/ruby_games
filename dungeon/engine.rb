@@ -19,7 +19,7 @@ class Game
     map_config
     fov_config
     @entities = [create_player]
-    @map = GameMap.new(@map_w, @map_h, 4441)
+    @map = GameMap.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
   end
 
