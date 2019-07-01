@@ -10,3 +10,15 @@ class Tile
     @beveled_sw = false
   end
 end
+
+class PathingTile
+  attr_reader :x, :y, :g, :h, :parent
+
+  def initialize(x, y, g, h, parent = nil, children = nil)
+    @x, @y = x, y
+    @g, @h = g, h
+    @f = @g + @h
+    @parent = parent
+    @children = children
+  end
+end

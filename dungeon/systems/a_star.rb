@@ -6,31 +6,35 @@ module A_Star
            ]
 
   def find_path(start_x, start_y, end_x, end_y)
-    destination = [end_x, end_y]
-    untried = [[start_x, start_y]]
-    path = []
-    
+    h = distance(start_x, start_y, end_x, end_y)
+    untried, path = [PathingTile.new(start_x, start_y, 0, h)], []
     while !untried.empty?
       distances = []
-      untried.each { |xy| distances << distance(xy, destination) }
-      current_xy = untried.index(distances.min.index) #fix
-      untried -= current_xy
-      path += current_xy
-      return path if current_xy == destination
-      children = adjacent(current_xy)
+      untried.each { |node| distances << distance(node.x, node.y, end_x, end_y) }
+      current_node = untried[distances.index(distances.min)]
+      untried -= current_node
+      path += current_node
+      if current_node.x == end_x && current_node.y == end_y
+        return path
+      end
+      children = adjacent(current_node)
       children.each do |child|
         next if path.include?(child)
       end
     end
+    nil
   end
 
-  def distance(x1y1, x2y2)
+  def distance(x1, y1, x2, y2)
+    (x2-x1)**2 + (y2-y1)**2
   end
 
-  def adjacent(xy)
-    x, y = xy[0], xy[1]
+  def adjacent(node)
     4.times do |i|
-      x + @@mult[i]
+      x, y = node.x, node.y
+      x += @@mult[0][i]
+      y += @@mult[1][i]
+      node = Node.new(x, y)
     end
   end
 end
