@@ -2,7 +2,6 @@ require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
 Dir["#{File.dirname(__FILE__)}/components/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
-Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
 
 BLT = Terminal
 

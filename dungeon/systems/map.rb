@@ -22,7 +22,7 @@ class GameMap
         create_room(new_room)
         new_x, new_y = *new_room.center
         if i == 0
-          if new_room.is_a?(Circle)
+          if new_room.is_a?(Circ)
             player.x, player.y = new_x, new_y
           else
             player.x, player.y = new_x + 1, new_y + 1
@@ -97,7 +97,7 @@ class GameMap
     if toss == 0
       r = side_min + 1 + rand(side_max - side_min + 2)
       x, y = r + rand(@width - 2*r), r + rand(@height - 2*r)
-      Circle.new(x, y, r)
+      Circ.new(x, y, r)
     else
       w = 2*side_min + rand(2*(side_max - side_min) + 1)
       h = 2*side_min + rand(2*(side_max - side_min) + 1)
@@ -112,17 +112,21 @@ class GameMap
   end
 
   def intersect?(room1, room2)
-    if room1.class.name.split('::').last == room2.class.name.split('::').last
-      room1.intersect?(room2)
-    elsif room1.is_a?(Circle)
-      circ_rect_intersect?(room1, room2)
+    if room1.is_a?(Rect) && room2.is_a?(Rect)
+      rect_rect_intersect?(room1, room2)
+    elsif room1.is_a?(Circ) && room2.is_a?(Circ)
+      circ_circ_intersect?(room1, room2)
     else
+     if room1.is_a?(Circ)
+      circ_rect_intersect?(room1, room2)
+     else
       circ_rect_intersect?(room2, room1)
+     end
     end
   end
 
   def create_room(room)
-    if room.is_a?(Circle)
+    if room.is_a?(Circ)
       create_circ_room(room)
     elsif room.is_a?(Rect)
       create_rect_room(room)
