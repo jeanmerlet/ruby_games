@@ -58,18 +58,19 @@ module FieldOfView
   end
 
   def fov(x, y, radius)
-    # reducing radius by 0.5 accounts for the tile width of the origin
-    # to render a more accurately circular-looking field of view
-    radius, m_row = radius - 0.5, radius
+    # increasing (or reducing) radius by 0.5 accounts for the tile width of the
+    # origin to render a more accurately circular-looking field of view. I chose to
+    # increase it so that the FoV would extend radius number of tiles from the center.
+    radius += 0.5
     light(x, y)
     8.times do |oct|
-      cast_light(oct, x, y, radius, 1, m_row, 1.0, 0.0,
+      cast_light(oct, x, y, radius, 1, 1.0, 0.0,
         @@mult[0][oct], @@mult[1][oct],
         @@mult[2][oct], @@mult[3][oct])
     end
   end
 
-  def cast_light(oct, x, y, r, row, m_row, cast_start, cast_end, xx, xy, yx, yy)
+  def cast_light(oct, x, y, r, row, cast_start, cast_end, xx, xy, yx, yy)
     return if cast_start <= cast_end # <= instead of < prevents 0-width illumination
     r_sq = r**2
     (row..r).each do |j|
@@ -125,7 +126,7 @@ module FieldOfView
             # is not on the last row to be scanned.
             if tile.blocked
               row_blocked = true
-              cast_light(oct, x, y, r, j+1, m_row, cast_start, l_slope, xx, xy, yx, yy)
+              cast_light(oct, x, y, r, j+1, cast_start, l_slope, xx, xy, yx, yy)
               child_cast_start = r_slope
             end
           end
