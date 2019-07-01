@@ -17,9 +17,9 @@ module FieldOfView
   # 3. 0-width lightbeams do not project light. this is the only way to light
   # diagonally with shadowcasting, but is no longer necessary with beveled walls.
   #
-  # multipliers for transforming the offsets from the origin, dx and dy, into
-  # map coordinates for a standard roguelike left-handed coordinate system.
-  # using these transformations prevents the need for 8 different pairs of
+  # below is a 2D matrix of multipliers for transforming the offsets from the origin,
+  # dx and dy, into map coordinates for a standard roguelike left-handed coordinate
+  # system. using these transformations prevents the need for 8 different pairs of
   # slope equations and 8 different pairs of dx, dy iterations.
 
   @@mult = [
