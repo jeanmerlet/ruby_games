@@ -2,7 +2,7 @@ module Render
 
   def render_entity(map, entity, fov_id)
     if map.fov_tiles[entity.x][entity.y] == fov_id
-      BLT.print(entity.x, entity.y, "[color=#{entity.color}][#{entity.char}]")
+      entity.render
     end
   end
 

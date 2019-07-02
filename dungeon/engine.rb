@@ -39,7 +39,9 @@ class Game
   end
 
   def create_player
-    @player = Entity.new(0, 0, "0x1020", 'amber', 'player')
+    @player = Entity.new(0, 0, "0x1020", 'player', 'amber')
+    @player.fighter = Fighter.new(30, 0, 3)
+    @player
   end
 end
 
