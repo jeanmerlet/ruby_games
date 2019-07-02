@@ -27,7 +27,7 @@ class Game
 
   def run
     loop do
-      fov(@player.x, @player.y, @fov_radius) if @refresh_fov
+      do_fov(@player.x, @player.y, @fov_radius) if @refresh_fov
       render_all(@map, @entities)
       BLT.refresh
       clear_entities(@entities)

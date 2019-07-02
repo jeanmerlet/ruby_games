@@ -1,26 +1,30 @@
 module FieldOfView
 
-  # this is a Ruby port of Adam Milazzo's modified recursive shadowcasting algorithm
+  # this is a Ruby port of Adam Milazzo's modified recursive shadowcasting
+  # algorithm:
   # http://www.adammil.net/blog/v125_Roguelike_Vision_Algorithms.html
   #
-  # the main differences between standard shadowcasting are as follows:
+  # the main differences from standard shadowcasting are as follows:
   #
-  # 1. walls are beveled to allow for less blind corners. a wall can be beveled in 1,
-  # 2, or all 4 of its corners (nw, ne, se, sw). each of the corners is beveled if the
-  # two adjacent-most tiles are both non-blocking tiles. this could be implemented
-  # as part of the algorithm, but I chose to bevel all of my tiles on map creation.
+  # I. walls are beveled to allow for less blind corners. a wall can be beveled
+  # in 1, 2, or all 4 of its corners (nw, ne, se, sw). each of the corners is
+  # beveled if the two adjacent-most tiles are both non-blocking tiles. this
+  # could be implemented as part of the algorithm, but here is implemented as
+  # part of map creation, which probably performs better.
   #
-  # 2. non-blocking (e.g. wall) tiles are only lit if their inner square (width 1/2)
-  # is hit by the light cone, and wall tiles if their beveled shape is hit. this
-  # results in more expansive walls and more reasonable lighting through narrow spaces.
+  # II. non-blocking (e.g. wall) tiles are only lit if their inner square
+  # (width 1/2) is hit by the light cone, and wall tiles if their beveled shape
+  # is hit. this results in more expansive walls and more reasonable lighting
+  # through narrow spaces.
   #
-  # 3. 0-width lightbeams do not project light. this is the only way to light
-  # diagonally with shadowcasting, but is no longer necessary with beveled walls.
+  # III. 0-width lightbeams do not project light. this is the only way to light
+  # diagonally through two diagonally adjacent walls when shadowcasting, but is
+  # no longer necessary with beveled walls.
   #
-  # below is a 2D matrix of multipliers for transforming the offsets from the origin,
-  # dx and dy, into map coordinates for a standard roguelike left-handed coordinate
-  # system. using these transformations prevents the need for 8 different pairs of
-  # slope equations and 8 different pairs of dx, dy iterations.
+  # below is a 2D matrix of multipliers for transforming the offsets from the
+  # origin, dx and dy, into map coordinates for a standard roguelike left
+  # handed coordinate system. using these transformations prevents the need
+  # for 8 different pairs of slope equations and dx, dy iterations.
 
   @@mult = [
             [1,  0,  0,  1, -1,  0,  0, -1],  #xx
@@ -45,8 +49,8 @@ module FieldOfView
   # map_x = origin_x + dx * xx + dy * xy
   # map_y = origin_y + dx * yx + dy * yy
   #
-  # the result is that each octant of the game map is mapped to octant 0 for the
-  # purposes of the cast_light function's calculations.
+  # the result is that each octant of the game map is mapped to octant 0 for
+  # the purposes of the cast_light function's calculations.
 
   def light(x, y)
     @map.tiles[x][y].explored = true
@@ -57,10 +61,10 @@ module FieldOfView
     x < 0 || x >= @map.width || y < 0 || y >= @map.height
   end
 
-  def fov(x, y, radius)
+  def do_fov(x, y, radius)
     # increasing (or reducing) radius by 0.5 accounts for the tile width of the
-    # origin to render a more accurately circular-looking field of view. I chose to
-    # increase it so that the FoV would extend radius number of tiles from the center.
+    # origin to render a more accurately circular-looking field of view. it is
+    # increased here to ensure the FoV extends radius number of tiles.
     radius += 0.5
     light(x, y)
     8.times do |oct|
@@ -71,7 +75,7 @@ module FieldOfView
   end
 
   def cast_light(oct, x, y, r, row, cast_start, cast_end, xx, xy, yx, yy)
-    return if cast_start <= cast_end # <= instead of < prevents 0-width illumination
+    return if cast_start <= cast_end
     r_sq = r**2
     (row..r).each do |j|
       dx, dy = -j-1, -j
