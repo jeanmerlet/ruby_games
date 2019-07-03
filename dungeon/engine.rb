@@ -2,6 +2,7 @@ require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
 require './entities/entity.rb'
 require './entities/components/component.rb'
+require './map_objects/generate_level.rb'
 Dir["#{File.dirname(__FILE__)}/entities/**/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
