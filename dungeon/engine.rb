@@ -1,8 +1,10 @@
 require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
-Dir["#{File.dirname(__FILE__)}/components/*.rb"].each { |file| require file }
+require './entities/entity.rb'
+require './entities/components/component.rb'
+Dir["#{File.dirname(__FILE__)}/entities/**/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
-require './map.rb'
+Dir["#{File.dirname(__FILE__)}/map/*.rb"].each { |file| require file }
 
 BLT = Terminal
 
@@ -19,7 +21,8 @@ class Game
     blt_config
     map_config
     fov_config
-    @entities = [create_player]
+    @entities = []
+    create_player
     @map = GameMap.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @game_state = GameStates::PLAYER_TURN
@@ -39,9 +42,10 @@ class Game
   end
 
   def create_player
-    @player = Entity.new(0, 0, "0x1020", 'player', 'amber')
-    @player.fighter = Fighter.new(30, 0, 3)
-    @player
+    @player = Creature.new(@entities, 0, 0, "0x1020", 'player', 'amber')
+    hp, defense, power = 30, 0, 3
+    @player.combat = Combat.new(@player, hp, defense, power)
+    p @player.ai
   end
 end
 

@@ -44,7 +44,7 @@ module ActionManager
   def do_enemy_turn
     @entities.each do |entity|
       next if !entity.ai
-      puts "#{entity.name} does nothing. BLAURUGHH!"
+      #puts "#{entity.name} does nothing. BLAURUGHH!"
     end
   end
 

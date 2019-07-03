@@ -16,15 +16,16 @@ module Populate
       end
       if !spot_occupied?(x, y, entities)
         if rand(100) < 80
-          monster = Entity.new(x, y, "0x108E", "orc", "red")
-          monster.fighter = Fighter.new(10, 0, 3)
-          monster.ai = BasicMonster
+          monster = Creature.new(entities, x, y, "0x108E", "orc", "red")
+          hp, defense, power = 10, 0, 3
+          monster.combat = Combat.new(monster, hp, defense, power)
+          monster.ai = BasicMonsterAI.new(monster)
         else
-          monster = Entity.new(x, y, "0x1073", "troll", "dark green")
-          monster.fighter = Fighter.new(16, 1, 4)
-          monster.ai = BasicMonster
+          monster = Creature.new(entities, x, y, "0x1073", "troll", "dark green")
+          hp, defense, power = 16, 1, 4
+          monster.combat = Combat.new(monster, hp, defense, power)
+          monster.ai = BasicMonsterAI.new(monster)
         end
-        entities << monster
       end
     end
   end

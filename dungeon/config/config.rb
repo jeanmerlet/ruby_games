@@ -21,7 +21,7 @@ module Config
   end
 
   def fov_config
-    @fov_radius = 10
+    @fov_radius = 8
     @refresh_fov = true
   end
 end
