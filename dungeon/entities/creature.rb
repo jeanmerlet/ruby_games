@@ -9,8 +9,6 @@ class Creature < Entity
     @color = BLT.color_from_name(color)
     @blocks = true
     @fov_id = 1
-    #@combat = nil
-    #@ai = nil
   end
 
   def update

@@ -45,7 +45,6 @@ class Game
     @player = Creature.new(@entities, 0, 0, "0x1020", 'player', 'amber')
     hp, defense, power = 30, 0, 3
     @player.combat = Combat.new(@player, hp, defense, power)
-    p @player.ai
   end
 end
 
