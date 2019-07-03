@@ -1,9 +1,8 @@
-module ParseInput
+module EventHandler
 
-  def parse_input(key)
+  def handle_input(input)
     action = {}
-
-    case key
+    case input
     #movement
     when BLT::TK_UP, BLT::TK_K
       action[:move] = [0, -1]
@@ -17,7 +16,6 @@ module ParseInput
     when BLT::TK_ESCAPE, BLT::TK_CLOSE
       action[:quit] = true
     end
-
     action
   end
 end

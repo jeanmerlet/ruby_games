@@ -9,6 +9,10 @@ module ActionManager
  end
 
  def do_action(action)
+    if action[:quit]
+      @close = true
+    end
+
     if action[:move]
       if move_player(action[:move])
         @player.fov_id += 1

@@ -4,7 +4,7 @@ require './entities/entity.rb'
 require './entities/components/component.rb'
 Dir["#{File.dirname(__FILE__)}/entities/**/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
-Dir["#{File.dirname(__FILE__)}/map/*.rb"].each { |file| require file }
+Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
 
 BLT = Terminal
 
@@ -12,7 +12,7 @@ class Game
   include Config
   include ActionManager
   include FieldOfView
-  include ParseInput
+  include EventHandler
   include Render
   include GameStates
 
@@ -26,19 +26,23 @@ class Game
     @map = GameMap.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @game_state = GameStates::PLAYER_TURN
+    @close = false
   end
 
   def run
-    loop do
-      do_fov(@player.x, @player.y, @fov_radius) if @refresh_fov
-      render_all(@map, @entities)
+    until @close
+      update
+      render
       BLT.refresh
-      clear_entities(@entities)
-      key = BLT.read
-      action = parse_input(key)
-      action[:quit] ? break : manage_action(action)
+      action = handle_input(BLT.read)
+      manage_action(action)
     end
     BLT.close
+  end
+
+  def update
+    clear_entities
+    do_fov(@player.x, @player.y, @fov_radius) if @refresh_fov
   end
 
   def create_player
