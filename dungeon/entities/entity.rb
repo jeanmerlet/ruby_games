@@ -1,10 +1,10 @@
 class Entity
   attr_reader :components, :object_pool
 
-  def initialize(entity_pool)
+  def initialize(entities)
     @components = []
-    @object_pool = entity_pool
-    @object_pool << self
+    @entities = entities
+    @entities << self
   end
 
   def update

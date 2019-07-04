@@ -1,4 +1,4 @@
-class GameMap
+class Map
   attr_reader :width, :height, :tiles, :fov_tiles
   include ShapeMath
   include Populate

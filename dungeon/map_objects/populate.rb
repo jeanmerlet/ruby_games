@@ -19,12 +19,12 @@ module Populate
           monster = Creature.new(entities, x, y, "0x108E", "orc", "red")
           hp, defense, power = 10, 0, 3
           monster.combat = Combat.new(monster, hp, defense, power)
-          monster.ai = BasicMonsterAI.new(monster)
+          monster.ai = MonsterAI.new(monster)
         else
           monster = Creature.new(entities, x, y, "0x1073", "troll", "dark green")
           hp, defense, power = 16, 1, 4
           monster.combat = Combat.new(monster, hp, defense, power)
-          monster.ai = BasicMonsterAI.new(monster)
+          monster.ai = MonsterAI.new(monster)
         end
       end
     end

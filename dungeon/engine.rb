@@ -15,7 +15,6 @@ class Game
   include FieldOfView
   include EventHandler
   include Render
-  include GameStates
 
   def initialize
     BLT.open
@@ -24,9 +23,9 @@ class Game
     fov_config
     @entities = []
     create_player
-    @map = GameMap.new(@map_w, @map_h)
+    @map = Map.new(@map_w, @map_h, 470)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
-    @game_state = GameStates::PLAYER_TURN
+    @state_stack = [:player_turn]
     @close = false
   end
 
@@ -47,7 +46,7 @@ class Game
   end
 
   def create_player
-    @player = Creature.new(@entities, 0, 0, "0x1020", 'player', 'amber')
+    @player = Creature.new(@entities, 0, 0, "0x1020", 'player', 'amber', 1)
     hp, defense, power = 30, 0, 3
     @player.combat = Combat.new(@player, hp, defense, power)
   end

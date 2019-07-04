@@ -1,61 +1,50 @@
 module ActionManager
 
- def manage_action(action)
-   do_action(action)
-   if @game_state == GameStates::ENEMY_TURN
-     do_enemy_turn
-     @game_state = GameStates::PLAYER_TURN
-   end
- end
-
- def do_action(action)
-    if action[:quit]
-      @close = true
+  def manage_action(action)
+    if @state_stack.last == :player_turn
+      do_action(action)
+      do_enemy_turn if @state_stack.last == :enemy_turn
     end
+  end
 
-    if action[:move]
-      if move_player(action[:move])
-        @player.fov_id += 1
-        @refresh_fov = true
-      end
-    elsif false
-      #other fov-refreshing actions
-    else
-      @refresh_fov = false
-      if false #all other non-fov refreshing actions
-      end
-    end
+  def do_action(action)
+    move_player(action[:move]) if action[:move]
+    @close = true if action[:quit]
   end
 
   def move_player(move)
     dx, dy = *move
     end_x, end_y = @player.x + dx, @player.y + dy
-    if @game_state == GameStates::PLAYER_TURN
-      if !@map.tiles[end_x][end_y].blocked
-        target = get_entity_at(end_x, end_y)
-        if target.nil?
-          @player.x += dx
-          @player.y += dy
-          @game_state = GameStates::ENEMY_TURN
-          true
-        else
-          false
-        end
+    if !@map.tiles[end_x][end_y].blocked
+      target = @player.get_entity_at(end_x, end_y)
+      if target.nil?
+        @player.move(dx, dy)
+        @player.fov_id += 1
+        @refresh_fov = true
+        @state_stack.pop
+        @state_stack << :enemy_turn
       end
+    else
+      @refresh_fov = false
     end
   end
 
   def do_enemy_turn
     @entities.each do |entity|
-      next if !entity.ai
-      #puts "#{entity.name} does nothing. BLAURUGHH!"
+      if entity.ai
+        entity.ai.take_turn(@map, @player)
+      end
     end
+    @state_stack.pop
+    @state_stack << :player_turn
   end
 
-  def get_entity_at(x, y)
+  def do_monster_alert
     @entities.each do |entity|
-      return entity if entity.x == x && entity.y == y
+      x, y = entity.x, entity.y
+      if @map.fov_tiles[x][y] == @player.fov_id
+        BLT.print(x, y, '!')
+      end
     end
-    nil
   end
 end
