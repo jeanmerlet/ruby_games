@@ -21,11 +21,11 @@ class Creature < Entity
 
   def move_astar(map, target_x, target_y, dx, dy)
     path = A_Star.find_path(map, @x, @y, target_x, target_y)
-    if !path.nil?#&& path.length < 25
+    if !path.nil? && path.length < 25
       map.tiles[@x][@y].walkable = true
       @x, @y = *path.first
       map.tiles[@x][@y].walkable = false
-    elsif false# map.tiles[x][y].walkable
+    elsif map.tiles[@x+dx][@y+dy].walkable
       map.tiles[@x][@y].walkable = true
       move(map, dx, dy)
       map.tiles[@x][@y].walkable = false

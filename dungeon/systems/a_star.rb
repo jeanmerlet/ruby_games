@@ -29,7 +29,6 @@ module A_Star
       cx, cy = current_tile.x, current_tile.y
       unexplored.shift
       paths << current_tile
-      p paths.size
       if cx == target_x && cy == target_y
         path = []
         until current_tile.parent.nil?
