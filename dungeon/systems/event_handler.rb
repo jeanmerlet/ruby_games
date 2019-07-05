@@ -21,9 +21,9 @@ module EventHandler
     when BLT::TK_KP_1, BLT::TK_B
       action[:move] = [-1, 1]
     #close game
-    when BLT::TK_ESCAPE, BLT::TK_CLOSE
+    when BLT::TK_ESCAPE
       action[:quit] = true
     end
-    action
+    return action
   end
 end

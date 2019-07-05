@@ -23,7 +23,8 @@ class Game
     fov_config
     @entities = []
     create_player
-    @map = Map.new(@map_w, @map_h)
+    #24 for pathing
+    @map = Map.new(@map_w, @map_h, 24)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @state_stack = [:player_turn]
     @close = false
@@ -31,18 +32,23 @@ class Game
 
   def run
     until @close
-      update
+      BLT.has_input? ? action = handle_input(BLT.read) : action = nil
+      results = manage_action(action)
+      update(results)
       render
       BLT.refresh
-      action = handle_input(BLT.read)
-      manage_action(action)
     end
     BLT.close
   end
 
-  def update
+  def update(results)
     clear_entities
     do_fov(@player.x, @player.y, @fov_radius) if @refresh_fov
+    if !results.empty?
+      results.each do |result|
+        puts result[:message] if result[:message]
+      end
+    end
   end
 
   def create_player
