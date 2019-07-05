@@ -18,7 +18,7 @@ module ActionManager
     if !@map.tiles[end_x][end_y].blocked
       target = @player.get_entity_at(end_x, end_y)
       if target.nil?
-        @player.move(dx, dy)
+        @player.move(@map, dx, dy)
         @player.fov_id += 1
         @refresh_fov = true
         @state_stack.pop

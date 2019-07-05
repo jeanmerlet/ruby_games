@@ -7,7 +7,7 @@ class Map
   def initialize(width, height, seed = nil)
     @width = width
     @height = height
-    @tiles = Array.new(@width) { Array.new(@height) { Tile.new(true) } }
+    @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
     seed = rand(10000) if seed.nil?
     p seed

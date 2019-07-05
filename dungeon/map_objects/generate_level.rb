@@ -4,7 +4,7 @@ module GenerateLevel
     rooms = []
     player = entities.first
     room_tries.times do |i|
-      new_room = generate_new_room(side_min, side_max)
+      new_room = new_shape(side_min, side_max)
       if !any_intersection?(rooms, new_room)
         create_room(new_room)
         new_x, new_y = *new_room.center
@@ -32,7 +32,7 @@ module GenerateLevel
     bevel_tiles
   end
 
-  def generate_new_room(side_min, side_max)
+  def new_shape(side_min, side_max)
     toss = rand(2)
     if toss == 0
       r = side_min + 1 + rand(side_max - side_min + 2)
@@ -77,6 +77,7 @@ module GenerateLevel
     @tiles[room.x1+1..room.x2].each do |h_tile_line|
       h_tile_line[room.y1+1..room.y2].each do |tile|
         tile.blocked = false
+        tile.walkable = true
       end
     end
   end
@@ -102,19 +103,27 @@ module GenerateLevel
       whole << [room.x - room.r + i + 1, room.y]
     end
 
-    whole.each { |xy| @tiles[xy[0]][xy[1]].blocked = false }
+    whole.each do |xy|
+      tile = @tiles[xy[0]][xy[1]]
+      tile.blocked = false
+      tile.walkable = true
+    end
   end
 
   def create_h_tunnel(x1, x2, y)
     x1, x2 = x2, x1 if x1 > x2
     @tiles[x1..x2].each do |h_tile_line|
       h_tile_line[y].blocked = false
+      h_tile_line[y].walkable = true
     end
   end
 
   def create_v_tunnel(y1, y2, x)
     y1, y2 = y2, y1 if y1 > y2
-    @tiles[x][y1..y2].each { |tile| tile.blocked = false }
+    @tiles[x][y1..y2].each do |tile|
+      tile.blocked = false
+      tile.walkable = true
+    end
   end
 
   def bevel_tiles

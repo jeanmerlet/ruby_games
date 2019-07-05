@@ -14,29 +14,30 @@ class Creature < Entity
   def update
   end
 
-  def move(map, dx, dy)
+  def move(dx, dy)
     @x += dx
     @y += dy
   end
 
-  def move_astar(map, target_x, target_y, dx, dy)
-    path = A_Star.find_path(map, @x, @y, target_x, target_y)
-    if !path.nil?#&& path.length < 25
-      map.tiles[@x][@y].walkable = true
-      @x, @y = *path.first
-      map.tiles[@x][@y].walkable = false
-    elsif false# map.tiles[x][y].walkable
-      map.tiles[@x][@y].walkable = true
-      move(map, dx, dy)
-      map.tiles[@x][@y].walkable = false
+  def move_astar(map, target)
+    distance = (@x + target[0])**2 + (@y + target[1])**2
+    path = []
+    untried = [[[@x, @y], 0]]
+    until untried.empty?
+      tile = untried.sort_by(smallest f)
+      return path if tile == target
+      
     end
+    return nil
   end
 
   def move_towards(map, target_x, target_y)
     dx, dy = target_x - @x, target_y - @y
     distance = Math.sqrt(dx**2 + dy**2)
     dx, dy = (dx/distance).round, (dy/distance).round
-    move_astar(map, target_x, target_y, dx, dy)
+    if !map.tiles[@x + dx][@y + dy].blocked && !get_entity_at(dx, dy)
+      move(dx, dy)
+    end
   end
 
   def get_entity_at(x, y)
