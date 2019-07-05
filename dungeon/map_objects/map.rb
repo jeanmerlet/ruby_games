@@ -1,7 +1,5 @@
 class Map
   attr_reader :width, :height, :tiles, :fov_tiles
-  include ShapeMath
-  include Populate
   include GenerateLevel
 
   def initialize(width, height, seed = nil)

@@ -1,5 +1,5 @@
 module ShapeMath
-  def circ_rect_intersect?(c, r)
+  def self.circ_rect_intersect?(c, r)
     rad = c.r + 1
     if r.x1 <= c.x && c.x <= r.x2 && r.y1 <= c.y && c.y <= r.y2
       (c.y - r.y1).abs <= rad ||
@@ -21,11 +21,11 @@ module ShapeMath
     end
   end
 
-  def rect_rect_intersect?(r1, r2)
+  def self.rect_rect_intersect?(r1, r2)
     r1.x1 <= r2.x2 && r2.x2 >= r1.x1 && r1.y1 <= r2.y2 && r2.y2 >= r1.y1
   end
 
-  def circ_circ_intersect?(c1, c2)
+  def self.circ_circ_intersect?(c1, c2)
     x = c1.x - c2.x
     y = c1.y - c2.y
     r = c1.r + c2.r + 1

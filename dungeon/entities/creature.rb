@@ -11,9 +11,6 @@ class Creature < Entity
     @fov_id = fov_id
   end
 
-  def update
-  end
-
   def move(map, dx, dy)
     @x += dx
     @y += dy

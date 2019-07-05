@@ -15,8 +15,9 @@ class MonsterAI < Component
         @owner.move_towards(map, player_x, player_y)
       elsif player.combat.hp > 0
       end
-    elsif @chase_turns > 0
+    elsif @chase_turns > 0 && distance_to(player_x, player_y) >= 2
       @owner.move_towards(map, player_x, player_y)
+      @chase_turns -= 1
     end
   end
 

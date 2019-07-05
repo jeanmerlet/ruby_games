@@ -15,7 +15,7 @@ module GenerateLevel
             player.x, player.y = new_x + 1, new_y + 1
           end
         else
-          place_entities(new_room, entities, monster_max)
+          Populate.place_entities(new_room, entities, monster_max)
           prev_x, prev_y = *rooms.last.center
           toss = rand(2)
           if toss == 0
@@ -53,14 +53,14 @@ module GenerateLevel
 
   def intersect?(room1, room2)
     if room1.is_a?(Rect) && room2.is_a?(Rect)
-      rect_rect_intersect?(room1, room2)
+      ShapeMath.rect_rect_intersect?(room1, room2)
     elsif room1.is_a?(Circ) && room2.is_a?(Circ)
-      circ_circ_intersect?(room1, room2)
+      ShapeMath.circ_circ_intersect?(room1, room2)
     else
      if room1.is_a?(Circ)
-      circ_rect_intersect?(room1, room2)
+      ShapeMath.circ_rect_intersect?(room1, room2)
      else
-      circ_rect_intersect?(room2, room1)
+      ShapeMath.circ_rect_intersect?(room2, room1)
      end
     end
   end

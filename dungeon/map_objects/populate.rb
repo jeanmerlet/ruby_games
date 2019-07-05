@@ -1,6 +1,6 @@
 module Populate
 
-  def place_entities(room, entities, monster_max)
+  def self.place_entities(room, entities, monster_max)
     number_of_monsters = rand(0..monster_max)
     number_of_monsters.times do
       if room.is_a?(Rect)
@@ -30,7 +30,7 @@ module Populate
     end
   end
 
-  def spot_occupied?(x, y, entities)
+  def self.spot_occupied?(x, y, entities)
     entities.each do |entity|
       return true if x == entity.x && y == entity.y
     end
