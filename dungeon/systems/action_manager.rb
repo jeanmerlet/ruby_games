@@ -25,6 +25,9 @@ module ActionManager
 
       results.flatten!
       return results
+    elsif @state_stack.last == :player_death
+      @close = true if BLT.read
+      return []
     else
       return []
     end
@@ -35,7 +38,7 @@ module ActionManager
     end_x, end_y = @player.x + dx, @player.y + dy
     results = []
     if !@map.tiles[end_x][end_y].blocked
-      target = @player.get_entity_at(end_x, end_y)
+      target = @player.get_blocking_entity_at(end_x, end_y)
       if target.nil?
         @player.move(@map, dx, dy)
         @refresh_fov = true

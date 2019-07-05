@@ -19,4 +19,8 @@ module Render
   def clear_entity(entity)
     BLT.print(entity.x, entity.y, " ")
   end
+
+  def render_message(message)
+    puts message
+  end
 end

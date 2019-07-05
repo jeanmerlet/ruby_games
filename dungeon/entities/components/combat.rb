@@ -11,7 +11,7 @@ class Combat < Component
   def take_damage(amount)
     results = []
     @hp -= amount
-    results.push({ dead: @owner }) if @hp <= 0
+    results.push({ death: @owner }) if @hp <= 0
     return results
   end
 

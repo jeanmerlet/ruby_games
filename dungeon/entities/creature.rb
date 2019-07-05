@@ -1,6 +1,5 @@
 class Creature < Entity
-  attr_accessor :x, :y, :combat, :ai, :fov_id
-  attr_reader   :char, :color, :name, :blocks
+  attr_accessor :x, :y, :char, :color, :blocks, :name, :combat, :ai, :fov_id
 
   def initialize(entities, x, y, char, name, color, fov_id = nil, blocks = true)
     super(entities)
@@ -36,8 +35,10 @@ class Creature < Entity
     move_astar(map, target_x, target_y, dx, dy)
   end
 
-  def get_entity_at(x, y)
-    @entities.each { |entity| return entity if entity.x == x && entity.y == y }
+  def get_blocking_entity_at(x, y)
+    @entities.each do |entity|
+      return entity if entity.x == x && entity.y == y && entity.blocks
+    end
     return nil
   end
 

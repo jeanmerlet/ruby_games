@@ -46,7 +46,19 @@ class Game
     do_fov(@player.x, @player.y, @fov_radius) if @refresh_fov
     if !results.empty?
       results.each do |result|
-        puts result[:message] if result[:message]
+        if result[:message]
+          render_message(result[:message])
+        elsif result[:death]
+          corpse = result[:death]
+          if corpse == @player
+            render_message(Destroy.player_death_message)
+            Destroy.kill_player(corpse)
+            @state_stack.push(:player_death)
+          else
+            render_message(Destroy.monster_death_message(corpse))
+            Destroy.kill_monster(corpse)
+          end
+        end
       end
     end
   end
