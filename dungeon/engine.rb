@@ -23,7 +23,7 @@ class Game
     fov_config
     @entities = []
     create_player
-    @map = Map.new(@map_w, @map_h, 7504)
+    @map = Map.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @state_stack = [:player_turn]
     @close = false
