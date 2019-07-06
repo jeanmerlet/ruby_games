@@ -30,6 +30,13 @@ module GenerateLevel
       end
     end
     bevel_tiles
+    count = 0
+    @tiles.each_with_index do |tile_line, x|
+      tile_line.each_with_index do |tile, y|
+        count += 1 if !tile.blocked
+      end
+    end
+    puts "walkable count: #{count}"
   end
 
   def new_shape(side_min, side_max)

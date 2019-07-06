@@ -9,7 +9,7 @@ module Destroy
     return "You died!"
   end
 
-  def self.kill_monster(monster)
+  def self.kill_monster(map, monster)
     monster.char = "0x1005"
     monster.color = "dark red"
     monster.blocks = false
@@ -17,6 +17,7 @@ module Destroy
     monster.ai = nil
     monster.name = "remains of #{monster.name}"
     monster.render_order = 3
+    map.tiles[monster.x][monster.y].walkable = true
   end
 
   def self.monster_death_message(monster)

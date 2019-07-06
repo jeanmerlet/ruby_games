@@ -1,6 +1,6 @@
 module Config
 
-  SCREEN_W = 80
+  SCREEN_W = 160
   SCREEN_H = 50
   TILESET = "./tilesets/arial10x10.png, size=10x10"
 
@@ -14,9 +14,9 @@ module Config
   end
 
   def map_config
-    @map_w, @map_h = 80, 45
-    @side_min, @side_max = 3, 5
-    @room_tries = 70
+    @map_w, @map_h = 120, 45
+    @side_min, @side_max = 3, 4
+    @room_tries = 60
     @monster_max = 3
   end
 

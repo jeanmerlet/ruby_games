@@ -13,8 +13,9 @@ class Game
   include Config
   include ActionManager
   include FieldOfView
-  include EventHandler
   include Render
+
+  $path = []
 
   def initialize
     BLT.open
@@ -23,8 +24,7 @@ class Game
     fov_config
     @entities = []
     create_player
-    #24 for pathing
-    @map = Map.new(@map_w, @map_h, 24)
+    @map = Map.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @state_stack = [:player_turn]
     @close = false
@@ -32,7 +32,7 @@ class Game
 
   def run
     until @close
-      BLT.has_input? ? action = handle_input(BLT.read) : action = nil
+      action = EventHandler.read
       results = manage_action(action)
       update(results)
       render_all
@@ -56,7 +56,7 @@ class Game
             @state_stack.push(:player_death)
           else
             render_message(Destroy.monster_death_message(corpse))
-            Destroy.kill_monster(corpse)
+            Destroy.kill_monster(@map, corpse)
           end
         end
       end
