@@ -15,8 +15,6 @@ class Game
   include FieldOfView
   include Render
 
-  $path = []
-
   def initialize
     BLT.open
     blt_config

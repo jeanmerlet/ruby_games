@@ -58,7 +58,7 @@ module A_Star
     8.times do |i|
       x, y = tile.x + @@mult[0][i], tile.y + @@mult[1][i]
       if (map.tiles[x][y].walkable && !paths[[x, y]]) ||
-         (x == target_x && y == target_y) # ignore if it is not walkable
+         (x == target_x && y == target_y) # ignore if end tile is not walkable
         adjacent << PathTile.new(x, y, dist(x, y, target_x, target_y),
                     tile.cost_so_far + @@mult[2][i])
       end
