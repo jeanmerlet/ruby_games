@@ -35,7 +35,7 @@ class Game
       BLT.has_input? ? action = handle_input(BLT.read) : action = nil
       results = manage_action(action)
       update(results)
-      render
+      render_all
       BLT.refresh
     end
     BLT.close
@@ -64,7 +64,7 @@ class Game
   end
 
   def create_player
-    @player = Creature.new(@entities, 0, 0, "0x1020", 'player', 'amber', 1)
+    @player = Actor.new(@entities, 0, 0, "0x1020", 'player', 'amber', 1)
     hp, defense, power = 30, 0, 3
     @player.combat = Combat.new(@player, hp, defense, power)
   end

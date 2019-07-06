@@ -16,6 +16,7 @@ module Destroy
     monster.combat = nil
     monster.ai = nil
     monster.name = "remains of #{monster.name}"
+    monster.render_order = 3
   end
 
   def self.monster_death_message(monster)

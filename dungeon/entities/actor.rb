@@ -1,5 +1,6 @@
-class Creature < Entity
-  attr_accessor :x, :y, :char, :color, :blocks, :name, :combat, :ai, :fov_id
+class Actor < Entity
+  attr_accessor :x, :y, :char, :color, :blocks, :name, :fov_id, :render_order,
+                :combat, :ai
 
   def initialize(entities, x, y, char, name, color, fov_id = nil, blocks = true)
     super(entities)
@@ -8,6 +9,7 @@ class Creature < Entity
     @color = BLT.color_from_name(color)
     @blocks = blocks
     @fov_id = fov_id
+    @render_order = 1
   end
 
   def move(map, dx, dy)

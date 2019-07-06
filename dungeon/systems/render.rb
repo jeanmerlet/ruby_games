@@ -1,8 +1,9 @@
 module Render
 
-  def render
+  def render_all
     fov_id = @player.fov_id
     @map.render(fov_id)
+    @entities.sort! { |a, b| b.render_order <=> a.render_order }
     @entities.each { |entity| render_entity(entity, fov_id) }
   end
 
