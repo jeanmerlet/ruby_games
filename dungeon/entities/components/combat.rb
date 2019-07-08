@@ -18,12 +18,14 @@ class Combat < Component
   def attack(target)
     results = []
     damage = @power - target.combat.defense
+    owner_name = "[color=#{@owner.color}]#{@owner.name.capitalize}[/color]"
+    target_name = "[color=#{target.color}]#{target.name}[/color]"
     if damage > 0
-      results.push({ message: "#{owner.name.capitalize} hits #{target.name} for #{damage} damage!" })
+      results.push({ message: "#{owner_name} hits #{target_name} for #{damage} damage." })
       results.push(target.combat.take_damage(damage))
       results.flatten!
     else
-      results.push({ message: "#{owner.name.capitalize} attacks #{target.name} but does no damage." })
+      results.push({ message: "#{owner_name} attacks #{target_name} but does no damage." })
     end
     return results
   end

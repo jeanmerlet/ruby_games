@@ -61,19 +61,16 @@ class Log
   def initialize(x, y, width, height)
     @x, @y, @width, @height = x, y, width, height
     @new_messages, @old_messages = [], []
-    @max_h = @y + @height
+    @max_h = @y + @height - 1
   end
 
   def render
     @new_messages.each_with_index do |message|
       if @y == @max_h
-        p @old_messages
+        @height.times {|i| BLT.print(@x, @y - @height + 1 + i, "#{" "*@width}")}
         (@height - 1).times do |i|
-          p i
-          BLT.print(@x, @y - @height + 1 + i, "#{" "*@width}")
-          BLT.print(@x, @y - @height, "#{@old_messages[-@height + i]}")
+          BLT.print(@x, @y - @height + 1 + i, "#{@old_messages[-@height + 1 + i]}")
         end
-        BLT.print(@x, @y, "#{" "*@width}")
         BLT.print(@x, @y, "#{message}")
         @old_messages.push(message)
       else

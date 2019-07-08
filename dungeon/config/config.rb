@@ -32,6 +32,6 @@ module Config
     @char_panel_x = SCREEN_WIDTH - @panel_w - 1
     @char_panel_y = 0
     @log_w, @log_h = 59, 5
-    @log_x, @log_y = 1, SCREEN_HEIGHT - @log_h
+    @log_x, @log_y = 1, SCREEN_HEIGHT - @log_h - 1
   end
 end
