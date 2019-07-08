@@ -3,6 +3,7 @@ require './config/config.rb'
 require './entities/entity.rb'
 require './entities/components/component.rb'
 require './map_objects/generate_level.rb'
+require './ui/panel.rb'
 Dir["#{File.dirname(__FILE__)}/systems/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/entities/**/*.rb"].each { |file| require file }
 Dir["#{File.dirname(__FILE__)}/map_objects/*.rb"].each { |file| require file }
@@ -20,8 +21,12 @@ class Game
     blt_config
     map_config
     fov_config
+    ui_config
     @entities = []
     create_player
+    @player_panel = PlayerPanel.new(@char_panel_x, @char_panel_y, @panel_w, @panel_h,                                    @player.combat)
+    @target_panel = TargetPanel.new(@char_panel_x, @char_panel_y + 10, @panel_w, @panel_h)
+    @targets = []
     @map = Map.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @state_stack = [:player_turn]
@@ -41,7 +46,15 @@ class Game
 
   def update(results)
     clear_entities
-    do_fov(@player.x, @player.y, @fov_radius) if @refresh_fov
+    if @refresh_fov
+      do_fov(@player.x, @player.y, @fov_radius)
+      @targets = []
+      @entities.each do |entity|
+        if @map.fov_tiles[entity.x][entity.y] == @player.fov_id
+          @targets << entity if entity != @player
+        end
+      end
+    end
     if !results.empty?
       results.each do |result|
         if result[:message]
@@ -62,7 +75,7 @@ class Game
   end
 
   def create_player
-    @player = Actor.new(@entities, 0, 0, "0x1020", 'player', 'amber', 1)
+    @player = Actor.new(@entities, 0, 0, "@", 'player', 'amber', 1)
     hp, defense, power = 30, 0, 3
     @player.combat = Combat.new(@player, hp, defense, power)
   end

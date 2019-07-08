@@ -1,8 +1,8 @@
 module EventHandler
 
   def self.read
-    action = {}
     if BLT.has_input?
+      action = { next_target: false }
       input = BLT.read
       case input
 
@@ -25,6 +25,10 @@ module EventHandler
         action[:move] = [-1, 1]
       when BLT::TK_KP_5, BLT::TK_PERIOD
         action[:move] = [0, 0]
+
+      #targetting
+      when BLT::TK_TAB
+        action[:next_target] = true
 
       #close game
       when BLT::TK_ESCAPE

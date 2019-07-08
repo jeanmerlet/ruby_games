@@ -49,6 +49,6 @@ class Actor < Entity
   end
 
   def render
-    BLT.print(@x, @y, "[color=#{@color}][#{@char}]")
+    BLT.print(@x, @y, "[color=#{@color}]#{@char}")
   end
 end

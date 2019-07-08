@@ -5,6 +5,9 @@ module ActionManager
       results = []
       if action[:move]
         results.push(move_player(action[:move]))
+      elsif action[:next_target]
+        @target_panel.new_target(@targets.first)
+        @targets.rotate!
       elsif action[:quit]
         @close = true
       end
@@ -37,7 +40,7 @@ module ActionManager
     results = []
     if !@map.tiles[end_x][end_y].blocked
       target = @player.get_blocking_entity_at(end_x, end_y)
-      if target.nil?
+      if target.nil? || target == @player
         @player.move(@map, dx, dy)
         @refresh_fov = true
       else

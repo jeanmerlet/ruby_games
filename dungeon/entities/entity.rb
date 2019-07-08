@@ -1,5 +1,5 @@
 class Entity
-  attr_reader :components, :object_pool
+  attr_reader :components, :entities
 
   def initialize(entities)
     @components = []

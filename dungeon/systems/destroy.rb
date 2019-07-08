@@ -1,8 +1,8 @@
 module Destroy
 
   def self.kill_player(player)
-    player.char = "0x1005"
-    player.color = "dark red"
+    player.char = "%"
+    player.color = BLT.color_from_name("darker red")
   end
 
   def self.player_death_message
@@ -10,8 +10,8 @@ module Destroy
   end
 
   def self.kill_monster(map, monster)
-    monster.char = "0x1005"
-    monster.color = "dark red"
+    monster.char = "%"
+    monster.color = BLT.color_from_name("darker red")
     monster.blocks = false
     monster.combat = nil
     monster.ai = nil
