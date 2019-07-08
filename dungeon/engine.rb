@@ -24,10 +24,13 @@ class Game
     ui_config
     @entities = []
     create_player
-    @player_panel = PlayerPanel.new(@char_panel_x, @char_panel_y, @panel_w, @panel_h,                                    @player.combat)
-    @target_panel = TargetPanel.new(@char_panel_x, @char_panel_y + 10, @panel_w, @panel_h)
+    @player_panel = PlayerPanel.new(@char_panel_x, @char_panel_y, @panel_w,
+                                    @panel_h, @player.combat)
+    @target_panel = TargetPanel.new(@char_panel_x, @char_panel_y + 10, @panel_w,
+                                    @panel_h)
     @targets = []
-    @map = Map.new(@map_w, @map_h)
+    @log = Log.new(@log_x, @log_y, @log_w, @log_h)
+    @map = Map.new(@map_w, @map_h, 9467)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @state_stack = [:player_turn]
     @close = false
@@ -46,29 +49,29 @@ class Game
 
   def update(results)
     clear_entities
+    if !results.empty?
+      results.each do |result|
+        if result[:message]
+          @log.new_messages.push(result[:message])
+        elsif result[:death]
+          corpse = result[:death]
+          if corpse == @player
+            @log.new_messages.push(Destroy.player_death_message)
+            Destroy.kill_player(corpse)
+            @state_stack.push(:player_death)
+          else
+            @log.new_messages.push(Destroy.monster_death_message(corpse))
+            Destroy.kill_monster(@map, corpse)
+          end
+        end
+      end
+    end
     if @refresh_fov
       do_fov(@player.x, @player.y, @fov_radius)
       @targets = []
       @entities.each do |entity|
         if @map.fov_tiles[entity.x][entity.y] == @player.fov_id
           @targets << entity if entity != @player
-        end
-      end
-    end
-    if !results.empty?
-      results.each do |result|
-        if result[:message]
-          render_message(result[:message])
-        elsif result[:death]
-          corpse = result[:death]
-          if corpse == @player
-            render_message(Destroy.player_death_message)
-            Destroy.kill_player(corpse)
-            @state_stack.push(:player_death)
-          else
-            render_message(Destroy.monster_death_message(corpse))
-            Destroy.kill_monster(@map, corpse)
-          end
         end
       end
     end

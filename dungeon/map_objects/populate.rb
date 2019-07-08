@@ -16,7 +16,7 @@ module Populate
       end
       if !spot_occupied?(x, y, entities)
         if rand(100) < 80
-          monster = Actor.new(entities, x, y, "o", "orc", "red")
+          monster = Actor.new(entities, x, y, "s", "skitterling", "purple")
           hp, defense, power = 10, 0, 3
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = MonsterAI.new(monster)

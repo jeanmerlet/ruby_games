@@ -35,7 +35,7 @@ class TargetPanel
   def new_target(monster)
     if monster
       @char, @name, @color = monster.char, monster.name, monster.color
-      @pre_name = (/[aeiou]/ === @name[0] ? 'an' : 'a')
+      #@pre_name = (/[aeiou]/ === @name[0] ? 'an' : 'a')
     end
     @target = monster
   end
@@ -44,12 +44,44 @@ class TargetPanel
     if @target
       BLT.print(@x+1, @y+1, "Target:")
       BLT.print(@x+1, @y+3, "               ")
-      BLT.print(@x+1, @y+3, "[color=#{@color}]#{@char}[/color], #{@pre_name} #{@name}")
+      BLT.print(@x+1, @y+3, "[color=#{@color}]#{@char}[/color], #{@name}")
       BLT.print(@x+1, @y+5, "It's          ")
       BLT.print(@x+1, @y+5, "It's [color=red]attacking!")
     else
       BLT.print(@x+1, @y+3, "               ")
       BLT.print(@x+1, @y+5, "               ")
     end
+  end
+end
+
+class Log
+  attr_accessor :new_messages, :old_messages
+  attr_reader :x, :y, :width, :height
+
+  def initialize(x, y, width, height)
+    @x, @y, @width, @height = x, y, width, height
+    @new_messages, @old_messages = [], []
+    @max_h = @y + @height
+  end
+
+  def render
+    @new_messages.each_with_index do |message|
+      if @y == @max_h
+        p @old_messages
+        (@height - 1).times do |i|
+          p i
+          BLT.print(@x, @y - @height + 1 + i, "#{" "*@width}")
+          BLT.print(@x, @y - @height, "#{@old_messages[-@height + i]}")
+        end
+        BLT.print(@x, @y, "#{" "*@width}")
+        BLT.print(@x, @y, "#{message}")
+        @old_messages.push(message)
+      else
+        BLT.print(@x, @y, "#{message}")
+        @old_messages.push(message)
+        @y += 1
+      end
+    end
+    @new_messages = []
   end
 end

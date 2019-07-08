@@ -5,6 +5,7 @@ module Render
     @map.render(fov_id)
     @player_panel.render
     @target_panel.render
+    @log.render
     @entities.sort! { |a, b| b.render_order <=> a.render_order }
     @entities.each { |entity| render_entity(entity, fov_id) }
   end
