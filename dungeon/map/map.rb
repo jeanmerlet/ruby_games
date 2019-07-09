@@ -38,7 +38,7 @@ class Map
     player = entities.first
     room_tries.times do |i|
       new_room = new_shape(side_min, side_max)
-      if !any_intersection?(rooms, new_room)
+      if !any_intersection?(rooms, new_room, 0)
         create_room(new_room)
         new_x, new_y = *new_room.center
         if i == 0
@@ -79,21 +79,21 @@ class Map
     end
   end
 
-  def any_intersection?(rooms, new_room)
-    rooms.each { |room| return true if intersect?(new_room, room) }
+  def any_intersection?(rooms, new_room, overlap)
+    rooms.each { |room| return true if intersect?(new_room, room, overlap) }
     false
   end
 
-  def intersect?(room1, room2)
+  def intersect?(room1, room2, overlap)
     if room1.is_a?(Rect) && room2.is_a?(Rect)
-      ShapeMath.rect_rect_intersect?(room1, room2)
+      ShapeMath.rect_rect_intersect?(room1, room2, overlap)
     elsif room1.is_a?(Circ) && room2.is_a?(Circ)
-      ShapeMath.circ_circ_intersect?(room1, room2)
+      ShapeMath.circ_circ_intersect?(room1, room2, overlap)
     else
      if room1.is_a?(Circ)
-      ShapeMath.circ_rect_intersect?(room1, room2)
+      ShapeMath.circ_rect_intersect?(room1, room2, overlap)
      else
-      ShapeMath.circ_rect_intersect?(room2, room1)
+      ShapeMath.circ_rect_intersect?(room2, room1, overlap)
      end
     end
   end

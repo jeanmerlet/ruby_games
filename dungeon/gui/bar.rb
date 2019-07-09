@@ -3,7 +3,7 @@ class Bar
 
   def initialize(x, y, length, name, color, values)
     @x, @y, @length = x, y, length
-    @name, @color = name, BLT.color_from_name(color)
+    @name, @color = name, BLT.color_from_name("dark #{color}")
     @bk_color = BLT.color_from_name("darkest #{color}")
     @values = values
   end

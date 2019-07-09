@@ -1,6 +1,6 @@
 class Actor
   attr_accessor :entities, :x, :y, :char, :color, :blocks, :name, :fov_id,
-                :render_order, :combat, :ai, :status
+                :render_order, :combat, :ai, :status, :targetted
 
   def initialize(entities, x, y, char, name, color, fov_id = nil, blocks = true)
     @entities = entities
@@ -50,6 +50,10 @@ class Actor
   end
 
   def render
-    BLT.print(2*@x, @y, "[font=reg][color=#{@color}]#{@char}")
+    if @targetted
+      BLT.print(2*@x, @y, "[0xE000][+][font=reg][color=#{@color}]#{@char}")
+    else
+      BLT.print(2*@x, @y, "[font=reg][color=#{@color}]#{@char}")
+    end
   end
 end

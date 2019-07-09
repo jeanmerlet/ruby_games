@@ -19,7 +19,7 @@ class Game
     map_init
     gui_init
     create_player
-    @map = Map.new(@map_w, @map_h)
+    @map = Map.new(@map_w, @map_h, 6647)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @hp_bar = Bar.new(@hp_x, @hp_y, @bar_size, 'HP', 'red', @player.combat.hp)
     @target_display = TargetDisplay.new(@targ_x, @targ_y, 2*@side_panel_w)
@@ -62,10 +62,10 @@ class Game
       do_fov(@player.x, @player.y, @fov_radius)
       @refresh_fov = false
 
-      @target_display.targets = []
+      @target_display.entities = []
       @entities.each do |entity|
         if @map.fov_tiles[entity.x][entity.y] == @player.fov_id
-          @target_display.targets << entity if entity != @player
+          @target_display.entities.unshift(entity) if entity != @player
         end
       end
     end
@@ -80,8 +80,8 @@ class Game
 
   def map_init
     @map_w, @map_h = 63, 43
-    @side_min, @side_max = 3, 4
-    @room_tries = 60
+    @side_min, @side_max = 3, 5
+    @room_tries = 80
     @monster_max = 3
     @fov_radius = 10
     @refresh_fov = true
