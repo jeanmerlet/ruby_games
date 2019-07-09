@@ -13,11 +13,12 @@ class Bar
     current_length = ((value.to_f / max) * @length).to_i
     BLT.print(@x+1, @y+1, "#{" "*@length}")
     BLT.print(@x+1, @y+1, "#{@name}: #{value}/#{max}")
-    current_length.times do |i|
-      BLT.print(@x+1+i, @y+2, "[color=#{@color}]=")
-    end
-    (@length - current_length).times do |i|
-      BLT.print(@x+1+current_length+i, @y+2, "[color=#{@bk_color}]=")
+    @length.times do |i|
+      if i < current_length
+        BLT.print(@x+1+i, @y+2, "[color=#{@color}]=")
+      else
+        BLT.print(@x+1+i, @y+2, "[color=#{@bk_color}]=")
+      end
     end
   end
 end

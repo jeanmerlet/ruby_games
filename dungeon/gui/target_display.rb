@@ -1,6 +1,6 @@
 class TargetDisplay
   attr_accessor :targets
-  attr_reader :x, :y, :char, :name, :color
+  attr_reader :x, :y, :char, :name, :color, :target
 
   def initialize(x, y)
     @x, @y = x, y
@@ -10,11 +10,13 @@ class TargetDisplay
 
   def next_target
     @target = @targets.first
-    if @target
-      @char, @name, @color = @target.char, @target.name, @target.color
-      @status = @target.status
-    end
+    update_target if @target
     @targets.rotate!
+  end
+
+  def update_target
+    @char, @name, @color = @target.char, @target.name, @target.color
+    @status = @target.status
   end
 
   def render

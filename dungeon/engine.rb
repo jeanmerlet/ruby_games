@@ -53,7 +53,7 @@ class Game
             @state_stack.push(:player_death)
           else
             @log.new_messages.push(Destroy.monster_death_message(corpse))
-            Destroy.kill_monster(@map, corpse)
+            Destroy.kill_monster(@map, corpse, @target_display)
           end
         end
       end
