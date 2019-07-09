@@ -6,8 +6,7 @@ module ActionManager
       if action[:move]
         results.push(move_player(action[:move]))
       elsif action[:next_target]
-        @target_panel.new_target(@targets.first)
-        @targets.rotate!
+        @target_display.next_target
       elsif action[:quit]
         @close = true
       end
@@ -42,15 +41,13 @@ module ActionManager
       target = @player.get_blocking_entity_at(end_x, end_y)
       if target.nil? || target == @player
         @player.move(@map, dx, dy)
-        @refresh_fov = true
       else
         results.push(@player.combat.attack(target))
       end
+      @refresh_fov = true
       @player.fov_id += 1
       @state_stack.pop
       @state_stack << :enemy_turn
-    else
-      @refresh_fov = false
     end
     return results
   end

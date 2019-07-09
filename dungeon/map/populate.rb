@@ -21,7 +21,7 @@ module Populate
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = MonsterAI.new(monster)
         else
-          monster = Actor.new(entities, x, y, "T", "troll", "dark green")
+          monster = Actor.new(entities, x, y, "R", "sentry", "dark grey")
           hp, defense, power = 16, 1, 4
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = MonsterAI.new(monster)

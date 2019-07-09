@@ -15,12 +15,14 @@ module Destroy
     monster.blocks = false
     monster.combat = nil
     monster.ai = nil
-    monster.name = "remains of #{monster.name}"
+    monster.name = "#{monster.name} corpse"
     monster.render_order = 3
+    monster.status = 'dead.'
     map.tiles[monster.x][monster.y].walkable = true
   end
 
   def self.monster_death_message(monster)
-    return "The #{monster.name} dies."
+    article = (/[aeiou]/ === monster.name[0] ? 'An' : 'A')
+    return "#{article} #{monster.name} dies."
   end
 end

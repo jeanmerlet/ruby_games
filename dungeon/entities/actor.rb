@@ -1,9 +1,10 @@
-class Actor < Entity
-  attr_accessor :x, :y, :char, :color, :blocks, :name, :fov_id, :render_order,
-                :combat, :ai
+class Actor
+  attr_accessor :entities, :x, :y, :char, :color, :blocks, :name, :fov_id,
+                :render_order, :combat, :ai, :status
 
   def initialize(entities, x, y, char, name, color, fov_id = nil, blocks = true)
-    super(entities)
+    @entities = entities
+    @entities.push(self)
     @x, @y = x, y
     @char, @name = char, name
     @color = BLT.color_from_name(color)

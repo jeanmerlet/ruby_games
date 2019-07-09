@@ -1,17 +1,17 @@
-class Combat < Component
+class Combat
   attr_accessor :hp
-  attr_reader :max_hp, :defense, :power
+  attr_reader :defense, :power
 
   def initialize(owner, hp, defense, power)
-    super(owner)
-    @hp, @max_hp = hp, hp
+    @owner = owner
+    @hp = [hp, hp]
     @defense, @power = defense, power
   end
 
   def take_damage(amount)
     results = []
-    @hp -= amount
-    results.push({ death: @owner }) if @hp <= 0
+    @hp[0] -= amount
+    results.push({ death: @owner }) if @hp.first <= 0
     return results
   end
 
