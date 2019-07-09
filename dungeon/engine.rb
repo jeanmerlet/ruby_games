@@ -22,7 +22,7 @@ class Game
     @map = Map.new(@map_w, @map_h)
     @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
     @hp_bar = Bar.new(@hp_x, @hp_y, @bar_size, 'HP', 'red', @player.combat.hp)
-    @target_display = TargetDisplay.new(@targ_x, @targ_y)
+    @target_display = TargetDisplay.new(@targ_x, @targ_y, 2*@side_panel_w)
     @log = Log.new(@log_x, @log_y, @log_w, @log_h)
     @state_stack = [:player_turn]
     @close = false
