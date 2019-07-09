@@ -89,10 +89,10 @@ class Game
 
   def gui_init
     @side_panel_w, @bar_size = 17, 15
-    @hp_x, @hp_y = Config::SCREEN_WIDTH - @side_panel_w, 0
-    @targ_x, @targ_y = Config::SCREEN_WIDTH - @side_panel_w, 10
-    @log_w, @log_h = 59, 5
-    @log_x, @log_y = 1, Config::SCREEN_HEIGHT - @log_h - 1
+    @hp_x, @hp_y = Config::SCREEN_WIDTH/2 - @side_panel_w, 0
+    @targ_x, @targ_y = Config::SCREEN_WIDTH/2 - @side_panel_w, 10
+    @log_w, @log_h = 78, 5
+    @log_x, @log_y = 2, Config::SCREEN_HEIGHT - @log_h - 1
   end
 end
 

@@ -5,7 +5,7 @@ class TargetDisplay
   def initialize(x, y)
     @x, @y = x, y
     @targets = []
-    BLT.print(@x+1, @y+1, "Target: (TAB)")
+    BLT.print(2*(@x+1), @y+1, "Looking at: (TAB)")
   end
 
   def next_target
@@ -21,13 +21,13 @@ class TargetDisplay
 
   def render
     if @target
-      BLT.print(@x+1, @y+3, "                ")
-      BLT.print(@x+1, @y+3, "[color=#{@color}]#{@char}[/color], #{@name}")
-      BLT.print(@x+1, @y+5, "It's            ")
-      BLT.print(@x+1, @y+5, "It's #{@status}")
+      BLT.print(2*(@x+1), @y+3, "                ")
+      BLT.print(2*(@x+1), @y+3, "[font=reg][color=#{@color}]#{@char}[/color][/font], #{@name}")
+      BLT.print(2*(@x+1), @y+5, "It's            ")
+      BLT.print(2*(@x+1), @y+5, "It's #{@status}")
     else
-      BLT.print(@x+1, @y+3, "                ")
-      BLT.print(@x+1, @y+5, "                ")
+      BLT.print(2*(@x+1), @y+3, "                ")
+      BLT.print(2*(@x+1), @y+5, "                ")
     end
   end
 end

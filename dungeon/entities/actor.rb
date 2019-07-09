@@ -50,6 +50,6 @@ class Actor
   end
 
   def render
-    BLT.print(@x, @y, "[color=#{@color}]#{@char}")
+    BLT.print(2*@x, @y, "[font=reg][color=#{@color}]#{@char}")
   end
 end

@@ -11,13 +11,13 @@ class Bar
   def render
     value, max = *@values
     current_length = ((value.to_f / max) * @length).to_i
-    BLT.print(@x+1, @y+1, "#{" "*@length}")
-    BLT.print(@x+1, @y+1, "#{@name}: #{value}/#{max}")
+    BLT.print(2*(@x+1), @y+1, "#{" "*@length}")
+    BLT.print(2*(@x+1), @y+1, "#{@name}: #{value}/#{max}")
     @length.times do |i|
       if i < current_length
-        BLT.print(@x+1+i, @y+2, "[color=#{@color}]=")
+        BLT.print(2*(@x+i+1), @y+3, "[font=reg][bkcolor=#{@color}] ")
       else
-        BLT.print(@x+1+i, @y+2, "[color=#{@bk_color}]=")
+        BLT.print(2*(@x+i+1), @y+3, "[font=reg][bkcolor=#{@bk_color}] ")
       end
     end
   end
