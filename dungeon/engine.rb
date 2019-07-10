@@ -11,13 +11,14 @@ BLT = Terminal
 
 class Game
   include ActionManager
-  include Render
+  include RenderManager
 
   def initialize
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new(6647)
+    #1019
+    @map = Map.new
     @map.new_level(@entities, @player)
     gui_init
     create_gui
@@ -65,9 +66,10 @@ class Game
       @target_display.entities = []
       @entities.each do |entity|
         if @map.fov_tiles[entity.x][entity.y] == @player.fov_id
-          @target_display.entities.unshift(entity) if entity != @player
+          @target_display.entities.unshift(entity)
         end
       end
+      @target_display.entities.delete(@player)
     end
   end
 

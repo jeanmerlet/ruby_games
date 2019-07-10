@@ -53,20 +53,26 @@ module FieldOfView
   # the purposes of the cast_light function's calculations.
 
   def self.do_fov(map, entity)
+    p entity.fov_id
+    p map.fov_tiles[28][23]
+    p map.fov_tiles[27][24]
     # increasing (or reducing) radius by 0.5 accounts for the tile width of the
     # origin to render a more accurately circular-looking field of view. it is
     # increased here to ensure the FoV extends radius number of tiles.
     x, y = entity.x, entity.y
-    radius = entity.fov_r + 0.5
-    light(map, entity, x, y)
+    fov_id, radius = entity.fov_id, entity.fov_r + 0.5
+    light(map, fov_id, x, y)
     8.times do |oct|
-      cast_light(map, entity, oct, x, y, radius, 1, 1.0, 0.0,
+      cast_light(map, fov_id, oct, x, y, radius, 1, 1.0, 0.0,
         @@mult[0][oct], @@mult[1][oct],
         @@mult[2][oct], @@mult[3][oct])
     end
+    puts ""
+    p map.fov_tiles[28][23]
+    p map.fov_tiles[27][24]
   end
 
-  def self.cast_light(map, entity, oct, x, y, r, row, cast_start, cast_end,
+  def self.cast_light(map, fov_id, oct, x, y, r, row, cast_start, cast_end,
                       xx, xy, yx, yy)
     return if cast_start <= cast_end
     r_sq = r**2
@@ -107,7 +113,7 @@ module FieldOfView
               (cast_end > inner_l_slope && !tile.blocked)
           break
         else
-          light(map, entity, map_x, map_y) if (dx*dx + dy*dy) < r_sq
+          light(map, fov_id, map_x, map_y) if (dx*dx + dy*dy) < r_sq
           if row_blocked
             # we are scanning a row of blocked tiles
             if tile.blocked
@@ -123,7 +129,7 @@ module FieldOfView
             # is not on the last row to be scanned.
             if tile.blocked
               row_blocked = true
-              cast_light(map, entity, oct, x, y, r, j+1, cast_start, l_slope,
+              cast_light(map, fov_id, oct, x, y, r, j+1, cast_start, l_slope,
                          xx, xy, yx, yy)
               child_cast_start = r_slope
             end
@@ -134,9 +140,9 @@ module FieldOfView
     end
   end
 
-  def self.light(map, entity, x, y)
+  def self.light(map, fov_id, x, y)
     map.tiles[x][y].explored = true
-    map.fov_tiles[x][y] = entity.fov_id
+    map.fov_tiles[x][y] = fov_id
   end
 
   def self.out_of_bounds?(map, x, y)

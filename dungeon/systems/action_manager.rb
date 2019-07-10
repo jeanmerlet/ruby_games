@@ -10,22 +10,20 @@ module ActionManager
       elsif action[:pick_up]
         results.push(pick_up_item)
       elsif action[:inventory]
+        @active_cmd_domains.delete(:main)
+        @active_cmd_domains << :inventory
         @game_states << :show_inventory
       elsif action[:quit]
         @close = true
       end
-      results.flatten!
 
-    elsif @game_states.last == :show_inventory
-      @active_cmd_domains.delete(:main)
-      @active_cmd_domains << :inventory
-
-      menu(title, options)
-      @game_states.pop
-
-      @active_cmd_domains.delete(:inventory)
-      @active_cmd_domains << :main
-      @close = false
+    elsif action && @game_states.last == :show_inventory
+      if action[:quit]
+        @game_states.pop
+        BLT.clear
+        @active_cmd_domains.delete(:inventory)
+        @active_cmd_domains << :main
+      end
 
     elsif @game_states.last == :enemy_turn
       @entities.each do |entity|
@@ -35,11 +33,11 @@ module ActionManager
       end
       @game_states.pop
       @game_states << :player_turn
-      results.flatten!
 
     elsif @game_states.last == :player_death
       @close = true if BLT.read
     end
+    results.flatten!
     return results
   end
 

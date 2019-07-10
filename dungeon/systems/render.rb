@@ -1,4 +1,4 @@
-module Render
+module RenderManager
 
   def render_all
     if @game_states.last != :show_inventory
@@ -9,7 +9,9 @@ module Render
       @entities.sort! { |a, b| b.render_order <=> a.render_order }
       render_entities(fov_id)
     else
-      
+      options, keys, items = {}, [*(:a..:z)], @player.inventory.items
+      items.map.with_index { |item, i| options[keys[i]] = item.name }
+      Menu.display_menu('Inventory', options)
     end
   end
 
