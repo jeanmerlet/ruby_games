@@ -1,5 +1,6 @@
 require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
+require './entities/entity.rb'
 ROOT = "#{File.dirname(__FILE__)}"
 Dir["#{ROOT}/systems/*.rb"].each { |file| require file }
 Dir["#{ROOT}/entities/**/*.rb"].each { |file| require file }
@@ -10,27 +11,25 @@ BLT = Terminal
 
 class Game
   include ActionManager
-  include FieldOfView
   include Render
 
   def initialize
     BLT.open
     Config.blt_config
-    map_init
-    gui_init
     create_player
-    @map = Map.new(@map_w, @map_h, 6647)
-    @map.new_level(@side_min, @side_max, @room_tries, @entities, @monster_max)
-    @hp_bar = Bar.new(@hp_x, @hp_y, @bar_size, 'HP', 'red', @player.combat.hp)
-    @target_display = TargetDisplay.new(@targ_x, @targ_y, 2*@side_panel_w)
-    @log = Log.new(@log_x, @log_y, @log_w, @log_h)
-    @state_stack = [:player_turn]
-    @close = false
+    @map = Map.new(6647)
+    @map.new_level(@entities, @player)
+    gui_init
+    create_gui
+    #@gui = GUI.new
+    @game_states = [:player_turn]
+    @active_cmd_domains = [:main, :quit]
+    @refresh_fov, @close = true, false
   end
 
   def run
     until @close
-      action = EventHandler.read
+      action = EventHandler.read(@active_cmd_domains)
       results = manage_action(action)
       update(results)
       render_all
@@ -40,17 +39,18 @@ class Game
   end
 
   def update(results)
-    clear_entities
     if !results.empty?
       results.each do |result|
         if result[:message]
           @log.new_messages.push(result[:message])
+        elsif result[:picked_up_item]
+          @entities.delete(result[:picked_up_item])
         elsif result[:death]
           corpse = result[:death]
           if corpse == @player
             @log.new_messages.push(Destroy.player_death_message)
             Destroy.kill_player(corpse)
-            @state_stack.push(:player_death)
+            @game_states.push(:player_death)
           else
             @log.new_messages.push(Destroy.monster_death_message(corpse))
             Destroy.kill_monster(@map, corpse, @target_display)
@@ -59,7 +59,7 @@ class Game
       end
     end
     if @refresh_fov
-      do_fov(@player.x, @player.y, @fov_radius)
+      FieldOfView.do_fov(@map, @player)
       @refresh_fov = false
 
       @target_display.entities = []
@@ -73,18 +73,17 @@ class Game
 
   def create_player
     @entities = []
-    @player = Actor.new(@entities, 0, 0, "@", 'player', 'amber', 1)
+    fov_r, fov_id = 8, 1
+    @player = Actor.new(@entities, 0, 0, "@", 'player', 'amber', fov_r, fov_id)
     hp, defense, power = 30, 0, 3
     @player.combat = Combat.new(@player, hp, defense, power)
+    @player.inventory = Inventory.new(@player, 26)
   end
 
-  def map_init
-    @map_w, @map_h = 63, 43
-    @side_min, @side_max = 3, 5
-    @room_tries = 80
-    @monster_max = 3
-    @fov_radius = 10
-    @refresh_fov = true
+  def create_gui
+    @hp_bar = Bar.new(@hp_x, @hp_y, @bar_size, 'HP', 'red', @player.combat.hp)
+    @target_display = TargetInfo.new(@targ_x, @targ_y, 2*@side_panel_w)
+    @log = Log.new(@log_x, @log_y, @log_w, @log_h)
   end
 
   def gui_init
@@ -96,5 +95,5 @@ class Game
   end
 end
 
-$game = Game.new
-$game.run
+game = Game.new
+game.run

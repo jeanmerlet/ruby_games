@@ -1,35 +1,64 @@
 module ActionManager
 
   def manage_action(action)
-    if action && @state_stack.last == :player_turn
-      results = []
+    results = []
+    if action && @game_states.last == :player_turn
       if action[:move]
         results.push(move_player(action[:move]))
       elsif action[:next_target]
         @target_display.next_target
+      elsif action[:pick_up]
+        results.push(pick_up_item)
+      elsif action[:inventory]
+        @game_states << :show_inventory
       elsif action[:quit]
         @close = true
       end
       results.flatten!
-      return results
 
-    elsif @state_stack.last == :enemy_turn
-      results = []
+    elsif @game_states.last == :show_inventory
+      @active_cmd_domains.delete(:main)
+      @active_cmd_domains << :inventory
+
+      menu(title, options)
+      @game_states.pop
+
+      @active_cmd_domains.delete(:inventory)
+      @active_cmd_domains << :main
+      @close = false
+
+    elsif @game_states.last == :enemy_turn
       @entities.each do |entity|
         if entity.ai
           results.push(entity.ai.take_turn(@map, @player))
         end
       end
-      @state_stack.pop
-      @state_stack << :player_turn
+      @game_states.pop
+      @game_states << :player_turn
       results.flatten!
-      return results
 
-    elsif @state_stack.last == :player_death
+    elsif @game_states.last == :player_death
       @close = true if BLT.read
-      return []
+    end
+    return results
+  end
+
+  def pick_up_item
+    results = []
+    x, y = @player.x, @player.y
+    items = @player.get_items_at(x, y)
+    if !items.empty?
+      results.push(@player.inventory.pick_up(items[0]))
+      @game_states.pop
+      @game_states << :enemy_turn
     else
-      return []
+      results.push({ message: "There's nothing there." })
+    end
+    return results
+  end
+
+  def open_inventory_menu
+    until @close
     end
   end
 
@@ -46,8 +75,8 @@ module ActionManager
       end
       @refresh_fov = true
       @player.fov_id += 1
-      @state_stack.pop
-      @state_stack << :enemy_turn
+      @game_states.pop
+      @game_states << :enemy_turn
     end
     return results
   end

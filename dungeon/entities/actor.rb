@@ -1,15 +1,11 @@
-class Actor
-  attr_accessor :entities, :x, :y, :char, :color, :blocks, :name, :fov_id,
-                :render_order, :combat, :ai, :status, :targetted
+class Actor < Entity
+  attr_accessor :fov_r, :fov_id, :combat, :inventory
 
-  def initialize(entities, x, y, char, name, color, fov_id = nil, blocks = true)
-    @entities = entities
-    @entities.push(self)
-    @x, @y = x, y
-    @char, @name = char, name
-    @color = BLT.color_from_name(color)
+  def initialize(entities, x, y, char, name, color, fov_r = nil, fov_id = nil,
+                 blocks = true)
+    super(entities, x, y, char, color, name)
     @blocks = blocks
-    @fov_id = fov_id
+    @fov_r, @fov_id = fov_r, fov_id
     @render_order = 1
   end
 
@@ -42,18 +38,18 @@ class Actor
     end
   end
 
+  def get_items_at(x, y)
+    items = []
+    @entities.each do |entity|
+      items << entity if entity.x == x && entity.y == y && entity.is_a?(Item)
+    end
+    return items
+  end
+
   def get_blocking_entity_at(x, y)
     @entities.each do |entity|
       return entity if entity.x == x && entity.y == y && entity.blocks
     end
     return nil
-  end
-
-  def render
-    if @targetted
-      BLT.print(2*@x, @y, "[0xE000][+][font=reg][color=#{@color}]#{@char}")
-    else
-      BLT.print(2*@x, @y, "[font=reg][color=#{@color}]#{@char}")
-    end
   end
 end

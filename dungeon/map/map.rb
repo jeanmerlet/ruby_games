@@ -1,14 +1,16 @@
 class Map
   attr_reader :width, :height, :tiles, :fov_tiles
 
-  def initialize(width, height, seed = nil)
-    @width = width
-    @height = height
+  def initialize(seed = nil)
+    @width, @height = 63, 43
+    @side_min, @side_max = 3, 5
+    @monster_max, @item_max = 3, 2
+    @room_tries = 80
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
     seed = rand(10000) if seed.nil?
-    p seed
     srand(seed)
+    p seed
   end
 
   def render(fov_id)
@@ -33,11 +35,10 @@ class Map
     end
   end
 
-  def new_level(side_min, side_max, room_tries, entities, monster_max)
+  def new_level(entities, player)
     rooms = []
-    player = entities.first
-    room_tries.times do |i|
-      new_room = new_shape(side_min, side_max)
+    @room_tries.times do |i|
+      new_room = new_shape
       if !any_intersection?(rooms, new_room, 0)
         create_room(new_room)
         new_x, new_y = *new_room.center
@@ -48,7 +49,7 @@ class Map
             player.x, player.y = new_x + 1, new_y + 1
           end
         else
-          Populate.place_entities(new_room, entities, monster_max)
+          Populate.place_entities(new_room, entities, @monster_max, @item_max)
           prev_x, prev_y = *rooms.last.center
           toss = rand(2)
           if toss == 0
@@ -65,15 +66,15 @@ class Map
     bevel_tiles
   end
 
-  def new_shape(side_min, side_max)
+  def new_shape
     toss = rand(2)
     if toss == 0
-      r = side_min + 1 + rand(side_max - side_min + 2)
+      r = @side_min + 1 + rand(@side_max - @side_min + 2)
       x, y = r + rand(@width - 2*r), r + rand(@height - 2*r)
       Circ.new(x, y, r)
     else
-      w = 2*side_min + rand(2*(side_max - side_min) + 1)
-      h = 2*side_min + rand(2*(side_max - side_min) + 1)
+      w = 2*@side_min + rand(2*(@side_max - @side_min) + 1)
+      h = 2*@side_min + rand(2*(@side_max - @side_min) + 1)
       x, y = rand(@width - w - 1), rand(@height - h - 1)
       Rect.new(x, y, w, h)
     end

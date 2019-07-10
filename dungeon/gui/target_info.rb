@@ -1,11 +1,12 @@
-class TargetDisplay
+class TargetInfo
   attr_accessor :entities
   attr_reader :x, :y, :width, :char, :name, :color, :target
 
   def initialize(x, y, width)
     @x, @y, @width = x, y, width
     @entities = []
-    BLT.print(2*(@x+1), @y+1, "Looking at: (TAB)")
+    BLT.print(2*(@x+1), @y+1, "[font=gui]Looking at:")
+    BLT.print(2*(@x+1), @y+6, "[font=gui][[Tab]] to rotate targets")
   end
 
   def next_target
@@ -28,11 +29,11 @@ class TargetDisplay
     if @target
       BLT.print(2*(@x+1), @y+3, "#{' '*@width}")
       BLT.print(2*(@x+1), @y+3, "[font=reg][color=#{@color}]#{@char}[/color][/font], #{@article} #{@name}")
-      BLT.print(2*(@x+1), @y+5, "It's #{' '*(@width-4)}")
-      BLT.print(2*(@x+1), @y+5, "It's #{@status}")
+      BLT.print(2*(@x+1), @y+4, "It's #{' '*(@width-4)}")
+      BLT.print(2*(@x+1), @y+4, "It's #{@status}")
     else
       BLT.print(2*(@x+1), @y+3, "#{' '*@width}")
-      BLT.print(2*(@x+1), @y+5, "                ")
+      BLT.print(2*(@x+1), @y+4, "                ")
     end
   end
 end

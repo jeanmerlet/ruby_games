@@ -1,11 +1,16 @@
 module Render
 
   def render_all
-    fov_id = @player.fov_id
-    @map.render(fov_id)
-    render_gui
-    @entities.sort! { |a, b| b.render_order <=> a.render_order }
-    @entities.each { |entity| render_entity(entity, fov_id) }
+    if @game_states.last != :show_inventory
+      fov_id = @player.fov_id
+      @map.render(fov_id)
+      render_gui
+      clear_entities
+      @entities.sort! { |a, b| b.render_order <=> a.render_order }
+      render_entities(fov_id)
+    else
+      
+    end
   end
 
   def render_gui
@@ -14,10 +19,12 @@ module Render
     @log.render
   end
 
+  def render_entities(fov_id)
+    @entities.each { |entity| render_entity(entity, fov_id) }
+  end
+
   def render_entity(entity, fov_id)
-    if @map.fov_tiles[entity.x][entity.y] == fov_id
-      entity.render
-    end
+    entity.render if @map.fov_tiles[entity.x][entity.y] == fov_id
   end
 
   def clear_entities
@@ -26,9 +33,5 @@ module Render
 
   def clear_entity(entity)
     BLT.print(entity.x, entity.y, " ")
-  end
-
-  def render_message(message)
-    puts message
   end
 end
