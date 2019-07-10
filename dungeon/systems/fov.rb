@@ -53,9 +53,6 @@ module FieldOfView
   # the purposes of the cast_light function's calculations.
 
   def self.do_fov(map, entity)
-    p entity.fov_id
-    p map.fov_tiles[28][23]
-    p map.fov_tiles[27][24]
     # increasing (or reducing) radius by 0.5 accounts for the tile width of the
     # origin to render a more accurately circular-looking field of view. it is
     # increased here to ensure the FoV extends radius number of tiles.
@@ -67,9 +64,6 @@ module FieldOfView
         @@mult[0][oct], @@mult[1][oct],
         @@mult[2][oct], @@mult[3][oct])
     end
-    puts ""
-    p map.fov_tiles[28][23]
-    p map.fov_tiles[27][24]
   end
 
   def self.cast_light(map, fov_id, oct, x, y, r, row, cast_start, cast_end,

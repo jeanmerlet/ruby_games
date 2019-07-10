@@ -2,10 +2,10 @@ module RenderManager
 
   def render_all
     if @game_states.last != :show_inventory
+      clear_entities
       fov_id = @player.fov_id
       @map.render(fov_id)
       render_gui
-      clear_entities
       @entities.sort! { |a, b| b.render_order <=> a.render_order }
       render_entities(fov_id)
     else

@@ -43,10 +43,10 @@ module Populate
     else
       r = rand(0.0..1.0)
       theta = rand(0.0..6.28)
-      x = ((room.r - 1)*(Math.sqrt(r)*Math.cos(theta))).round + room.x
+      x = ((room.r - 1.5)*(Math.sqrt(r)*Math.cos(theta))).round + room.x
       r = rand(0.0..1.0)
       theta = rand(0.0..6.28)
-      y = ((room.r - 1)*(Math.sqrt(r)*Math.sin(theta))).round + room.y
+      y = ((room.r - 1.5)*(Math.sqrt(r)*Math.sin(theta))).round + room.y
     end
     return [x, y]
   end

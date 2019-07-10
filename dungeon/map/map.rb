@@ -33,7 +33,6 @@ class Map
         end
       end
     end
-    BLT.print(2*27, 24, "*")
   end
 
   def new_level(entities, player)
