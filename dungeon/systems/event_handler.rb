@@ -44,13 +44,12 @@ module EventHandler
         when BLT::TK_I
           action[:inventory] = true
         end
-        return action if !action.empty?
 
-      when :inventory
-        case input
-        when 'meow'
+      when :menu
+        # select menu option: a..z are mapped to 4..29 in BLT
+        if (4..29) === input 
+          action[:option_index] = [*(0..25)][input - 4]
         end
-        return action if !action.empty?
 
       when :quit
         case input
@@ -58,9 +57,9 @@ module EventHandler
         when BLT::TK_ESCAPE
           action[:quit] = true
         end
-        return action if !action.empty?
 
       end
+      return action if !action.empty?
     end
     return action
   end

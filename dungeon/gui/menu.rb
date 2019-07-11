@@ -2,7 +2,7 @@ module Menu
 
   def self.display_menu(header, options)
     max_opt = (options.empty? ? 0 : options.max_by { |key, opt| opt.size }[1])
-    width = [max_opt, 40].max
+    width = [max_opt.to_i, 40].max
     height = options.size
     x = Config::SCREEN_WIDTH/2 - width/2
     y = Config::SCREEN_HEIGHT/2 - height/2 - 4

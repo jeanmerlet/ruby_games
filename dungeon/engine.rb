@@ -22,7 +22,7 @@ class Game
     gui_init
     create_gui
     #@gui = GUI.new
-    @game_states = [:player_turn]
+    @game_states = [:enemy_turn, :player_turn]
     @active_cmd_domains = [:main, :quit]
     @refresh_fov, @close = true, false
   end
