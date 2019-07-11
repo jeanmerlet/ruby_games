@@ -55,11 +55,6 @@ module ActionManager
     return results
   end
 
-  def open_inventory_menu
-    until @close
-    end
-  end
-
   def move_player(move)
     dx, dy = *move
     end_x, end_y = @player.x + dx, @player.y + dy
