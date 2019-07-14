@@ -42,6 +42,9 @@ module EventHandler
         #picking up items
         when BLT::TK_G
           action[:pick_up] = true
+        #dropping items
+        when BLT::TK_D
+          action[:drop] = true
         #opening inventory
         when BLT::TK_I
           action[:inventory] = true

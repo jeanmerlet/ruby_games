@@ -1,7 +1,7 @@
 module DisplayManager
 
   def self.render_all(map, entities, player, gui, game_states)
-    if game_states.last != :show_inventory
+    if game_states.last != :show_inventory && game_states.last != :drop_item
       fov_id = player.fov_id
       map.render(fov_id)
       entities.sort! { |a, b| b.render_order <=> a.render_order }

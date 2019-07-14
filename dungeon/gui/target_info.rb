@@ -37,7 +37,6 @@ class TargetInfo
       end
     end
     @targettable.delete(player)
-    @targettable.each { |entity| p entity.name }
   end
 
   def render

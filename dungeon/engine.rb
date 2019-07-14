@@ -42,6 +42,8 @@ class Game
           @gui.log.new_messages.push(result[:message])
         elsif result[:picked_up_item]
           @entities.delete(result[:picked_up_item])
+        elsif result[:drop_item]
+          @entities.push(result[:drop_item])
         elsif result[:death]
           corpse = result[:death]
           if corpse == @player

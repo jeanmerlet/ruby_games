@@ -10,17 +10,17 @@ module ActionManager
         @gui.target_info.next_target
       elsif action[:pick_up]
         results.push(pick_up_item)
-      elsif action[:inventory]
+      elsif action[:inventory] || action[:drop]
         @active_cmd_domains.delete(:main)
         @active_cmd_domains << :menu
-        @game_states << :show_inventory
+        @game_states << (action[:inventory] ? :show_inventory : :drop_item)
       elsif action[:quit]
         @close = true
       end
 
-    elsif action && game_state == :show_inventory
+    elsif action && (game_state == :show_inventory || game_state == :drop_item)
       if action[:option_index]
-        results.push(select_inventory_item(action, action[:option_index]))
+        results.push(select_inv_item(action, action[:option_index], game_state))
       end
       if action[:quit]
         @game_states.pop
@@ -59,11 +59,25 @@ module ActionManager
     return results
   end
 
-  def select_inventory_item(action, index)
+  def drop_item(action, index)
     results = []
     item = @player.inventory.items[index]
     if item
-      results.push(@player.inventory.use_item(item))
+      @game_states.pop
+      action[:quit] = true
+    end
+    return results
+  end
+
+  def select_inv_item(action, index, game_state)
+    results = []
+    item = @player.inventory.items[index]
+    if item
+      if game_state == :show_inventory
+        results.push(@player.inventory.use_item(item))
+      elsif game_state == :drop_item
+        results.push(@player.inventory.drop_item(item))
+      end
       @game_states.pop
       action[:quit] = true
     end

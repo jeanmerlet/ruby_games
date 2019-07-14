@@ -22,6 +22,17 @@ class Inventory
     return results
   end
 
+  def drop_item(item)
+    results = []
+    remove_item(item)
+    item.x, item.y = @owner.x, @owner.y
+    results.push({ drop_item: item })
+    article = (/[aeiou]/ === item.name[0] ? 'an' : 'a')
+    item_name = "[color=#{item.color}]#{item.name}"
+    results.push({ message: "You drop #{article} #{item_name}." })
+    return results
+  end
+
   def use_item(item)
     results = []
     results.push(item.do_effects(@owner))
