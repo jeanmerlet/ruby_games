@@ -21,4 +21,15 @@ class Inventory
     end
     return results
   end
+
+  def use_item(item)
+    results = []
+    results.push(item.do_effects(@owner))
+    remove_item(item)
+    return results
+  end
+
+  def remove_item(item)
+    @items.delete(item)
+  end
 end

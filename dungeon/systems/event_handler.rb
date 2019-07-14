@@ -8,6 +8,8 @@ module EventHandler
     end
   end
 
+  private
+
   def self.process_input(input, active_cmd_domains)
     action = {}
     active_cmd_domains.each do |cmd_domain|

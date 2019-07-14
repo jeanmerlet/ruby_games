@@ -22,27 +22,22 @@ module A_Star
   def self.find_path(map, start_x, start_y, target_x, target_y)
     init_distance = dist(start_x, start_y, target_x, target_y)
     init_tile = PathTile.new(start_x, start_y, init_distance, 0)
-    unexplored, paths = [init_tile], {}
-    until unexplored.empty?
-      unexplored.sort! { |a, b| a.total_cost <=> b.total_cost } 
-      current_tile = unexplored.first
+    untried, tried = [init_tile], {}
+    until untried.empty?
+      untried.sort! { |a, b| a.total_cost <=> b.total_cost } 
+      current_tile = untried.first
       cx, cy = current_tile.x, current_tile.y
-      unexplored.shift
-      paths[[cx, cy]] = true
-      if cx == target_x && cy == target_y
-        path = []
-        until current_tile.parent.nil?
-          path << [current_tile.x, current_tile.y]
-          current_tile = current_tile.parent
-        end
-        return path.reverse
-      end
-      adjacent_tiles(map, current_tile, target_x, target_y, paths).each do |adj|
+      return(backtrack_path(current_tile)) if cx == target_x && cy == target_y
+
+      untried.shift
+      tried[[cx, cy]] = true
+
+      adjacent_tiles(map, current_tile, target_x, target_y, tried).each do |adj|
         adj_x, adj_y = adj.x, adj.y
-        match = unexplored.detect { |tile| tile.x == adj_x && tile.y == adj_y }
+        match = untried.detect { |tile| tile.x == adj_x && tile.y == adj_y }
         if !match
           adj.parent = current_tile
-          unexplored << adj
+          untried << adj
         elsif match.cost_so_far < current_tile.cost_so_far
           match.parent = current_tile.parent
           match.cost_so_far = Math.sqrt(dist(adj_x, adj_y, cx, cy))
@@ -53,14 +48,27 @@ module A_Star
     return nil
   end
 
-  def self.adjacent_tiles(map, tile, target_x, target_y, paths)
+  private
+
+  def self.backtrack_path(last_tile)
+    path = []
+    current_tile = last_tile
+    until current_tile.parent.nil?
+      path << [current_tile.x, current_tile.y]
+      current_tile = current_tile.parent
+    end
+    return path.reverse
+  end
+
+  def self.adjacent_tiles(map, tile, target_x, target_y, tried)
     adjacent = []
     8.times do |i|
       x, y = tile.x + @@mult[0][i], tile.y + @@mult[1][i]
-      if (map.tiles[x][y].walkable && !paths[[x, y]]) ||
+      if (map.tiles[x][y].walkable && !tried[[x, y]]) ||
          (x == target_x && y == target_y) # ignore if end tile is not walkable
+
         adjacent << PathTile.new(x, y, dist(x, y, target_x, target_y),
-                    tile.cost_so_far + @@mult[2][i])
+                                 tile.cost_so_far + @@mult[2][i])
       end
     end
     return adjacent

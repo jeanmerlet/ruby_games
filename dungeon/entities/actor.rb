@@ -1,5 +1,5 @@
 class Actor < Entity
-  attr_accessor :fov_r, :fov_id, :combat, :inventory
+  attr_accessor :fov_r, :fov_id, :combat, :inventory, :stats
 
   def initialize(entities, x, y, char, name, color, fov_r = nil, fov_id = nil,
                  blocks = true)

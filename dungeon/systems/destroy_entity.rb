@@ -9,7 +9,7 @@ module Destroy
     return "You died!"
   end
 
-  def self.kill_monster(map, monster, target_display)
+  def self.kill_monster(map, monster, target_info)
     monster.char = "%"
     monster.color = BLT.color_from_name("darker red")
     monster.blocks = false
@@ -19,7 +19,7 @@ module Destroy
     monster.render_order = 3
     monster.status = 'dead.'
     map.tiles[monster.x][monster.y].walkable = true
-    target_display.update_target if target_display.target == monster
+    target_info.update_target if target_info.target == monster
   end
 
   def self.monster_death_message(monster)

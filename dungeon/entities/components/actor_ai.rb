@@ -1,4 +1,4 @@
-class MonsterAI
+class ActorAI
   attr_accessor :take_turn
 
   def initialize(owner)
@@ -6,11 +6,10 @@ class MonsterAI
     @chase_turns = 0
   end
 
-  def take_turn(map, player)
-    x, y = @owner.x, @owner.y
+  def take_turn(map, player, gui)
     player_x, player_y = player.x, player.y
     results = []
-    if map.fov_tiles[x][y] == player.fov_id #player can see monster
+    if map.fov_tiles[@owner.x][@owner.y] == player.fov_id
       @owner.status = '[color=red]attacking!'
       @chase_turns = 3
       if distance_to(player_x, player_y) >= 2
@@ -20,6 +19,9 @@ class MonsterAI
       end
     elsif @chase_turns > 0 && distance_to(player_x, player_y) >= 2
       @owner.move_towards(map, player_x, player_y)
+      if map.fov_tiles[@owner.x][@owner.y] == player.fov_id
+        gui.target_info.add_target(@owner)
+      end
       @chase_turns -= 1
     end
     return results

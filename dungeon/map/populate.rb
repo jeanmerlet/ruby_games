@@ -14,12 +14,12 @@ module Populate
           monster = Actor.new(entities, x, y, "s", "skitterling", "purple")
           hp, defense, power = 10, 0, 3
           monster.combat = Combat.new(monster, hp, defense, power)
-          monster.ai = MonsterAI.new(monster)
+          monster.ai = ActorAI.new(monster)
         else
           monster = Actor.new(entities, x, y, "R", "sentry", "dark grey")
           hp, defense, power = 16, 1, 4
           monster.combat = Combat.new(monster, hp, defense, power)
-          monster.ai = MonsterAI.new(monster)
+          monster.ai = ActorAI.new(monster)
         end
       end
     end
@@ -32,6 +32,7 @@ module Populate
       if !spot_occupied?(entities, x, y)
         item = Item.new(entities, x, y, "!", "stimpack", "light blue",
                         "full of [color=light blue]meds.")
+        item.effects << Heal.new(item, 15)
       end
     end
   end

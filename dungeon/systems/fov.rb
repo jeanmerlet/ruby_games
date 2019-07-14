@@ -66,6 +66,8 @@ module FieldOfView
     end
   end
 
+  private
+
   def self.cast_light(map, fov_id, oct, x, y, r, row, cast_start, cast_end,
                       xx, xy, yx, yy)
     return if cast_start <= cast_end

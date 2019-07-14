@@ -1,16 +1,20 @@
 class Combat
-  attr_accessor :hp
+  attr_accessor :hp, :ac
   attr_reader :defense, :power
 
   def initialize(owner, hp, defense, power)
     @owner = owner
     @hp = [hp, hp]
+    @dodge = 10 + @owner.stats.mod(@owner.stats.guil) if @owner.name == 'player'
+    @ac = 14 #future kevlar
+    @shields, @shield_regen = 30, 3
     @defense, @power = defense, power
   end
 
   def take_damage(amount)
     results = []
     @hp[0] -= amount
+    @hp[0] = @hp[1] if @hp[0] > @hp[1]
     results.push({ death: @owner }) if @hp.first <= 0
     return results
   end

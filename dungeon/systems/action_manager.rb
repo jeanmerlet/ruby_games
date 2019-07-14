@@ -7,7 +7,7 @@ module ActionManager
       if action[:move]
         results.push(move_player(action[:move]))
       elsif action[:next_target]
-        @target_display.next_target
+        @gui.target_info.next_target
       elsif action[:pick_up]
         results.push(pick_up_item)
       elsif action[:inventory]
@@ -32,7 +32,7 @@ module ActionManager
     elsif game_state == :enemy_turn
       @entities.each do |entity|
         if entity.ai
-          results.push(entity.ai.take_turn(@map, @player))
+          results.push(entity.ai.take_turn(@map, @player, @gui))
         end
       end
       @game_states << :player_turn
@@ -43,6 +43,8 @@ module ActionManager
     results.flatten!
     return results
   end
+
+  private
 
   def pick_up_item
     results = []
@@ -59,7 +61,9 @@ module ActionManager
 
   def select_inventory_item(action, index)
     results = []
-    if @player.inventory.items[index]  #item selected exists
+    item = @player.inventory.items[index]
+    if item
+      results.push(@player.inventory.use_item(item))
       @game_states.pop
       action[:quit] = true
     end
