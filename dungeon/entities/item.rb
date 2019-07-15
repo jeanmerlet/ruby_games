@@ -1,17 +1,23 @@
-class Item < Entity
-  attr_accessor :effects
+class Consumable < Entity
+  attr_accessor :components, :effects, :targetting_type
 
-  def initialize(entities, x, y, char, name, color, status, blocks = false)
+  def initialize(entities, x, y, char, name, color, status)
     super(entities, x, y, char, color, name)
-    @blocks = blocks
     @render_order = 2
-    @status = status
-    @effects = []
+    @blocks, @can_pick_up = false, true
+    @status, @effects = status, []
   end
 
-  def do_effects(target)
+  def use(target)
     results = []
-    @effects.each { |effect| results.push(effect.do(target)) }
+    # target passed is inventory owner if no targetting_type
+    targets = (@targetting_type ? get_targets(target) : target)
+    @effects.each { |effect| results.push(effect.process(targets)) }
     return results
+  end
+
+  def get_targets(target)
+    target_x, target_y = target.x, target.y
+    return @targetting_type.get_targets(target_x, target_y)
   end
 end

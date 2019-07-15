@@ -1,8 +1,8 @@
-class ActorAI
+class ActorAI < Component
   attr_accessor :take_turn
 
   def initialize(owner)
-    @owner = owner
+    super(owner)
     @chase_turns = 0
   end
 

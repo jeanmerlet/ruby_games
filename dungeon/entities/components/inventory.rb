@@ -1,9 +1,9 @@
-class Inventory
+class Inventory < Component
   attr_accessor :items
   attr_reader :capacity
 
   def initialize(owner, capacity)
-    @owner = owner
+    super(owner)
     @capacity = capacity
     @items = []
   end
@@ -13,8 +13,8 @@ class Inventory
     if @items.size < @capacity
       @items << item
       article = (/[aeiou]/ === item.name[0] ? 'an' : 'a')
-      item_name = "[color=#{item.color}]#{item.name}"
-      results.push({ message: "You pick up #{article} #{item_name}." })
+      item_name = "[color=#{item.color}]#{item.name}[/color]."
+      results.push({ message: "You pick up #{article} #{item_name}" })
       results.push({ picked_up_item: item })
     else
       results.push({ message: "There's no room." })
@@ -33,9 +33,9 @@ class Inventory
     return results
   end
 
-  def use_item(item)
+  def use_item(item, target)
     results = []
-    results.push(item.do_effects(@owner))
+    results.push(item.use(target))
     remove_item(item)
     return results
   end

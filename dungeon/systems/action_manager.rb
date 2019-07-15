@@ -11,11 +11,31 @@ module ActionManager
       elsif action[:pick_up]
         results.push(pick_up_item)
       elsif action[:inventory] || action[:drop]
+        @game_states << (action[:inventory] ? :show_inventory : :drop_item)
         @active_cmd_domains.delete(:main)
         @active_cmd_domains << :menu
-        @game_states << (action[:inventory] ? :show_inventory : :drop_item)
       elsif action[:quit]
         @close = true
+      end
+
+    elsif action && game_state == :targetting
+      if action[:next_target]
+        @gui.target_info.next_target
+      elsif action[:select_target]
+        results.push(@player.inventory.use_item(@item, @gui.target_info.target))
+        @item = nil
+        @game_states.pop
+        action[:quit] = true
+      elsif action[:quit]
+        @game_states.pop
+        @active_cmd_domains.delete(:targetting)
+        @active_cmd_domains << :menu
+        action[:quit] = false
+      end
+      if action[:quit]
+        @game_states.pop
+        @active_cmd_domains.delete(:targetting)
+        @active_cmd_domains << :main
       end
 
     elsif action && (game_state == :show_inventory || game_state == :drop_item)
@@ -23,8 +43,8 @@ module ActionManager
         results.push(select_inv_item(action, action[:option_index], game_state))
       end
       if action[:quit]
-        @game_states.pop
         BLT.clear
+        @game_states.pop
         @active_cmd_domains.delete(:menu)
         @active_cmd_domains << :main
       end
@@ -74,12 +94,20 @@ module ActionManager
     item = @player.inventory.items[index]
     if item
       if game_state == :show_inventory
-        results.push(@player.inventory.use_item(item))
+        if item.targetting_type
+          @item = item
+          BLT.clear
+          @game_states << :targetting
+          @active_cmd_domains.delete(:menu)
+          @active_cmd_domains << :targetting
+        else
+          results.push(@player.inventory.use_item(item, @player))
+          @game_states.pop
+          action[:quit] = true
+        end
       elsif game_state == :drop_item
         results.push(@player.inventory.drop_item(item))
       end
-      @game_states.pop
-      action[:quit] = true
     end
     return results
   end

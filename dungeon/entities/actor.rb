@@ -1,12 +1,11 @@
 class Actor < Entity
   attr_accessor :fov_r, :fov_id, :combat, :inventory, :stats
 
-  def initialize(entities, x, y, char, name, color, fov_r = nil, fov_id = nil,
-                 blocks = true)
+  def initialize(entities, x, y, char, name, color, fov_r = nil, fov_id = nil)
     super(entities, x, y, char, color, name)
-    @blocks = blocks
     @fov_r, @fov_id = fov_r, fov_id
     @render_order = 1
+    @blocks, @can_pick_up = true, false
   end
 
   def move(map, dx, dy)
@@ -41,15 +40,8 @@ class Actor < Entity
   def get_items_at(x, y)
     items = []
     @entities.each do |entity|
-      items << entity if entity.x == x && entity.y == y && entity.is_a?(Item)
+      items << entity if entity.x == x && entity.y == y && entity.can_pick_up
     end
     return items
-  end
-
-  def get_blocking_entity_at(x, y)
-    @entities.each do |entity|
-      return entity if entity.x == x && entity.y == y && entity.blocks
-    end
-    return nil
   end
 end

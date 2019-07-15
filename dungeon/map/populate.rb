@@ -30,9 +30,14 @@ module Populate
     number_of_items.times do
       x, y = *get_xy(room)
       if !spot_occupied?(entities, x, y)
-        item = Item.new(entities, x, y, "!", "stimpack", "light blue",
-                        "full of [color=light blue]meds.")
-        item.effects << Heal.new(item, 15)
+        if false #rand(100) < 70
+          item = Consumable.new(entities, x, y, "!", "stimpack", "light blue", "full of [color=light blue]meds[/color].")
+          item.effects << Heal.new(item, 15)
+        else
+          item = Consumable.new(entities, x, y, "*", "frag grenade", "darker green", "packed with deadly [color=light gray]shrapnel[/color].")
+          item.targetting_type = CircularAOE.new(item, 2.5)
+          item.effects << ShrapnelDamage.new(item, 20)
+        end
       end
     end
   end

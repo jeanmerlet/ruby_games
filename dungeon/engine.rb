@@ -1,6 +1,7 @@
 require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
 require './entities/entity.rb'
+require './entities/components/component.rb'
 ROOT = "#{File.dirname(__FILE__)}"
 Dir["#{ROOT}/systems/*.rb"].each { |file| require file }
 Dir["#{ROOT}/entities/**/*.rb"].each { |file| require file }
@@ -16,7 +17,7 @@ class Game
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new(7087)
+    @map = Map.new(6930)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @game_states = [:enemy_turn, :player_turn]

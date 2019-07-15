@@ -17,7 +17,7 @@ module EventHandler
 
       when :main
         case input
-        #movement
+        # movement
         when BLT::TK_UP, BLT::TK_KP_8, BLT::TK_K
           action[:move] = [0, -1]
         when BLT::TK_DOWN, BLT::TK_KP_2, BLT::TK_J
@@ -36,18 +36,28 @@ module EventHandler
           action[:move] = [-1, 1]
         when BLT::TK_KP_5, BLT::TK_PERIOD
           action[:move] = [0, 0]
-        #targetting
+        # rotate targets in GUI
         when BLT::TK_TAB
           action[:next_target] = true
-        #picking up items
+        # picking up items
         when BLT::TK_G
           action[:pick_up] = true
-        #dropping items
+        # dropping items
         when BLT::TK_D
           action[:drop] = true
-        #opening inventory
+        # opening inventory
         when BLT::TK_I
           action[:inventory] = true
+        end
+
+      when :targetting
+        # rotate targets
+        case input
+        when BLT::TK_TAB
+          action[:next_target] = true
+        # select current target
+        when BLT::TK_ENTER
+          action[:select_target] = true
         end
 
       when :menu
@@ -58,7 +68,7 @@ module EventHandler
 
       when :quit
         case input
-        #close current screen
+        # close current screen
         when BLT::TK_ESCAPE
           action[:quit] = true
         end
