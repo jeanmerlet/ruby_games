@@ -6,8 +6,6 @@ module ActionManager
     if action && game_state == :player_turn
       if action[:move]
         results.push(move_player(action[:move]))
-      elsif action[:next_target]
-        @gui.target_info.next_target
       elsif action[:pick_up]
         results.push(pick_up_item)
       elsif action[:inventory] || action[:drop]
@@ -27,13 +25,11 @@ module ActionManager
         @game_states.pop
         action[:quit] = true
       elsif action[:quit]
-        DisplayManager.map_area_render(@map, @entities, @player)
         @game_states.pop
-        @active_cmd_domains.delete(:targetting)
-        @active_cmd_domains << :menu
-        action[:quit] = false
       end
       if action[:quit]
+        DisplayManager.render_map_area(@map, @entities, @player)
+        @gui.target_info.clear
         @game_states.pop
         @active_cmd_domains.delete(:targetting)
         @active_cmd_domains << :main
@@ -72,7 +68,6 @@ module ActionManager
     item = @player.get_items_at(x, y).first
     if item
       results.push(@player.inventory.pick_up(item))
-      @gui.target_info.remove_target(item)
       @game_states.pop
     else
       results.push({ message: "There's nothing there." })
@@ -97,6 +92,7 @@ module ActionManager
       if game_state == :show_inventory
         if item.targetting
           @item = item
+          @gui.target_info = TargetInfo.new(@map, @entities, @player)
           @game_states << :targetting
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :targetting

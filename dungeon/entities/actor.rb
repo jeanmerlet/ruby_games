@@ -5,7 +5,7 @@ class Actor < Entity
     super(entities, x, y, char, color, name)
     @fov_r, @fov_id = fov_r, fov_id
     @render_order = 1
-    @blocks, @can_pick_up = true, false
+    @blocks = true
   end
 
   def move(map, dx, dy)
@@ -40,7 +40,7 @@ class Actor < Entity
   def get_items_at(x, y)
     items = []
     @entities.each do |entity|
-      items << entity if entity.x == x && entity.y == y && entity.can_pick_up
+      items << entity if entity.x == x && entity.y == y
     end
     return items
   end

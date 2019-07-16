@@ -10,7 +10,7 @@ class CircularAOE < Component
     target_x, target_y = target.x, target.y
     targets = []
     @owner.entities.each do |entity|
-      if entity.combat && entity.distance(target_x, target_y) <= @radius
+      if entity.combat && entity.distance(target_x, target_y) <= @radius + 0.5
         targets << entity
       end
     end
@@ -19,12 +19,12 @@ class CircularAOE < Component
 
   def render_target_area(map, fov_id, target)
     x, y = target.x, target.y
-    side_length, offset = (2*(@radius + 0.5)).to_i, @radius + 0.5
+    side_length, offset = 2*@radius + 1, @radius
     side_length.times do |i|
       side_length.times do |j|
         cx, cy = x - offset + i, y - offset + j
-        if target.distance(cx, cy) <= @radius && !map.tiles[cx][cy].blocked
-          BLT.print(2*cx, cy, "[color=red][0xE002]")
+        if target.distance(cx, cy) <= @radius + 0.5
+          BLT.print(2*cx, cy, "[color=darker red][0xE000]")
         end
       end
     end

@@ -16,7 +16,7 @@ module Populate
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = ActorAI.new(monster)
         else
-          monster = Actor.new(entities, x, y, "R", "sentry", "dark grey")
+          monster = Actor.new(entities, x, y, "R", "sentry", "dark gray")
           hp, defense, power = 16, 1, 4
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = ActorAI.new(monster)
@@ -31,12 +31,15 @@ module Populate
       x, y = *get_xy(room)
       if !spot_occupied?(entities, x, y)
         if false #rand(100) < 70
-          item = Consumable.new(entities, x, y, "!", "stimpack", "light blue", "full of [color=light blue]meds[/color].")
+          item = Consumable.new(entities, x, y, "!", "stimpack", "light blue")
+          item.status = "full of [color=light blue]meds[/color]."
           item.effects << Heal.new(item, 15)
         else
-          item = Consumable.new(entities, x, y, "*", "frag grenade", "darker green", "packed with deadly [color=light gray]shrapnel[/color].")
-          item.targetting = CircularAOE.new(item, 2.5)
-          item.effects << ShrapnelDamage.new(item, 20)
+          item = Consumable.new(entities, x, y, "*", "frag grenade", "dark gray")
+          item.status = "packed with deadly [color=dark gray]shrapnel[/color]."
+          item.effects << Damage.new(item, :piercing, 20)
+          item.messages << "[color=dark gray]shredded[/color] by the shrapnel!"
+          item.targetting = CircularAOE.new(item, 2)
         end
       end
     end

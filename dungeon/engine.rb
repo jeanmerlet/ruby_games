@@ -61,7 +61,6 @@ class Game
     end
     if @refresh_fov
       FieldOfView.do_fov(@map, @player)
-      @gui.target_info.update_targettable(@map, @entities, @player)
       @refresh_fov = false
     end
   end
@@ -75,6 +74,7 @@ class Game
     phys, guil, afin, toug = 16, 12, 10, 14
     @player.stats = Stats.new(@player, phys, guil, afin, toug)
     @player.combat = Combat.new(@player, hp, defense, power)
+    @player.status = "playing..."
   end
 end
 

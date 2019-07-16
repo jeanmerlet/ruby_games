@@ -19,7 +19,6 @@ module Destroy
     monster.render_order = 3
     monster.status = 'dead.'
     map.tiles[monster.x][monster.y].walkable = true
-    target_info.update_target if target_info.target == monster
   end
 
   def self.monster_death_message(monster)

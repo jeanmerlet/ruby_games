@@ -1,6 +1,6 @@
 class Entity
   attr_accessor :entities, :x, :y, :char, :color, :name, :render_order, :ai,
-                :targetted, :status, :blocks, :can_pick_up, :combat
+                :status, :blocks, :combat
 
   def initialize(entities, x, y, char, color, name)
     @entities = entities
@@ -22,10 +22,6 @@ class Entity
   end
 
   def render
-    if @targetted
-      BLT.print(2*@x, @y, "[0xE000][+][font=reg][color=#{@color}]#{@char}")
-    else
-      BLT.print(2*@x, @y, "[font=reg][color=#{@color}]#{@char}")
-    end
+    BLT.print(2*@x, @y, "[font=char][color=#{@color}]#{@char}")
   end
 end

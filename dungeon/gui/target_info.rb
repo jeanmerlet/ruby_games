@@ -2,15 +2,16 @@ class TargetInfo
   attr_accessor :entities
   attr_reader :x, :y, :width, :char, :name, :color, :target
 
-  def initialize(x, y, width)
-    @x, @y, @width = x, y, width
-    @targettable = []
-    BLT.print(2*(@x+1), @y+1, "[font=gui]Looking at:")
-    BLT.print(2*(@x+1), @y+6, "[font=gui][[Tab]] to rotate targets")
+  def initialize(map, entities, player)
+    @x, @y = Config::SCREEN_WIDTH/2 - 17, 10
+    @width = 34
+    update_targettable(map, entities, player)
+    next_target
+    BLT.print(2*(@x+1), @y+1, "[font=gui]Current target:")
+    BLT.print(2*(@x+1), @y+7, "[font=gui][[Tab]] for next target")
   end
 
   def next_target
-    @target.targetted = false if @target
     @target = @targettable.first
     if @target
       update_target
@@ -19,7 +20,6 @@ class TargetInfo
   end
 
   def update_target
-    @target.targetted = true
     @char, @name, @color = @target.char, @target.name, @target.color
     @article = (/[aeiou]/ === @name[0] ? 'an' : 'a')
     @status = @target.status
@@ -53,5 +53,9 @@ class TargetInfo
       BLT.print(2*(@x+1), @y+3, "#{' '*2*@width}")
       BLT.print(2*(@x+1), @y+4, "#{' '*2*@width}")
     end
+  end
+
+  def clear
+    BLT.clear_area(@x, @y, 34, 7)
   end
 end

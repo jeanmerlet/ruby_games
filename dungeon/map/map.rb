@@ -18,16 +18,16 @@ class Map
       tile_column.each_with_index do |tile, y|
         if @fov_tiles[x][y] == fov_id
           if tile.blocked
-            BLT.print(2*x, y, "[color=light_wall][font=extra_bold]#")
+            BLT.print(2*x, y, "[color=light_wall][font=bold]#")
           else
-            BLT.print(2*x, y, "[color=light_floor][font=reg]·")
+            BLT.print(2*x, y, "[color=light_floor][font=char]·")
           end
         else
           if tile.explored
             if tile.blocked
-              BLT.print(2*x, y, "[color=gray][font=extra_bold]#")
+              BLT.print(2*x, y, "[color=unlit][font=bold]#")
             else
-              BLT.print(2*x, y, "[color=gray][font=reg]·")
+              BLT.print(2*x, y, "[color=unlit][font=char]·")
             end
           end
         end
