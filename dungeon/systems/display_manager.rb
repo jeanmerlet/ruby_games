@@ -11,8 +11,8 @@ module DisplayManager
       render_map_area(map, entities, player)
       BLT.composition 1
       fov_id = player.fov_id
-      target = gui.target_info.target
-      item.targetting.render_target_area(map, fov_id, target) if target
+      tar_x, tar_y = gui.target_info.tar_x, gui.target_info.tar_y
+      item.targetting.render_target_area(tar_x, tar_y)
       BLT.composition 0
     end
     gui.render

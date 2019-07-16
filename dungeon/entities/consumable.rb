@@ -8,10 +8,10 @@ class Consumable < Entity
     @effects, @messages = [], []
   end
 
-  def use(target)
+  def use(x, y)
     results = []
     # target passed is inventory owner if targetting is nil
-    targets = (@targetting ? @targetting.get_targets(target) : target)
+    targets = (@targetting ? @targetting.get_targets(x, y) : target)
     @effects.each.with_index { |effect, i| results.push(effect.process(targets, i)) }
     return results
   end

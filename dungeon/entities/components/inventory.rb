@@ -33,9 +33,9 @@ class Inventory < Component
     return results
   end
 
-  def use_item(item, target)
+  def use_item(item, target_x, target_y)
     results = []
-    results.push(item.use(target))
+    results.push(item.use(target_x, target_y))
     remove_item(item)
     return results
   end

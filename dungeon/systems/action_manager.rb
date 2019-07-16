@@ -19,8 +19,11 @@ module ActionManager
     elsif action && game_state == :targetting
       if action[:next_target]
         @gui.target_info.next_target
+      elsif action[:move]
+        @gui.target_info.move_reticule(action[:move])
       elsif action[:select_target]
-        results.push(@player.inventory.use_item(@item, @gui.target_info.target))
+        x, y = @gui.target_info.tar_x, @gui.target_info.tar_y
+        results.push(@player.inventory.use_item(@item, x, y))
         @item = nil
         @game_states.pop
         action[:quit] = true
@@ -30,6 +33,7 @@ module ActionManager
       if action[:quit]
         DisplayManager.render_map_area(@map, @entities, @player)
         @gui.target_info.clear
+        @gui.target_info = nil
         @game_states.pop
         @active_cmd_domains.delete(:targetting)
         @active_cmd_domains << :main
@@ -80,7 +84,6 @@ module ActionManager
     item = @player.inventory.items[index]
     if item
       @game_states.pop
-      action[:quit] = true
     end
     return results
   end
@@ -96,13 +99,18 @@ module ActionManager
           @game_states << :targetting
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :targetting
+          @active_cmd_domains << :movement
         else
           results.push(@player.inventory.use_item(item, @player))
           @game_states.pop
-          action[:quit] = true
+          @active_cmd_domains.delete(:menu)
+          @active_cmd_domains << :main
         end
       elsif game_state == :drop_item
         results.push(@player.inventory.drop_item(item))
+        @game_states.pop
+        @active_cmd_domains.delete(:menu)
+        @active_cmd_domains << :main
       end
     end
     return results

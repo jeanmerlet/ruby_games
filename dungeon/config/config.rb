@@ -1,14 +1,17 @@
 module Config
 
-  SCREEN_WIDTH = 160
-  SCREEN_HEIGHT = 50
+  SCREEN_WIDTH = 120
+  SCREEN_HEIGHT = 48
+
+  SIDE_PANEL_WIDTH = 38
+  VERT_PANEL_HEIGHT = 7
 
   def self.blt_config
     BLT.set("window: size=#{SCREEN_WIDTH.to_s}x#{SCREEN_HEIGHT.to_s}")
     BLT.set("window: cellsize=8x16")
 
-    BLT.set("font: ./tilesets/OpenSansCondensed-Bold.ttf, size=11")
-    BLT.set("gui font: ./tilesets/Orbitron-Regular.ttf, size=13, spacing=2x1")
+    BLT.set("font: ./tilesets/OpenSans-Regular.ttf, size=11")
+    BLT.set("gui font: ./tilesets/OpenSans-Regular.ttf, size=12")
     BLT.set("char font: ./tilesets/OpenSans-Regular.ttf, size=12, spacing=2x1")
     BLT.set("bold font: ./tilesets/OpenSans-Bold.ttf, size=12, spacing=2x1")
     BLT.set("0xE000: ./tilesets/targetting.png, spacing=2x1")

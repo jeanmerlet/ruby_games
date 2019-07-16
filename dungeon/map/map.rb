@@ -2,10 +2,10 @@ class Map
   attr_reader :width, :height, :tiles, :fov_tiles
 
   def initialize(seed = nil)
-    @width, @height = 63, 43
+    @width, @height = 41, 41
     @side_min, @side_max = 3, 5
     @monster_max, @item_max = 3, 2
-    @room_tries = 80
+    @room_tries = 60
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
     seed = rand(10000) if seed.nil?

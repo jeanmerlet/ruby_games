@@ -17,7 +17,7 @@ class Entity
     return nil
   end
 
-  def distance(x, y)
+  def distance_to(x, y)
     return Math.sqrt((@x-x)**2 + (@y-y)**2)
   end
 
