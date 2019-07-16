@@ -29,6 +29,10 @@ class TargetInfo
     @targettable << target
   end
 
+  def remove_target(target)
+    @targettable.delete(target)
+  end
+
   def update_targettable(map, entities, player)
     @targettable = []
     entities.each do |entity|

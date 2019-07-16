@@ -35,7 +35,7 @@ module Populate
           item.effects << Heal.new(item, 15)
         else
           item = Consumable.new(entities, x, y, "*", "frag grenade", "darker green", "packed with deadly [color=light gray]shrapnel[/color].")
-          item.targetting_type = CircularAOE.new(item, 2.5)
+          item.targetting = CircularAOE.new(item, 2.5)
           item.effects << ShrapnelDamage.new(item, 20)
         end
       end

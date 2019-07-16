@@ -35,6 +35,10 @@ class Map
     end
   end
 
+  def clear
+    BLT.clear_area(0, 0, 2*@width, @height)
+  end
+
   def new_level(entities, player)
     rooms = []
     @room_tries.times do |i|

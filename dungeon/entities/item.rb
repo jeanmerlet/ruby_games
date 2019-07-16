@@ -1,5 +1,5 @@
 class Consumable < Entity
-  attr_accessor :components, :effects, :targetting_type
+  attr_accessor :components, :effects, :targetting
 
   def initialize(entities, x, y, char, name, color, status)
     super(entities, x, y, char, color, name)
@@ -10,14 +10,9 @@ class Consumable < Entity
 
   def use(target)
     results = []
-    # target passed is inventory owner if no targetting_type
-    targets = (@targetting_type ? get_targets(target) : target)
+    # target passed is inventory owner if targetting is nil
+    targets = (@targetting ? @targetting.get_targets(target) : target)
     @effects.each { |effect| results.push(effect.process(targets)) }
     return results
-  end
-
-  def get_targets(target)
-    target_x, target_y = target.x, target.y
-    return @targetting_type.get_targets(target_x, target_y)
   end
 end

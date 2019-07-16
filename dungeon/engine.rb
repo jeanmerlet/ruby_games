@@ -30,7 +30,8 @@ class Game
       action = EventHandler.read(@active_cmd_domains)
       results = manage_action(action)
       update(results)
-      DisplayManager.render_all(@map, @entities, @player, @gui, @game_states)
+      DisplayManager.render_all(@map, @entities, @player, @gui, @item,
+                                @game_states.last)
       BLT.refresh
     end
     BLT.close

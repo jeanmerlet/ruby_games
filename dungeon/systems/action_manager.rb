@@ -27,6 +27,7 @@ module ActionManager
         @game_states.pop
         action[:quit] = true
       elsif action[:quit]
+        DisplayManager.map_area_render(@map, @entities, @player)
         @game_states.pop
         @active_cmd_domains.delete(:targetting)
         @active_cmd_domains << :menu
@@ -43,7 +44,6 @@ module ActionManager
         results.push(select_inv_item(action, action[:option_index], game_state))
       end
       if action[:quit]
-        BLT.clear
         @game_states.pop
         @active_cmd_domains.delete(:menu)
         @active_cmd_domains << :main
@@ -69,9 +69,10 @@ module ActionManager
   def pick_up_item
     results = []
     x, y = @player.x, @player.y
-    items = @player.get_items_at(x, y)
-    if !items.empty?
-      results.push(@player.inventory.pick_up(items[0]))
+    item = @player.get_items_at(x, y).first
+    if item
+      results.push(@player.inventory.pick_up(item))
+      @gui.target_info.remove_target(item)
       @game_states.pop
     else
       results.push({ message: "There's nothing there." })
@@ -94,9 +95,8 @@ module ActionManager
     item = @player.inventory.items[index]
     if item
       if game_state == :show_inventory
-        if item.targetting_type
+        if item.targetting
           @item = item
-          BLT.clear
           @game_states << :targetting
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :targetting
