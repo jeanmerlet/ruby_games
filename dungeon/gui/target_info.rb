@@ -28,11 +28,12 @@ class TargetInfo
       entities.each do |entity|
         if map.fov_tiles[entity.x][entity.y] == player.fov_id
           @target_list.unshift(entity)
-          if @target
-            @target_list.sort_by {|target| target.distance_to(player.x, player.y)}
-          end
         end
       end
+      @target_list.sort! do |a, b|
+        a.distance_to(player.x, player.y) <=> b.distance_to(player.x, player.y)
+      end
+      @target_list.rotate!
     end
   end
 
