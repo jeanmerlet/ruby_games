@@ -5,7 +5,8 @@ class Log
   def initialize(x, y, width, height)
     @x, @y, @width, @height = x, y, width, height
     @new_messages, @old_messages = [], []
-    @max_h = @y + @height - 1
+    @max_h = @y + @height
+    @y += 1
   end
 
   def render

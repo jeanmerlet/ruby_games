@@ -4,7 +4,7 @@ class Consumable < Entity
   def initialize(entities, x, y, char, name, color)
     super(entities, x, y, char, color, name)
     @render_order = 2
-    @blocks = false
+    @blocks, @can_pick_up = false, true
     @effects, @messages = [], []
   end
 

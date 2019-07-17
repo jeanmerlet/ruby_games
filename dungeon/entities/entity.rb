@@ -1,6 +1,6 @@
 class Entity
   attr_accessor :entities, :x, :y, :char, :color, :name, :render_order, :ai,
-                :status, :blocks, :combat
+                :status, :blocks, :combat, :can_pick_up
 
   def initialize(entities, x, y, char, color, name)
     @entities = entities
