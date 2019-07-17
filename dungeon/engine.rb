@@ -17,7 +17,7 @@ class Game
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new(3089)
+    @map = Map.new(7864)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @game_states = [:enemy_turn, :player_turn]
@@ -67,7 +67,7 @@ class Game
 
   def create_player
     @entities = []
-    fov_r, fov_id = 20, 1
+    fov_r, fov_id = 15, 1
     @player = Actor.new(@entities, 0, 0, "@", 'player', 'amber', fov_r, fov_id)
     hp, defense, power = 30, 0, 3
     @player.inventory = Inventory.new(@player, 26)

@@ -2,7 +2,7 @@ class Map
   attr_reader :width, :height, :tiles, :fov_tiles
 
   def initialize(seed = nil)
-    @width, @height = 41, 41
+    @width, @height = 31, 31
     @side_min, @side_max = 3, 5
     @monster_max, @item_max = 3, 2
     @room_tries = 60

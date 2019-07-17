@@ -6,7 +6,7 @@ module DisplayManager
     elsif game_state == :show_inventory || game_state == :drop_item
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
-      Menu.display_menu('Inventory', options)
+      Menu.display_menu(map, 'Inventory', options)
     elsif game_state == :targetting
       render_map_area(map, entities, player)
       BLT.composition 1
