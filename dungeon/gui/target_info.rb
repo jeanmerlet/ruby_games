@@ -55,13 +55,13 @@ class TargetInfo
 
   def render
     if @current_target
-      BLT.print((@x+1), @y+3, "#{' '*@width}")
-      BLT.print((@x+1), @y+3, "[font=reg][color=#{@color}]#{@char}[/color][/font], #{@article} #{@name}")
-      BLT.print((@x+1), @y+4, "It's #{' '*(@width-4)}")
-      BLT.print((@x+1), @y+4, "It's #{@status}")
+      BLT.print(@x+2, @y+3, "#{' '*@width}")
+      BLT.print(@x+3, @y+3, "[font=reg][color=#{@color}]#{@char}[/color][/font], #{@article} #{@name}")
+      BLT.print(@x+2, @y+4, "It's #{' '*(@width-4)}")
+      BLT.print(@x+2, @y+4, "It's #{@status}")
     else
-      BLT.print((@x+1), @y+3, "#{' '*@width}")
-      BLT.print((@x+1), @y+4, "#{' '*@width}")
+      BLT.print(@x+2, @y+3, "#{' '*@width}")
+      BLT.print(@x+2, @y+4, "#{' '*@width}")
     end
   end
 

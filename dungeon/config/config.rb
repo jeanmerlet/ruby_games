@@ -1,9 +1,9 @@
 module Config
 
-  SCREEN_WIDTH = 100
+  SCREEN_WIDTH = 106
   SCREEN_HEIGHT = 38
 
-  SIDE_PANEL_WIDTH = 38
+  SIDE_PANEL_WIDTH = 44
   VERT_PANEL_HEIGHT = 7
 
   def self.blt_config
