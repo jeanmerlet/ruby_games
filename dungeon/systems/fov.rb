@@ -79,7 +79,7 @@ module FieldOfView
         dx += 1
         # transform x, y, dx, and dy into map coordinates
         map_x, map_y = x + dx * xx + dy * xy, y + dx * yx + dy * yy
-        if !out_of_bounds?(map, map_x, map_y)
+        if !map.out_of_bounds?(map_x, map_y)
           tile = map.tiles[map_x][map_y]
         else
           next
@@ -139,9 +139,5 @@ module FieldOfView
   def self.light(map, fov_id, x, y)
     map.tiles[x][y].explored = true
     map.fov_tiles[x][y] = fov_id
-  end
-
-  def self.out_of_bounds?(map, x, y)
-    x < 0 || x >= map.width || y < 0 || y >= map.height
   end
 end

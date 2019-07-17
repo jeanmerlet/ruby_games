@@ -2,7 +2,7 @@ class Map
   attr_reader :width, :height, :tiles, :fov_tiles
 
   def initialize(seed = nil)
-    @width, @height = 31, 31
+    @width, @height = 70, 50
     @side_min, @side_max = 3, 5
     @monster_max, @item_max = 3, 2
     @room_tries = 60
@@ -11,32 +11,6 @@ class Map
     seed = rand(10000) if seed.nil?
     srand(seed)
     p seed
-  end
-
-  def render(fov_id)
-    @tiles.each_with_index do |tile_column, x|
-      tile_column.each_with_index do |tile, y|
-        if @fov_tiles[x][y] == fov_id
-          if tile.blocked
-            BLT.print(2*x, y, "[color=light_wall][font=bold]#")
-          else
-            BLT.print(2*x, y, "[color=light_floor][font=char]·")
-          end
-        else
-          if tile.explored
-            if tile.blocked
-              BLT.print(2*x, y, "[color=unlit][font=bold]#")
-            else
-              BLT.print(2*x, y, "[color=unlit][font=char]·")
-            end
-          end
-        end
-      end
-    end
-  end
-
-  def clear
-    BLT.clear_area(0, 0, 2*@width, @height)
   end
 
   def new_level(entities, player)
@@ -209,5 +183,9 @@ class Map
   def neighbor_block_values(x, y)
     [@tiles[x][y-1].blocked, @tiles[x][y+1].blocked,
      @tiles[x+1][y].blocked, @tiles[x-1][y].blocked]
+  end
+
+  def out_of_bounds?(x, y)
+    x < 0 || x >= @width || y < 0 || y >= @height
   end
 end

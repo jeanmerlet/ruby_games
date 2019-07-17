@@ -17,9 +17,10 @@ class Game
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new(2839)
+    @map = Map.new #2839
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
+    @viewport = Viewport.new(@map, @entities, @player)
     @game_states = [:enemy_turn, :player_turn]
     @active_cmd_domains = [:main, :movement, :quit]
     @refresh_fov, @close = true, false
@@ -30,8 +31,8 @@ class Game
       action = EventHandler.read(@active_cmd_domains)
       results = manage_action(action)
       update(results)
-      DisplayManager.render_all(@map, @entities, @player, @gui, @item,
-                                @game_states.last)
+      DisplayManager.render_all(@map, @viewport, @entities, @player, @gui,
+                                @item, @game_states.last)
       BLT.refresh
     end
     BLT.close

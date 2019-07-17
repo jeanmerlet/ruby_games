@@ -37,7 +37,7 @@ module ActionManager
           end
         end
         if action[:quit]
-          DisplayManager.render_map_area(@map, @entities, @player)
+          DisplayManager.render_viewport(@viewport)
           @item = nil
           @gui.target_info.clear
           @gui.target_info = nil

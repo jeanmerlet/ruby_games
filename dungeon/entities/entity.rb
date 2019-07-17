@@ -17,11 +17,19 @@ class Entity
     return nil
   end
 
+  def get_all_entities_at(x, y)
+    entities = []
+    @entities.each do |entity|
+      entities << entity if entity.x == x && entity.y == y
+    end
+    return entities
+  end
+
   def distance_to(x, y)
     return Math.sqrt((@x-x)**2 + (@y-y)**2)
   end
 
-  def render
-    BLT.print(2*@x, @y, "[font=char][color=#{@color}]#{@char}")
+  def render(x, y)
+    BLT.print(2*x, y, "[font=char][color=#{@color}]#{@char}")
   end
 end
