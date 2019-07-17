@@ -7,6 +7,11 @@ module ActionManager
       if game_state == :player_turn
         if action[:move]
           results.push(move_player(action[:move]))
+        elsif action[:inspecting]
+          @game_states << :inspecting
+          @active_cmd_domains.delete(:main)
+          @active_cmd_domains << :targetting
+          @gui.target_info = TargetInfo.new(@map, @entities, @player)
         elsif action[:pick_up]
           results.push(pick_up_item)
         elsif action[:inventory] || action[:drop]
@@ -17,22 +22,27 @@ module ActionManager
           @close = true
         end
 
-      elsif game_state == :targetting
+      elsif game_state == :targetting || game_state == :inspecting
         if action[:next_target]
           @gui.target_info.next_target
         elsif action[:move]
           @gui.target_info.move_reticule(action[:move], @player)
         elsif action[:select_target]
-          x, y = @gui.target_info.ret_x, @gui.target_info.ret_y
-          results.push(@player.inventory.use_item(@item, x, y))
-          action[:quit] = true
+          if game_state == :targetting
+            x, y = @gui.target_info.ret_x, @gui.target_info.ret_y
+            results.push(@player.inventory.use_item(@item, x, y))
+            2.times { @game_states.pop }
+            action[:quit] = true
+          elsif game_state == :inspecting
+          end
         end
         if action[:quit]
           DisplayManager.render_map_area(@map, @entities, @player)
           @item = nil
           @gui.target_info.clear
           @gui.target_info = nil
-          2.times { @game_states.pop }
+          @game_states.pop if @game_states.last == :targetting
+          @game_states.pop
           @active_cmd_domains.delete(:targetting)
           @active_cmd_domains << :main
         end
@@ -94,7 +104,7 @@ module ActionManager
       if game_state == :show_inventory
         if item.is_a?(Consumable)
           @item = item
-          @gui.target_info = TargetInfo.new(@map, @entities, @player, @item)
+          @gui.target_info = TargetInfo.new(@map, @entities, @player)
           @game_states << :targetting
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :targetting

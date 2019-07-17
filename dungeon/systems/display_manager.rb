@@ -7,9 +7,14 @@ module DisplayManager
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
       Menu.display_menu(map, 'Inventory', options)
-    elsif game_state == :targetting
+    elsif game_state == :targetting || game_state == :inspecting
       render_map_area(map, entities, player)
-      render_target_area(gui.target_info, item)
+      if game_state == :targetting
+        render_target_area(gui.target_info, item)
+      else
+        render_target_area(gui.target_info)
+      end
+    elsif game_state
     end
     gui.render
   end
@@ -22,10 +27,14 @@ module DisplayManager
     render_all_entities(map, entities, fov_id)
   end
 
-  def self.render_target_area(target_info, item)
+  def self.render_target_area(target_info, item = nil)
     BLT.composition 1
     x, y = target_info.ret_x, target_info.ret_y
-    item.targetting.render_target_area(x, y)
+    if item
+      item.targetting.render_target_area(x, y)
+    else
+      BLT.print(2*x, y, "[color=darker red][0xE000]")
+    end
     BLT.composition 0
   end
 

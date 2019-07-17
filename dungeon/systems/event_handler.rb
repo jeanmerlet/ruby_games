@@ -17,6 +17,9 @@ module EventHandler
 
       when :main
         case input
+        # inspecting
+        when BLT::TK_X
+          action[:inspecting] = true
         # picking up items
         when BLT::TK_G
           action[:pick_up] = true
@@ -56,7 +59,7 @@ module EventHandler
         when BLT::TK_TAB
           action[:next_target] = true
         # select current target
-        when BLT::TK_ENTER
+        when BLT::TK_SPACE
           action[:select_target] = true
         end
 

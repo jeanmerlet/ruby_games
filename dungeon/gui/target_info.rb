@@ -1,10 +1,9 @@
 class TargetInfo
   attr_reader :x, :y, :ret_x, :ret_y, :width, :height, :target
 
-  def initialize(map, entities, player, item = nil)
+  def initialize(map, entities, player)
     @x, @y = Config::SCREEN_WIDTH - Config::SIDE_PANEL_WIDTH, 10
     @width, @height = Config::SIDE_PANEL_WIDTH, 20
-    @item = item
     refresh_target_list(map, entities, player)
     next_target
     BLT.print(@x+2, @y+1, "[font=gui]Current target:")
