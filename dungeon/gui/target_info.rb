@@ -1,6 +1,5 @@
 class TargetInfo
-  attr_reader :x, :y, :tar_x, :tar_y, :width, :height, :char, :name,
-              :color, :target
+  attr_reader :x, :y, :ret_x, :ret_y, :width, :height, :target
 
   def initialize(map, entities, player, item = nil)
     @x, @y = Config::SCREEN_WIDTH - Config::SIDE_PANEL_WIDTH, 10
@@ -13,26 +12,11 @@ class TargetInfo
   end
 
   def next_target
-    @current_target = @target_list.first
-    if @current_target
-      update_target_info
+    @target = @target_list.first
+    if @target
+      @ret_x, @ret_y = @target.x, @target.y
       @target_list.rotate!
     end
-  end
-
-  def update_target_info
-    @char, @name, @color = @current_target.char, @current_target.name, @current_target.color
-    @tar_x, @tar_y = @current_target.x, @current_target.y
-    @article = (/[aeiou]/ === @name[0] ? 'an' : 'a')
-    @status = @current_target.status
-  end
-
-  def add_target(target)
-    @target_list << target
-  end
-
-  def remove_target(target)
-    @target_list.delete(target)
   end
 
   def refresh_target_list(map, entities, player)
@@ -40,25 +24,28 @@ class TargetInfo
     entities.each do |entity|
       if map.fov_tiles[entity.x][entity.y] == player.fov_id
         @target_list.unshift(entity)
-        if @current_target
+        if @target
           @target_list.sort_by {|target| target.distance_to(player.x, player.y)}
         end
       end
     end
   end
 
-  def move_reticule(move)
-    dx, dy = move
-    @tar_x += dx
-    @tar_y += dy
+  def move_reticule(move, player)
+    dx, dy = *move
+    @ret_x += dx
+    @ret_y += dy
+    @target = player.get_blocking_entity_at(@ret_x, @ret_y)
   end
 
   def render
-    if @current_target
+    if @target
+      article = (/[aeiou]/ === @target.name[0] ? 'an' : 'a')
+
       BLT.print(@x+2, @y+3, "#{' '*@width}")
-      BLT.print(@x+3, @y+3, "[font=reg][color=#{@color}]#{@char}[/color][/font], #{@article} #{@name}")
+      BLT.print(@x+3, @y+3, "[font=reg][color=#{@target.color}]#{@target.char}[/color][/font], #{article} #{@target.name}")
       BLT.print(@x+2, @y+4, "It's #{' '*(@width-4)}")
-      BLT.print(@x+2, @y+4, "It's #{@status}")
+      BLT.print(@x+2, @y+4, "It's #{@target.status}")
     else
       BLT.print(@x+2, @y+3, "#{' '*@width}")
       BLT.print(@x+2, @y+4, "#{' '*@width}")

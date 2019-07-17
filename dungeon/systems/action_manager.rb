@@ -21,21 +21,18 @@ module ActionManager
         if action[:next_target]
           @gui.target_info.next_target
         elsif action[:move]
-          @gui.target_info.move_reticule(action[:move])
+          @gui.target_info.move_reticule(action[:move], @player)
         elsif action[:select_target]
-          x, y = @gui.target_info.tar_x, @gui.target_info.tar_y
+          x, y = @gui.target_info.ret_x, @gui.target_info.ret_y
           results.push(@player.inventory.use_item(@item, x, y))
-          @item = nil
-          @game_states.pop
           action[:quit] = true
-        elsif action[:quit]
-          @game_states.pop
         end
         if action[:quit]
           DisplayManager.render_map_area(@map, @entities, @player)
+          @item = nil
           @gui.target_info.clear
           @gui.target_info = nil
-          @game_states.pop
+          2.times { @game_states.pop }
           @active_cmd_domains.delete(:targetting)
           @active_cmd_domains << :main
         end

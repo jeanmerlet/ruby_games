@@ -17,7 +17,7 @@ class Game
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new #(7864)
+    @map = Map.new(2839)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @game_states = [:enemy_turn, :player_turn]

@@ -9,11 +9,7 @@ module DisplayManager
       Menu.display_menu(map, 'Inventory', options)
     elsif game_state == :targetting
       render_map_area(map, entities, player)
-      BLT.composition 1
-      fov_id = player.fov_id
-      tar_x, tar_y = gui.target_info.tar_x, gui.target_info.tar_y
-      item.targetting.render_target_area(tar_x, tar_y)
-      BLT.composition 0
+      render_target_area(gui.target_info, item)
     end
     gui.render
   end
@@ -26,6 +22,13 @@ module DisplayManager
     render_all_entities(map, entities, fov_id)
   end
 
+  def self.render_target_area(target_info, item)
+    BLT.composition 1
+    x, y = target_info.ret_x, target_info.ret_y
+    item.targetting.render_target_area(x, y)
+    BLT.composition 0
+  end
+
   private
 
   def self.render_all_entities(map, entities, fov_id)
@@ -34,9 +37,5 @@ module DisplayManager
 
   def self.render_entity(map, entity, fov_id)
     entity.render if map.fov_tiles[entity.x][entity.y] == fov_id
-  end
-
-  def self.clear_entities(entities)
-    entities.each { |entity| BLT.print(2*entity.x, entity.y, "[0xE003]") }
   end
 end
