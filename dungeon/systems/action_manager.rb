@@ -3,50 +3,52 @@ module ActionManager
   def manage_action(action)
     results = []
     game_state = @game_states.last
-    if action && game_state == :player_turn
-      if action[:move]
-        results.push(move_player(action[:move]))
-      elsif action[:pick_up]
-        results.push(pick_up_item)
-      elsif action[:inventory] || action[:drop]
-        @game_states << (action[:inventory] ? :show_inventory : :drop_item)
-        @active_cmd_domains.delete(:main)
-        @active_cmd_domains << :menu
-      elsif action[:quit]
-        @close = true
-      end
+    if action
+      if game_state == :player_turn
+        if action[:move]
+          results.push(move_player(action[:move]))
+        elsif action[:pick_up]
+          results.push(pick_up_item)
+        elsif action[:inventory] || action[:drop]
+          @game_states << (action[:inventory] ? :show_inventory : :drop_item)
+          @active_cmd_domains.delete(:main)
+          @active_cmd_domains << :menu
+        elsif action[:quit]
+          @close = true
+        end
 
-    elsif action && game_state == :targetting
-      if action[:next_target]
-        @gui.target_info.next_target
-      elsif action[:move]
-        @gui.target_info.move_reticule(action[:move])
-      elsif action[:select_target]
-        x, y = @gui.target_info.tar_x, @gui.target_info.tar_y
-        results.push(@player.inventory.use_item(@item, x, y))
-        @item = nil
-        @game_states.pop
-        action[:quit] = true
-      elsif action[:quit]
-        @game_states.pop
-      end
-      if action[:quit]
-        DisplayManager.render_map_area(@map, @entities, @player)
-        @gui.target_info.clear
-        @gui.target_info = nil
-        @game_states.pop
-        @active_cmd_domains.delete(:targetting)
-        @active_cmd_domains << :main
-      end
+      elsif game_state == :targetting
+        if action[:next_target]
+          @gui.target_info.next_target
+        elsif action[:move]
+          @gui.target_info.move_reticule(action[:move])
+        elsif action[:select_target]
+          x, y = @gui.target_info.tar_x, @gui.target_info.tar_y
+          results.push(@player.inventory.use_item(@item, x, y))
+          @item = nil
+          @game_states.pop
+          action[:quit] = true
+        elsif action[:quit]
+          @game_states.pop
+        end
+        if action[:quit]
+          DisplayManager.render_map_area(@map, @entities, @player)
+          @gui.target_info.clear
+          @gui.target_info = nil
+          @game_states.pop
+          @active_cmd_domains.delete(:targetting)
+          @active_cmd_domains << :main
+        end
 
-    elsif action && (game_state == :show_inventory || game_state == :drop_item)
-      if action[:option_index]
-        results.push(select_inv_item(action, action[:option_index], game_state))
-      end
-      if action[:quit]
-        @game_states.pop
-        @active_cmd_domains.delete(:menu)
-        @active_cmd_domains << :main
+      elsif game_state == :show_inventory || game_state == :drop_item
+        if action[:option_index]
+          results.push(select_inv_item(action, action[:option_index], game_state))
+        end
+        if action[:quit]
+          @game_states.pop
+          @active_cmd_domains.delete(:menu)
+          @active_cmd_domains << :main
+        end
       end
 
     elsif game_state == :enemy_turn
