@@ -1,6 +1,6 @@
 class TargetInfo
-  #attr_accessor :target_list
-  attr_reader :x, :y, :tar_x, :tar_y, :width, :height, :char, :name, :color, :target
+  attr_reader :x, :y, :tar_x, :tar_y, :width, :height, :char, :name,
+              :color, :target
 
   def initialize(map, entities, player, item = nil)
     @x, @y = Config::SCREEN_WIDTH - Config::SIDE_PANEL_WIDTH, 10

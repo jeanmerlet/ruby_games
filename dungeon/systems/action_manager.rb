@@ -42,7 +42,7 @@ module ActionManager
 
       elsif game_state == :show_inventory || game_state == :drop_item
         if action[:option_index]
-          results.push(select_inv_item(action, action[:option_index], game_state))
+          results.push(select_inv_item(action[:option_index], game_state))
         end
         if action[:quit]
           @game_states.pop
@@ -90,23 +90,20 @@ module ActionManager
     return results
   end
 
-  def select_inv_item(action, index, game_state)
+  def select_inv_item(index, game_state)
     results = []
     item = @player.inventory.items[index]
     if item
       if game_state == :show_inventory
-        if item.targetting
+        if item.is_a?(Consumable)
           @item = item
-          @gui.target_info = TargetInfo.new(@map, @entities, @player)
+          @gui.target_info = TargetInfo.new(@map, @entities, @player, @item)
           @game_states << :targetting
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :targetting
           @active_cmd_domains << :movement
         else
-          results.push(@player.inventory.use_item(item, @player))
-          @game_states.pop
-          @active_cmd_domains.delete(:menu)
-          @active_cmd_domains << :main
+          #equipment
         end
       elsif game_state == :drop_item
         results.push(@player.inventory.drop_item(item))
