@@ -11,7 +11,7 @@ module ActionManager
           @game_states << :inspecting
           @active_cmd_domains.delete(:main)
           @active_cmd_domains << :targetting
-          @gui.target_info = TargetInfo.new(@map, @entities, @player)
+          @gui.target_info = TargetInfo.new(@map, @entities, @player, "Looking at")
         elsif action[:pick_up]
           results.push(pick_up_item)
         elsif action[:inventory] || action[:drop]
@@ -41,6 +41,7 @@ module ActionManager
           @item = nil
           @gui.target_info.clear
           @gui.target_info = nil
+          # don't return to inventory if cancelling item selection confirmation
           @game_states.pop if @game_states.last == :targetting
           @game_states.pop
           @active_cmd_domains.delete(:targetting)
@@ -104,7 +105,8 @@ module ActionManager
       if game_state == :show_inventory
         if item.is_a?(Consumable)
           @item = item
-          @gui.target_info = TargetInfo.new(@map, @entities, @player)
+          @gui.target_info = TargetInfo.new(@map, @entities, @player, "Target",
+                                            @item)
           @game_states << :targetting
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :targetting

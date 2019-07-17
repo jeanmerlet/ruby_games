@@ -74,7 +74,7 @@ class Game
     phys, guil, afin, toug = 16, 12, 10, 14
     @player.stats = Stats.new(@player, phys, guil, afin, toug)
     @player.combat = Combat.new(@player, hp, defense, power)
-    @player.status = "playing..."
+    @player.status = "you!"
   end
 end
 

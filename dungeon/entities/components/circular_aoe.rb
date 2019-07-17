@@ -1,5 +1,5 @@
 class CircularAOE < Component
-  attr_accessor :radius
+  #attr_accessor :radius
 
   def initialize(owner, radius)
     super(owner)

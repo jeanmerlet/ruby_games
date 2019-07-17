@@ -30,10 +30,13 @@ module Populate
     number_of_items.times do
       x, y = *get_xy(room)
       if !spot_occupied?(entities, x, y)
-        if false #rand(100) < 70
-          item = Consumable.new(entities, x, y, "!", "stimpack", "light blue")
-          item.status = "full of [color=light blue]meds[/color]."
+        if rand(100) < 70
+          # Microscopic Invigorating Bots
+          item = Consumable.new(entities, x, y, "!", "MIBs", "light blue")
+          item.status = "full of [color=light blue]nano-mending bots[/color]."
           item.effects << Heal.new(item, 15)
+          item.messages << "[color=light blue]regenerated[/color] by the MIBs."
+          item.targetting = SelfTarget.new(item)
         else
           item = Consumable.new(entities, x, y, "*", "frag grenade", "dark gray")
           item.status = "packed with deadly [color=dark gray]shrapnel[/color]."

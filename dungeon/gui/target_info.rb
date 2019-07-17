@@ -1,13 +1,15 @@
 class TargetInfo
-  attr_reader :x, :y, :ret_x, :ret_y, :width, :height, :target
+  attr_reader :x, :y, :ret_x, :ret_y, :width, :height, :target, :item
 
-  def initialize(map, entities, player)
+  def initialize(map, entities, player, title, item = nil)
     @x, @y = Config::SCREEN_WIDTH - Config::SIDE_PANEL_WIDTH, 10
     @width, @height = Config::SIDE_PANEL_WIDTH, 20
+    @item = item
     refresh_target_list(map, entities, player)
     next_target
-    BLT.print(@x+2, @y+1, "[font=gui]Current target:")
+    BLT.print(@x+2, @y+1, "[font=gui]#{title}:")
     BLT.print(@x+2, @y+7, "[font=gui][[Tab]] or [[Numpad]] to change targets")
+    BLT.print(@x+2, @y+8, "[font=gui][[Space]] to select target")
   end
 
   def next_target
@@ -19,22 +21,28 @@ class TargetInfo
   end
 
   def refresh_target_list(map, entities, player)
-    @target_list = []
-    entities.each do |entity|
-      if map.fov_tiles[entity.x][entity.y] == player.fov_id
-        @target_list.unshift(entity)
-        if @target
-          @target_list.sort_by {|target| target.distance_to(player.x, player.y)}
+    if @item && @item.targetting.is_a?(SelfTarget)
+      @target_list = [player]
+    else
+      @target_list = []
+      entities.each do |entity|
+        if map.fov_tiles[entity.x][entity.y] == player.fov_id
+          @target_list.unshift(entity)
+          if @target
+            @target_list.sort_by {|target| target.distance_to(player.x, player.y)}
+          end
         end
       end
     end
   end
 
   def move_reticule(move, player)
-    dx, dy = *move
-    @ret_x += dx
-    @ret_y += dy
-    @target = player.get_blocking_entity_at(@ret_x, @ret_y)
+    if !(@item && @item.targetting.is_a?(SelfTarget))
+      dx, dy = *move
+      @ret_x += dx
+      @ret_y += dy
+      @target = player.get_blocking_entity_at(@ret_x, @ret_y)
+    end
   end
 
   def render
