@@ -1,6 +1,6 @@
 module ActionManager
 
-  def manage_action(action)
+  def update(action)
     results = []
     game_state = @game_states.last
     if action
@@ -37,10 +37,10 @@ module ActionManager
           end
         end
         if action[:quit]
-          DisplayManager.render_viewport(@viewport)
-          @item = nil
+          @viewport.refresh
           @gui.target_info.clear
           @gui.target_info = nil
+          @item = nil
           # don't return to inventory if cancelling item selection confirmation
           @game_states.pop if @game_states.last == :targetting
           @game_states.pop
@@ -71,10 +71,34 @@ module ActionManager
       @close = true if BLT.read
     end
     results.flatten!
-    return results
+    process_results(results)
   end
 
   private
+
+  def process_results(results)
+    if !results.empty?
+      results.each do |result|
+        if result[:message]
+          @gui.log.new_messages.push(result[:message])
+        elsif result[:picked_up_item]
+          @entities.delete(result[:picked_up_item])
+        elsif result[:drop_item]
+          @entities.push(result[:drop_item])
+        elsif result[:death]
+          corpse = result[:death]
+          if corpse == @player
+            @gui.log.new_messages.push(Destroy.player_death_message)
+            Destroy.kill_player(corpse)
+            @game_states.push(:player_death)
+          else
+            @gui.log.new_messages.push(Destroy.monster_death_message(corpse))
+            Destroy.kill_monster(@map, corpse, @gui.target_info)
+          end
+        end
+      end
+    end
+  end
 
   def pick_up_item
     results = []

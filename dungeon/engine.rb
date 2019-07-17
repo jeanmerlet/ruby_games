@@ -17,7 +17,7 @@ class Game
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new #2839
+    @map = Map.new(2064)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @viewport = Viewport.new(@map, @entities, @player)
@@ -29,41 +29,15 @@ class Game
   def run
     until @close
       action = EventHandler.read(@active_cmd_domains)
-      results = manage_action(action)
-      update(results)
-      DisplayManager.render_all(@map, @viewport, @entities, @player, @gui,
-                                @item, @game_states.last)
+      update(action)
+      if @refresh_fov
+        FieldOfView.do_fov(@map, @player)
+        Display.render_all(@game_states.last, @viewport, @gui, @player, @item)
+        @refresh_fov = false
+      end
       BLT.refresh
     end
     BLT.close
-  end
-
-  def update(results)
-    if !results.empty?
-      results.each do |result|
-        if result[:message]
-          @gui.log.new_messages.push(result[:message])
-        elsif result[:picked_up_item]
-          @entities.delete(result[:picked_up_item])
-        elsif result[:drop_item]
-          @entities.push(result[:drop_item])
-        elsif result[:death]
-          corpse = result[:death]
-          if corpse == @player
-            @gui.log.new_messages.push(Destroy.player_death_message)
-            Destroy.kill_player(corpse)
-            @game_states.push(:player_death)
-          else
-            @gui.log.new_messages.push(Destroy.monster_death_message(corpse))
-            Destroy.kill_monster(@map, corpse, @gui.target_info)
-          end
-        end
-      end
-    end
-    if @refresh_fov
-      FieldOfView.do_fov(@map, @player)
-      @refresh_fov = false
-    end
   end
 
   def create_player

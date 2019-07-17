@@ -1,14 +1,14 @@
-module DisplayManager
+module Display
 
-  def self.render_all(viewport, entities, player, gui, item, game_state)
+  def self.render_all(game_state, viewport, gui, player, item)
     if game_state == :player_turn || game_state == :enemy_turn
-      render_viewport(viewport)
+      viewport.refresh
     elsif game_state == :show_inventory || game_state == :drop_item
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
       Menu.display_menu(viewport, 'Inventory', options)
     elsif game_state == :targetting || game_state == :inspecting
-      render_viewport
+      viewport.refresh
       if game_state == :targetting
         render_target_area(gui.target_info, item)
       else
@@ -28,10 +28,5 @@ module DisplayManager
       BLT.print(2*x, y, "[color=darker red][0xE000]")
     end
     BLT.composition 0
-  end
-
-  def self.render_viewport(viewport)
-    viewport.clear
-    viewport.render
   end
 end
