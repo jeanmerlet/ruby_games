@@ -13,7 +13,7 @@ module DisplayManager
       items.map.with_index { |item, i| options[keys[i]] = item.name }
       Menu.display_menu(viewport, 'Inventory', options)
     elsif game_state == :targetting || game_state == :inspecting
-      render_target_grid(gui.target_info, item)
+      render_target_grid(viewport, gui.target_info, player, item)
     end
     gui.render
     BLT.refresh
@@ -21,13 +21,16 @@ module DisplayManager
 
   private
 
-  def self.render_target_grid(target_info, item = nil)
+  def self.render_target_grid(viewport, target_info, player, item = nil)
     BLT.composition 1
-    x, y = target_info.ret_x, target_info.ret_y
+    px, py = player.x, player.y
+    x_off, y_off = viewport.x_off, viewport.y_off
+    ret_x, ret_y = target_info.ret_x, target_info.ret_y
+    vpx, vpy = ret_x - px + x_off, ret_y - py + y_off
     if item
-      item.targetting.render_target_area(x, y)
+      item.targetting.render_target_area(vpx, vpy)
     else
-      BLT.print(2*x, y, "[color=darker red][0xE000]")
+      BLT.print(2*vpx, vpy, "[color=darker red][0xE000]")
     end
     BLT.composition 0
   end

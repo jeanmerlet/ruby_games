@@ -16,19 +16,16 @@ class CircularAOE < Component
     return targets
   end
 
-  def get_target_grid_coords(center_x, center_y)
-    coords = []
+  def render_target_area(center_x, center_y)
     side_length, offset = 2*@radius + 1, @radius
     side_length.times do |i|
       side_length.times do |j|
         current_x, current_y = center_x - offset + i, center_y - offset + j
         if distance(center_x, center_y, current_x, current_y) <= @radius + 0.5
-          coords << [current_x, current_y]
-          #BLT.print(2*current_x, current_y, "[color=darker red][0xE000]")
+          BLT.print(2*current_x, current_y, "[color=darker red][0xE000]")
         end
       end
     end
-    return coords
   end
 
   def distance(x1, y1, x2, y2)

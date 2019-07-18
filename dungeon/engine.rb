@@ -17,7 +17,7 @@ class Game
     BLT.open
     Config.blt_config
     create_player
-    @map = Map.new(4575)
+    @map = Map.new(5897)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @viewport = Viewport.new(@map, @entities, @player)
