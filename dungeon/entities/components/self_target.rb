@@ -8,7 +8,7 @@ class SelfTarget < Component
     return [@owner.get_blocking_entity_at(x, y)]
   end
 
-  def render_target_area(x, y)
+  def render_targetting_grid(x, y)
     BLT.print(2*x, y, "[color=light blue][0xE000]")
   end
 end

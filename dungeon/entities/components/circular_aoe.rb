@@ -16,7 +16,7 @@ class CircularAOE < Component
     return targets
   end
 
-  def render_target_area(center_x, center_y)
+  def render_targetting_grid(center_x, center_y)
     side_length, offset = 2*@radius + 1, @radius
     side_length.times do |i|
       side_length.times do |j|
