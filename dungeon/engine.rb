@@ -55,6 +55,7 @@ class Game
         elsif action[:inventory] || action[:drop]
           @game_states << (action[:inventory] ? :show_inventory : :drop_item)
           @active_cmd_domains.delete(:main)
+          @active_cmd_domains.delete(:movement)
           @active_cmd_domains << :menu
         elsif action[:quit]
           @close = true
@@ -89,6 +90,7 @@ class Game
 
       elsif game_state == :show_inventory || game_state == :drop_item
         if action[:option_index]
+          p action[:option_index]
           results.push(select_inv_item(action[:option_index], game_state))
         end
         if action[:quit]
