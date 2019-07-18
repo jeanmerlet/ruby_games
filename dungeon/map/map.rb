@@ -26,7 +26,7 @@ class Map
           else
             player.x, player.y = new_x + 1, new_y + 1
           end
-          @tiles[new_x][new_y].entities << player
+          @tiles[player.x][player.y].entities << player
         else
           Populate.place_entities(@tiles, new_room, entities, @monster_max,
                                   @item_max)

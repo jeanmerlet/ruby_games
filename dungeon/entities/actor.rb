@@ -10,9 +10,11 @@ class Actor < Entity
 
   def move(map, dx, dy)
     map.tiles[@x][@y].walkable = true
+    map.tiles[@x][@y].remove_entity(self)
     @x += dx
     @y += dy
     map.tiles[@x][@y].walkable = false
+    map.tiles[@x][@y].add_entity(self)
   end
 
   def move_towards(map, target_x, target_y)
@@ -23,9 +25,9 @@ class Actor < Entity
     # path to target around obstacles if not too far
     path = A_Star.find_path(map, @x, @y, target_x, target_y)
     if !path.nil? && path.length < 20
-      map.tiles[@x][@y].walkable = true
-      @x, @y = *path.first
-      map.tiles[@x][@y].walkable = false
+      new_x, new_y = *path.first
+      dx, dy = new_x - @x, new_y - @y
+      move(map, dx, dy)
 
     # otherwise slide along walls towards target
     elsif map.tiles[@x+dx][@y+dy].walkable

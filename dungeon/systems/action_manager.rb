@@ -90,9 +90,13 @@ module ActionManager
         if result[:message]
           @gui.log.new_messages.push(result[:message])
         elsif result[:picked_up_item]
-          @entities.delete(result[:picked_up_item])
+          item = result[:picked_up_item]
+          @entities.delete(item)
+          @map.tiles[item.x][item.y].remove_entity(item)
         elsif result[:drop_item]
-          @entities.push(result[:drop_item])
+          item = result[:drop_item]
+          @entities.push(item)
+          @map.tiles[item.x][item.y].add_entity(item)
         elsif result[:death]
           corpse = result[:death]
           if corpse == @player

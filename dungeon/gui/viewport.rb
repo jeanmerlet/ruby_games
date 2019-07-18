@@ -28,8 +28,10 @@ class Viewport
             else
               BLT.print(2*i, j, "[color=light_floor][font=char]·")
             end
-            entity = get_top_entity_at(x, y)
-            entity.render(i, j) if entity
+            if !tile.entities.empty?
+              color, char = tile.entities.last.color, tile.entities.last.char
+              BLT.print(2*i, j, "[font=char][color=#{color}]#{char}")
+            end
           else
             if tile.explored
               if tile.blocked
@@ -46,14 +48,5 @@ class Viewport
 
   def clear
     BLT.clear_area(0, 0, 2*@width, @height)
-  end
-
-  def get_top_entity_at(x, y)
-    entities = []
-    @entities.each do |entity|
-      entities << entity if entity.x == x && entity.y == y
-    end
-    entities.sort! { |a, b| b.render_order <=> a.render_order }
-    return entities.last
   end
 end

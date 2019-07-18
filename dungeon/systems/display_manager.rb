@@ -5,21 +5,21 @@ module DisplayManager
     if refresh_fov
       player.fov_id += 1
       FieldOfView.do_fov(map, player)
-      viewport.refresh_map
     end
-    viewport.refresh_entities
+    viewport.refresh
     game_state = game_states.last
     if game_state == :show_inventory || game_state == :drop_item
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
       Menu.display_menu(viewport, 'Inventory', options)
     elsif game_state == :targetting || game_state == :inspecting
-      viewport.refresh
       render_target_grid(gui.target_info, item)
     end
     gui.render
     BLT.refresh
   end
+
+  private
 
   def self.render_target_grid(target_info, item = nil)
     BLT.composition 1
