@@ -1,7 +1,7 @@
 module DisplayManager
 
-  def self.render_all(game_states, refresh_fov, map, viewport, gui, entities,
-                      player, item)
+  def self.render(game_states, refresh_fov, map, viewport, gui, entities,
+                  player, item)
     if refresh_fov
       player.fov_id += 1
       FieldOfView.do_fov(map, player)
