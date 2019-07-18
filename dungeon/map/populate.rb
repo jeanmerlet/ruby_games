@@ -1,11 +1,11 @@
 module Populate
 
-  def self.place_entities(room, entities, monster_max, item_max)
-    place_actors(room, entities, monster_max)
-    place_items(room, entities, item_max)
+  def self.place_entities(tiles, room, entities, monster_max, item_max)
+    place_actors(tiles, room, entities, monster_max)
+    place_items(tiles, room, entities, item_max)
   end
 
-  def self.place_actors(room, entities, monster_max)
+  def self.place_actors(tiles, room, entities, monster_max)
     number_of_monsters = rand(0..monster_max)
     number_of_monsters.times do
       x, y = *get_xy(room)
@@ -21,11 +21,12 @@ module Populate
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = ActorAI.new(monster)
         end
+        tiles[x][y].entities << monster
       end
     end
   end
 
-  def self.place_items(room, entities, item_max)
+  def self.place_items(tiles, room, entities, item_max)
     number_of_items = rand(0..item_max)
     number_of_items.times do
       x, y = *get_xy(room)
@@ -44,6 +45,7 @@ module Populate
           item.messages << "[color=dark gray]shredded[/color] by the shrapnel!"
           item.targetting = CircularAOE.new(item, 2)
         end
+        tiles[x][y].entities << item
       end
     end
   end

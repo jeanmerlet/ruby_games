@@ -1,13 +1,10 @@
 class Combat < Component
-  attr_accessor :hp, :ac
+  attr_accessor :hp
   attr_reader :defense, :power
 
   def initialize(owner, hp, defense, power)
     super(owner)
     @hp = [hp, hp]
-    @dodge = 10 + @owner.stats.mod(@owner.stats.guil) if @owner.name == 'player'
-    @ac = 14 #future kevlar
-    @shields, @shield_regen = 30, 3
     @defense, @power = defense, power
   end
 

@@ -1,22 +1,16 @@
 class Viewport
-  attr_reader :width, :height
+  attr_reader :width, :height, :x_off, :y_off
 
   def initialize(map, entities, player)
     @map, @entities, @player = map, entities, player
     @width = (Config::SCREEN_WIDTH - Config::SIDE_PANEL_WIDTH)/2
     @height = Config::SCREEN_HEIGHT - Config::VERT_PANEL_HEIGHT
     @x_off, @y_off = @width/2, @height/2
-    @fps = 0
-    @time_end = Time.now + 1
   end
 
   def refresh
     clear
     render
-  end
-
-  def clear
-    BLT.clear_area(0, 0, 2*@width, @height)
   end
 
   def render
@@ -34,6 +28,8 @@ class Viewport
             else
               BLT.print(2*i, j, "[color=light_floor][font=char]·")
             end
+            entity = get_top_entity_at(x, y)
+            entity.render(i, j) if entity
           else
             if tile.explored
               if tile.blocked
@@ -46,13 +42,18 @@ class Viewport
         end
       end
     end
+  end
 
-    @entities.sort! { |a, b| b.render_order <=> a.render_order }
-    @entities.each do |entity| 
-      if @map.fov_tiles[entity.x][entity.y] == fov_id
-        dx, dy = @x_off + (entity.x - px), @y_off + (entity.y - py)
-        entity.render(dx, dy) 
-      end
+  def clear
+    BLT.clear_area(0, 0, 2*@width, @height)
+  end
+
+  def get_top_entity_at(x, y)
+    entities = []
+    @entities.each do |entity|
+      entities << entity if entity.x == x && entity.y == y
     end
+    entities.sort! { |a, b| b.render_order <=> a.render_order }
+    return entities.last
   end
 end

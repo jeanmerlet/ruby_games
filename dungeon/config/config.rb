@@ -16,6 +16,7 @@ module Config
     BLT.set("bold font: ./tilesets/OpenSans-Bold.ttf, size=12, spacing=2x1")
     BLT.set("0xE000: ./tilesets/targetting.png, spacing=2x1")
     BLT.set("0xE001: ./tilesets/bar_equals.png, spacing=2x1")
+    BLT.set("0xE002: ./tilesets/blank_tile.png, spacing=2x1")
     BLT.set("palette.unlit = 40,40,40")
     BLT.set("palette.light_wall = 70,70,90")
     BLT.set("palette.light_floor = 220,220,150")

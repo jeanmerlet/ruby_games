@@ -30,6 +30,6 @@ class Entity
   end
 
   def render(x, y)
-    BLT.print(2*x, y, "[font=char][color=#{@color}]#{@char}")
+    BLT.print(2*x, y, "[0xE002][+][font=char][color=#{@color}]#{@char}")
   end
 end

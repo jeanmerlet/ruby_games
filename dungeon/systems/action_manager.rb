@@ -1,6 +1,13 @@
 module ActionManager
 
   def update(action)
+    results = manage_action(action)
+    process_results(results)
+  end
+
+  private
+
+  def manage_action(action)
     results = []
     game_state = @game_states.last
     if action
@@ -34,6 +41,7 @@ module ActionManager
             2.times { @game_states.pop }
             action[:quit] = true
           elsif game_state == :inspecting
+            #what happens when you select a target you are inspecting
           end
         end
         if action[:quit]
@@ -59,22 +67,22 @@ module ActionManager
         end
       end
 
-    elsif game_state == :enemy_turn
-      @entities.each do |entity|
-        if entity.ai
-          results.push(entity.ai.take_turn(@map, @player, @gui))
+      game_state = @game_states.last
+      if game_state == :enemy_turn
+        @entities.each do |entity|
+          if entity.ai
+            results.push(entity.ai.take_turn(@map, @player, @gui))
+          end
         end
-      end
-      @game_states << :player_turn
+        @game_states << :player_turn
 
-    elsif game_state == :player_death
-      @close = true if BLT.read
+      elsif game_state == :player_death
+        @close = true if BLT.read
+      end
     end
     results.flatten!
-    process_results(results)
+    return results
   end
-
-  private
 
   def process_results(results)
     if !results.empty?
@@ -160,7 +168,6 @@ module ActionManager
         results.push(@player.combat.attack(target))
       end
       @refresh_fov = true
-      @player.fov_id += 1
       @game_states.pop
     end
     return results

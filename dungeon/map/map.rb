@@ -26,8 +26,10 @@ class Map
           else
             player.x, player.y = new_x + 1, new_y + 1
           end
+          @tiles[new_x][new_y].entities << player
         else
-          Populate.place_entities(new_room, entities, @monster_max, @item_max)
+          Populate.place_entities(@tiles, new_room, entities, @monster_max,
+                                  @item_max)
           prev_x, prev_y = *rooms.last.center
           toss = rand(2)
           if toss == 0

@@ -1,22 +1,24 @@
-module Display
+module DisplayManager
 
-  def self.render_all(game_state, viewport, gui, player, item)
-    if game_state == :player_turn || game_state == :enemy_turn
-      viewport.refresh
-    elsif game_state == :show_inventory || game_state == :drop_item
+  def self.render_all(game_states, refresh_fov, map, viewport, gui, entities,
+                      player, item)
+    if refresh_fov
+      player.fov_id += 1
+      FieldOfView.do_fov(map, player)
+      viewport.refresh_map
+    end
+    viewport.refresh_entities
+    game_state = game_states.last
+    if game_state == :show_inventory || game_state == :drop_item
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
       Menu.display_menu(viewport, 'Inventory', options)
     elsif game_state == :targetting || game_state == :inspecting
       viewport.refresh
-      if game_state == :targetting
-        render_target_area(gui.target_info, item)
-      else
-        render_target_area(gui.target_info)
-      end
-    elsif game_state
+      render_target_grid(gui.target_info, item)
     end
     gui.render
+    BLT.refresh
   end
 
   def self.render_target_grid(target_info, item = nil)

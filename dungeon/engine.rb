@@ -30,24 +30,19 @@ class Game
     until @close
       action = EventHandler.read(@active_cmd_domains)
       update(action)
-      if @refresh_fov
-        FieldOfView.do_fov(@map, @player)
-        Display.render_all(@game_states.last, @viewport, @gui, @player, @item)
-        @refresh_fov = false
-      end
-      BLT.refresh
+      DisplayManager.render_all(@game_states, @refresh_fov, @map, @viewport,
+                                @gui, @entities, @player, @item)
+      @refresh_fov = false
     end
     BLT.close
   end
 
   def create_player
     @entities = []
-    fov_r, fov_id = 15, 1
+    fov_r, fov_id = 8, 1
     @player = Actor.new(@entities, 0, 0, "@", 'player', 'amber', fov_r, fov_id)
     hp, defense, power = 30, 0, 3
     @player.inventory = Inventory.new(@player, 26)
-    phys, guil, afin, toug = 16, 12, 10, 14
-    @player.stats = Stats.new(@player, phys, guil, afin, toug)
     @player.combat = Combat.new(@player, hp, defense, power)
     @player.status = "you!"
   end
