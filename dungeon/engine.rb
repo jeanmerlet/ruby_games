@@ -74,6 +74,10 @@ class Game
             action[:quit] = true
           elsif game_state == :inspecting
             #what happens when you select a target you are inspecting
+            if @gui.target_info.target
+              @game_states << :inspect_details
+              @active_cmd_domains = [:quit]
+            end
           end
         end
         if action[:quit]
@@ -88,15 +92,22 @@ class Game
           @active_cmd_domains << :main
         end
 
+      elsif game_state == :inspect_details
+        if action[:quit]
+          @game_states.pop
+          @active_cmd_domains << :targetting
+          @active_cmd_domains << :movement
+        end
+
       elsif game_state == :show_inventory || game_state == :drop_item
         if action[:option_index]
-          p action[:option_index]
           results.push(select_inv_item(action[:option_index], game_state))
         end
         if action[:quit]
           @game_states.pop
           @active_cmd_domains.delete(:menu)
           @active_cmd_domains << :main
+          @active_cmd_domains << :movement
         end
       end
       results.flatten!

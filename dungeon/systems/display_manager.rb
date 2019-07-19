@@ -11,9 +11,15 @@ module DisplayManager
     if game_state == :show_inventory || game_state == :drop_item
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
-      Menu.display_menu(viewport, 'Inventory', options)
+      Menu.render(viewport, 'Inventory', options)
     elsif game_state == :targetting || game_state == :inspecting
       render_targetting_grid(viewport, gui.target_info, player, item)
+    elsif game_state == :inspect_details
+      target = gui.target_info.target
+      desc = target.desc
+      header = "[color=#{target.color}]#{target.name.capitalize}"
+      header_length = target.name.length
+      TextBox.render(viewport, header, header_length, desc)
     end
     gui.render
     BLT.refresh

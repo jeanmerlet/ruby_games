@@ -15,6 +15,8 @@ module Populate
           hp, defense, power = 10, 0, 3
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = ActorAI.new(monster)
+          monster.desc = "One of the weakest Hivespawn, the skitterling is reminiscent of a giant, purplish cockroach. Infestations are common in badly-maintained stations, though they require a Queen to breed. They are not very intelligent, and will attack (and eat) just about anything that moves, except other Hivespawn. It has six legs ending in sharp points, which it uses to skewer its victims. It is fast."
+
         else
           monster = Actor.new(entities, x, y, "R", "sentry", "dark gray")
           hp, defense, power = 16, 1, 4
