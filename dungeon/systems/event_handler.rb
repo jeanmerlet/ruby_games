@@ -76,6 +76,14 @@ module EventHandler
           action[:quit] = true
         end
 
+      when :main_menu
+        case input
+        when BLT::TK_S
+          action[:save] = true
+        when BLT::TK_C
+          action[:restore] = true
+        end
+
       end
       return action if !action.empty?
     end
