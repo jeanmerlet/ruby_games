@@ -16,10 +16,11 @@ module DisplayManager
       render_targetting_grid(viewport, gui.target_info, player, item)
     elsif game_state == :inspect_details
       target = gui.target_info.target
-      desc = target.desc
-      header = "[color=#{target.color}]#{target.name.capitalize}"
-      header_length = target.name.length
-      TextBox.render(viewport, header, header_length, desc)
+      name = target.name
+      name.capitalize! if name != name.upcase
+      header = "[color=#{target.color}]#{name}"
+      header_length = name.length
+      TextBox.render(viewport, header, header_length, target.desc)
     end
     gui.render
     BLT.refresh

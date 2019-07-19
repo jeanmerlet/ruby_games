@@ -17,7 +17,7 @@ class Game
     Config.blt_config
     @entities = []
     create_player
-    @map = Map.new(5897)
+    @map = Map.new #(5897)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @viewport = Viewport.new(@map, @entities, @player)
@@ -231,6 +231,7 @@ class Game
     @player.inventory = Inventory.new(@player, 26)
     @player.combat = Combat.new(@player, hp, defense, power)
     @player.status = "you!"
+    @player.desc = "One of those pesky thrill-seeking adventurers, here seeking thrills."
   end
 end
 

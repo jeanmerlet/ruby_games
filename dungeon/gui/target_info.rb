@@ -8,8 +8,8 @@ class TargetInfo
     refresh_target_list(map, entities, player)
     next_target
     BLT.print(@x+2, @y+1, "[font=gui]#{title}:")
-    BLT.print(@x+2, @y+7, "[font=gui][[Tab]] or [[Numpad]] to change targets")
-    BLT.print(@x+2, @y+8, "[font=gui][[Space]] to select target")
+    BLT.print(@x+2, @y+7, "[[Tab]] or [[Numpad]] to change targets")
+    BLT.print(@x+2, @y+8, "[[Space]] to select target")
   end
 
   def next_target
@@ -26,7 +26,8 @@ class TargetInfo
     else
       @target_list = []
       entities.each do |entity|
-        if map.fov_tiles[entity.x][entity.y] == player.fov_id
+        if map.fov_tiles[entity.x][entity.y] == player.fov_id &&
+           map.tiles[entity.x][entity.y].entities.last == entity
           @target_list.unshift(entity)
         end
       end
@@ -42,7 +43,7 @@ class TargetInfo
       dx, dy = *move
       @ret_x += dx
       @ret_y += dy
-      @target = player.get_blocking_entity_at(@ret_x, @ret_y)
+      @target = player.get_top_entity_at(@ret_x, @ret_y)
     end
   end
 

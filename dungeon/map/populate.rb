@@ -12,16 +12,19 @@ module Populate
       if !spot_occupied?(entities, x, y)
         if rand(100) < 80
           monster = Actor.new(entities, x, y, "s", "skitterling", "purple")
+          monster.status = "skittering around. Obviously."
           hp, defense, power = 10, 0, 3
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = ActorAI.new(monster)
-          monster.desc = "One of the weakest Hivespawn, the skitterling is reminiscent of a giant, purplish cockroach. Infestations are common in badly-maintained stations, though they require a Queen to breed. They are not very intelligent, and will attack (and eat) just about anything that moves, except other Hivespawn. It has six legs ending in sharp points, which it uses to skewer its victims. It is fast."
+          monster.desc = "One of the weakest Hivespawn, the skitterling is reminiscent of a giant, purplish cockroach. Infestations are common in badly-maintained stations, though they require a Queen to breed. They are not very intelligent, and will attack and try to eat just about anything that moves, except other Hivespawn. It has six legs ending in sharp points, which it uses to skewer its victims. It is fast."
 
         else
-          monster = Actor.new(entities, x, y, "R", "sentry", "dark gray")
+          monster = Actor.new(entities, x, y, "R", "rust sentry", "dark gray")
+          monster.status = "patrolling."
           hp, defense, power = 16, 1, 4
           monster.combat = Combat.new(monster, hp, defense, power)
           monster.ai = ActorAI.new(monster)
+          monster.desc = "An old and partly broken-down station guardbot, it still packs some serious heat. Literally. It has some kind of flamethrower at the ready. You can usually rely on these to loop through fairly obvious routines, but this one may have had some (or most) of its logic circuits fried. It is slow."
         end
         tiles[x][y].entities << monster
       end
@@ -34,18 +37,19 @@ module Populate
       x, y = *get_xy(room)
       if !spot_occupied?(entities, x, y)
         if rand(100) < 70
-          # Microscopic Invigorating Bots
-          item = Consumable.new(entities, x, y, "!", "MIBs", "light blue")
+          item = Consumable.new(entities, x, y, "!", "FERNs", "light blue")
           item.status = "full of [color=light blue]nano-mending bots[/color]."
           item.effects << Heal.new(item, 15)
-          item.messages << "[color=light blue]regenerated[/color] by the MIBs."
+          item.messages << "[color=light blue]regenerated[/color] by the FERNs."
           item.targetting = SelfTarget.new(item)
+          item.desc = "Fast-acting, Energizing & Regenerative Nanobots. FERNs. More like immediately-acting. Contained in a disposable jet injector, these are indispensable and ultra-convenient, but also rare and expensive."
         else
           item = Consumable.new(entities, x, y, "*", "frag grenade", "dark gray")
           item.status = "packed with deadly [color=dark gray]shrapnel[/color]."
-          item.effects << Damage.new(item, :piercing, 20)
+          item.effects << Damage.new(item, :piercing, 15)
           item.messages << "[color=dark gray]shredded[/color] by the shrapnel!"
           item.targetting = CircularAOE.new(item, 2)
+          item.desc = "This technology has been around for a very long time. Designed to explosively disperse sharp metal shards in a radius on impact, one of these can clear out several threats at once if well-aimed. It can be lobbed over enemies."
         end
         tiles[x][y].entities << item
       end

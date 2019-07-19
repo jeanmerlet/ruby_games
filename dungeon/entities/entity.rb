@@ -17,6 +17,16 @@ class Entity
     return nil
   end
 
+  def get_top_entity_at(x, y)
+    entities = []
+    @entities.each do |entity|
+      entities << entity if entity.x == x && entity.y == y && entity.blocks
+    end
+    entities.sort! { |a, b| b.render_order <=> a.render_order }
+    return entities.last if !entities.empty?
+    return nil
+  end
+
   def distance_to(x, y)
     return Math.sqrt((@x-x)**2 + (@y-y)**2)
   end

@@ -10,7 +10,7 @@ module Config
     BLT.set("window: size=#{SCREEN_WIDTH.to_s}x#{SCREEN_HEIGHT.to_s}")
     BLT.set("window: cellsize=8x16")
 
-    BLT.set("font: ./tilesets/OpenSans-Regular.ttf, size=11")
+    BLT.set("font: ./tilesets/OpenSans-Regular.ttf, size=10")
     BLT.set("gui font: ./tilesets/OpenSans-Regular.ttf, size=12")
     BLT.set("char font: ./tilesets/OpenSans-Regular.ttf, size=12, spacing=2x1")
     BLT.set("bold font: ./tilesets/OpenSans-Bold.ttf, size=12, spacing=2x1")
