@@ -1,8 +1,9 @@
 require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
-require './entities/entity.rb'
-require './entities/components/component.rb'
-ROOT = "#{File.dirname(__FILE__)}"
+require './src/entities/entity.rb'
+require './src/entities/components/component.rb'
+ROOT = "#{File.dirname(__FILE__)}/src"
+Dir["#{ROOT}/*.rb"].each { |file| require file }
 Dir["#{ROOT}/systems/*.rb"].each { |file| require file }
 Dir["#{ROOT}/entities/**/*.rb"].each { |file| require file }
 Dir["#{ROOT}/map/*.rb"].each { |file| require file }
@@ -46,7 +47,7 @@ class Game
         results.push(take_player_turn(action))
       elsif game_state == :targetting || game_state == :inspecting
         results.push(enter_target_mode(game_state, action))
-      elsif game_state == :show_inventory || game_state == :drop_item
+      elsif game_state == :open_inventory || game_state == :drop_item
         results.push(enter_inventory_mode(game_state, action))
       elsif game_state == :inspect_details
         inspect_details(action)
@@ -106,7 +107,7 @@ class Game
     elsif action[:pick_up]
       results.push(pick_up_item)
     elsif action[:inventory] || action[:drop]
-      @game_states << (action[:inventory] ? :show_inventory : :drop_item)
+      @game_states << (action[:inventory] ? :open_inventory : :drop_item)
       @active_cmd_domains.delete(:main)
       @active_cmd_domains.delete(:movement)
       @active_cmd_domains << :menu
@@ -176,7 +177,7 @@ class Game
     results = []
     item = @player.inventory.items[index]
     if item
-      if game_state == :show_inventory
+      if game_state == :open_inventory
         if item.is_a?(Consumable)
           @item = item
           @gui.target_info = TargetInfo.new(@map, @entities, @player, "Target",

@@ -8,7 +8,7 @@ module DisplayManager
     end
     viewport.refresh
     game_state = game_states.last
-    if game_state == :show_inventory || game_state == :drop_item
+    if game_state == :open_inventory || game_state == :drop_item
       options, keys, items = {}, [*(:a..:z)], player.inventory.items
       items.map.with_index { |item, i| options[keys[i]] = item.name }
       Menu.render(viewport, 'Inventory', options)
