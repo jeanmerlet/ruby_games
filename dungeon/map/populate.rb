@@ -37,12 +37,12 @@ module Populate
       x, y = *get_xy(room)
       if !spot_occupied?(entities, x, y)
         if rand(100) < 70
-          item = Consumable.new(entities, x, y, "!", "FERNs", "light blue")
+          item = Consumable.new(entities, x, y, "!", "FERNS", "light blue")
           item.status = "full of [color=light blue]nano-mending bots[/color]."
           item.effects << Heal.new(item, 15)
-          item.messages << "[color=light blue]regenerated[/color] by the FERNs."
+          item.messages << "[color=light blue]regenerated[/color] by the FERNS."
           item.targetting = SelfTarget.new(item)
-          item.desc = "Fast-acting, Energizing & Regenerative Nanobots. FERNs. More like immediately-acting. Contained in a disposable jet injector, these are indispensable and ultra-convenient, but also rare and expensive."
+          item.desc = "Fast-acting, Energizing & Regenerative Nanobots (FERNS). More like immediately-acting. Contained in a disposable jet injector, these are indispensable and ultra-convenient, but also rare and expensive."
         else
           item = Consumable.new(entities, x, y, "*", "frag grenade", "dark gray")
           item.status = "packed with deadly [color=dark gray]shrapnel[/color]."
