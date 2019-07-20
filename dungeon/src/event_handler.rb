@@ -29,6 +29,10 @@ module EventHandler
         # opening inventory
         when BLT::TK_I
           action[:inventory] = true
+        when BLT::TK_S
+          action[:save_and_quit] = true if BLT.check?(BLT::TK_CONTROL)
+        when BLT::TK_Q
+          action[:abandon] = true if BLT.check?(BLT::TK_CONTROL)
         end
 
       when :movement
@@ -74,14 +78,6 @@ module EventHandler
         # close current screen
         when BLT::TK_ESCAPE
           action[:quit] = true
-        end
-
-      when :main_menu
-        case input
-        when BLT::TK_S
-          action[:save] = true
-        when BLT::TK_C
-          action[:restore] = true
         end
 
       end

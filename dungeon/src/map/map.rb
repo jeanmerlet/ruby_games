@@ -1,5 +1,6 @@
 class Map
-  attr_reader :width, :height, :tiles, :fov_tiles
+  attr_accessor :tiles, :fov_tiles
+  attr_reader :width, :height
 
   def initialize(seed = nil)
     @width, @height = 70, 50

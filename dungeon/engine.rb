@@ -8,17 +8,22 @@ Dir["#{ROOT}/systems/*.rb"].each { |file| require file }
 Dir["#{ROOT}/entities/**/*.rb"].each { |file| require file }
 Dir["#{ROOT}/map/*.rb"].each { |file| require file }
 Dir["#{ROOT}/gui/*.rb"].each { |file| require file }
+Dir["#{ROOT}/data/*.rb"].each { |file| require file }
 
 BLT = Terminal
 
 class Game
 
-  def initialize
+  def init(restore)
     BLT.open
     Config.blt_config
+    new_game if !restore
+  end
+
+  def new_game
     @entities = []
     create_player
-    @map = Map.new #(5897)
+    @map = Map.new
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @viewport = Viewport.new(@map, @entities, @player)
@@ -111,8 +116,10 @@ class Game
       @active_cmd_domains.delete(:main)
       @active_cmd_domains.delete(:movement)
       @active_cmd_domains << :menu
-    elsif action[:quit]
-      @close = true
+    elsif action[:save_and_quit]
+      save_and_quit
+    elsif action[:abandon]
+      abandon
     end
     return results
   end
@@ -258,7 +265,24 @@ class Game
     @player.status = "you!"
     @player.desc = "One of those pesky thrill-seeking adventurers, here seeking thrills."
   end
+
+  def save_and_quit
+    Serialize.save_game(self)
+    @close = true
+  end
+
+  def abandon
+    File.delete("./src/data/game.sav") if FileTest.exists?("./src/data/game.sav")
+    @close = true
+  end
 end
 
-game = Game.new
+if FileTest.exists?("./src/data/game.sav")
+  game = Serialize.restore("./src/data/game.sav")
+  restore = true
+else
+  game = Game.new
+  restore = false
+end
+game.init(restore)
 game.run
