@@ -20,18 +20,6 @@ class Game
     new_game if !restore
   end
 
-  def new_game
-    @entities = []
-    create_player
-    @map = Map.new
-    @map.new_level(@entities, @player)
-    @gui = GUI.new(@player)
-    @viewport = Viewport.new(@map, @entities, @player)
-    @game_states = [:enemy_turn, :player_turn]
-    @active_cmd_domains = [:main, :movement, :quit]
-    @refresh_fov, @close = true, false
-  end
-
   def run
     until @close
       action = EventHandler.read(@active_cmd_domains)
@@ -201,6 +189,7 @@ class Game
         @game_states.pop
         @active_cmd_domains.delete(:menu)
         @active_cmd_domains << :main
+        @active_cmd_domains << :movement
       end
     end
     return results
@@ -254,6 +243,18 @@ class Game
     end
     @game_states << :player_turn
     return results
+  end
+
+  def new_game
+    @entities = []
+    create_player
+    @map = Map.new
+    @map.new_level(@entities, @player)
+    @gui = GUI.new(@player)
+    @viewport = Viewport.new(@map, @entities, @player)
+    @game_states = [:enemy_turn, :player_turn]
+    @active_cmd_domains = [:main, :movement, :quit]
+    @refresh_fov, @close = true, false
   end
 
   def create_player
