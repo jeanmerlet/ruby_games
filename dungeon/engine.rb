@@ -258,7 +258,7 @@ class Game
   end
 
   def create_player
-    fov_r, fov_id = 8, 1
+    fov_r, fov_id = 10, 1
     @player = Actor.new(@entities, 0, 0, "@", 'player', 'amber', fov_r, fov_id)
     hp, defense, power = 30, 0, 3
     @player.inventory = Inventory.new(@player, 26)

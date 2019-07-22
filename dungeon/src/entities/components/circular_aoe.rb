@@ -1,9 +1,9 @@
 class CircularAOE < Component
-  #attr_accessor :radius
+  attr_reader :max_range
 
-  def initialize(owner, radius)
+  def initialize(owner, radius, max_range)
     super(owner)
-    @radius = radius
+    @radius, @max_range = radius, max_range
   end
 
   def get_targets(center_x, center_y)
@@ -21,14 +21,10 @@ class CircularAOE < Component
     side_length.times do |i|
       side_length.times do |j|
         current_x, current_y = center_x - offset + i, center_y - offset + j
-        if distance(center_x, center_y, current_x, current_y) <= @radius + 0.5
+        if owner.dist(center_x, center_y, current_x, current_y) <= @radius + 0.5
           BLT.print(2*current_x, current_y, "[color=darker red][0xE000]")
         end
       end
     end
-  end
-
-  def distance(x1, y1, x2, y2)
-    Math.sqrt((x1-x2)**2 + (y1-y2)**2)
   end
 end

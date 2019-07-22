@@ -30,4 +30,8 @@ class Entity
   def distance_to(x, y)
     return Math.sqrt((@x-x)**2 + (@y-y)**2)
   end
+
+  def dist(x1, y1, x2, y2)
+    Math.sqrt((x1-x2)**2 + (y1-y2)**2)
+  end
 end

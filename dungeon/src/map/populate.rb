@@ -7,9 +7,10 @@ module Populate
 
   def self.place_actors(tiles, room, entities, monster_max)
     number_of_monsters = rand(0..monster_max)
-    number_of_monsters.times do
+    counter = 0
+    until counter == number_of_monsters
       x, y = *get_xy(room)
-      if !spot_occupied?(entities, x, y)
+      if !spot_occupied?(entities, x, y) && !tiles[x][y].blocked
         if rand(100) < 80
           monster = Actor.new(entities, x, y, "s", "skitterling", "purple")
           monster.status = "skittering around. Obviously."
@@ -27,15 +28,17 @@ module Populate
           monster.desc = "An old and partly broken-down station guardbot, it still packs some serious heat. Literally. It has some kind of flamethrower at the ready. You can usually rely on these to loop through fairly obvious routines, but this one may have had some (or most) of its logic circuits fried. It is slow."
         end
         tiles[x][y].entities << monster
+        counter += 1
       end
     end
   end
 
   def self.place_items(tiles, room, entities, item_max)
     number_of_items = rand(0..item_max)
-    number_of_items.times do
+    counter = 0
+    until counter == number_of_items
       x, y = *get_xy(room)
-      if !spot_occupied?(entities, x, y)
+      if !spot_occupied?(entities, x, y) && !tiles[x][y].blocked
         if rand(100) < 70
           item = Consumable.new(entities, x, y, "!", "FERNs", "light blue")
           item.status = "full of [color=light blue]nano-mending bots[/color]."
@@ -48,10 +51,11 @@ module Populate
           item.status = "packed with deadly [color=dark gray]shrapnel[/color]."
           item.effects << Damage.new(item, :piercing, 15)
           item.messages << "[color=dark gray]shredded[/color] by the shrapnel!"
-          item.targetting = CircularAOE.new(item, 2)
+          item.targetting = CircularAOE.new(item, 2, 8)
           item.desc = "This technology has been around for a very long time. Designed to explosively disperse sharp metal shards in a radius on impact, one of these can clear out several threats at once if well-aimed. It can be lobbed over enemies."
         end
         tiles[x][y].entities << item
+        counter += 1
       end
     end
   end

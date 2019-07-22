@@ -28,7 +28,11 @@ class TargetInfo
       entities.each do |entity|
         if map.fov_tiles[entity.x][entity.y] == player.fov_id &&
            map.tiles[entity.x][entity.y].entities.last == entity
-          @target_list.unshift(entity)
+          if @item && entity.distance_to(player.x, player.y) <= @item.targetting.max_range
+            @target_list.unshift(entity)
+          elsif !@item
+            @target_list.unshift(entity)
+          end
         end
       end
       @target_list.sort! do |a, b|
@@ -41,8 +45,12 @@ class TargetInfo
   def move_reticule(move, player)
     if !(@item && @item.targetting.is_a?(SelfTarget))
       dx, dy = *move
-      @ret_x += dx
-      @ret_y += dy
+      new_x, new_y = @ret_x + dx, @ret_y + dy
+      if @item && @item.dist(new_x, new_y, player.x, player.y) <= @item.targetting.max_range
+        @ret_x, @ret_y = new_x, new_y
+      elsif !@item
+        @ret_x, @ret_y = new_x, new_y
+      end
       @target = player.get_top_entity_at(@ret_x, @ret_y)
     end
   end
