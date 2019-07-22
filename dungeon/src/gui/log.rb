@@ -10,7 +10,7 @@ class Log
   end
 
   def render
-    @new_messages.each_with_index do |message|
+    @new_messages.each do |message|
       if @y == @max_h
         @height.times {|i| BLT.print(@x, @y - @height + 1 + i, "#{" "*@width}")}
         (@height - 1).times do |i|

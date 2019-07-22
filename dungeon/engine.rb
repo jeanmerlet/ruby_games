@@ -248,7 +248,7 @@ class Game
   def new_game
     @entities = []
     create_player
-    @map = Map.new
+    @map = Map.new(3712)
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @viewport = Viewport.new(@map, @entities, @player)

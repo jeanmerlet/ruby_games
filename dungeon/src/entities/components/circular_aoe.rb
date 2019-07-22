@@ -3,7 +3,7 @@ class CircularAOE < Component
 
   def initialize(owner, radius, max_range)
     super(owner)
-    @radius, @max_range = radius, max_range
+    @radius, @max_range = radius, max_range + 0.5
   end
 
   def get_targets(center_x, center_y)

@@ -28,9 +28,12 @@ class TargetInfo
       entities.each do |entity|
         if map.fov_tiles[entity.x][entity.y] == player.fov_id &&
            map.tiles[entity.x][entity.y].entities.last == entity
-          if @item && entity.distance_to(player.x, player.y) <= @item.targetting.max_range
-            @target_list.unshift(entity)
-          elsif !@item
+          if @item
+            px, py = player.x, player.y
+            if entity.distance_to(px, py) <= @item.targetting.max_range
+              @target_list.unshift(entity)
+            end
+          else
             @target_list.unshift(entity)
           end
         end
@@ -46,9 +49,12 @@ class TargetInfo
     if !(@item && @item.targetting.is_a?(SelfTarget))
       dx, dy = *move
       new_x, new_y = @ret_x + dx, @ret_y + dy
-      if @item && @item.dist(new_x, new_y, player.x, player.y) <= @item.targetting.max_range
-        @ret_x, @ret_y = new_x, new_y
-      elsif !@item
+      if @item
+        px, py = player.x, player.y
+        if @item.dist(new_x, new_y, px, py) <= @item.targetting.max_range
+          @ret_x, @ret_y = new_x, new_y
+        end
+      else
         @ret_x, @ret_y = new_x, new_y
       end
       @target = player.get_top_entity_at(@ret_x, @ret_y)
@@ -60,7 +66,7 @@ class TargetInfo
       article = (/[aeiou]/ === @target.name[0] ? 'an' : 'a')
 
       BLT.print(@x+2, @y+3, "#{' '*@width}")
-      BLT.print(@x+3, @y+3, "[font=reg][color=#{@target.color}]#{@target.char}[/color][/font], #{article} #{@target.name}")
+      BLT.print(@x+2, @y+3, "[font=char][color=#{@target.color}]#{@target.char}[/color][/font], #{article} #{@target.name}.")
       BLT.print(@x+2, @y+4, "It's #{' '*(@width-4)}")
       BLT.print(@x+2, @y+4, "It's #{@target.status}")
     else
