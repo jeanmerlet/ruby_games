@@ -1,0 +1,160 @@
+### Rooms ###
+
+# Index #
+# b: bedroom
+# k: kitchen
+# l: living room
+# s: storage
+# t: bathroom
+
+name: apartment1
+size: 5x4
+MAP
+##+##
+#t.b#
++.bb#
+#####
+ENDMAP
+
+name: apartment2
+size: 10x7
+MAP
+###+######
+#bb...+.t#
+#bb.bb#tt#
++...bb####
+#bb.bb#kk#
+#bb...+.k#
+###+######
+ENDMAP
+
+name: apartment3
+size: 15x8
+MAP
+#######+#######
+#bbb....b#llll#
+#bbb.bb.b#llll#
+#bbb.bb..+...l#
+#b...##+####+##
++..bb#t.t#k..k#
+#bbbb#t.t#kkkk#
+###############
+ENDMAP
+
+name: storage1
+size: 3x3
+MAP
+#+#
+#s#
+###
+ENDMAP
+
+name: storage2
+size: 6x4
+MAP
+##+###
+#s.ss#
++.sss#
+######
+ENDMAP
+
+name: storage3
+size: 7x5
+MAP
+###+###
++...ss#
+#sssss#
+#sssss#
+#######
+ENDMAP
+
+### Hallways ###
+
+name: hor_hall_short
+size: 5x3
+MAP
+#####
+.....
+#####
+ENDMAP
+
+name: hor_hall_med
+size: 10x3
+MAP
+##########
+..........
+##########
+ENDMAP
+
+name: hor_hall_long
+size: 15x3
+MAP
+###############
+...............
+###############
+ENDMAP
+
+name: vert_hall_short
+size: 3x4
+MAP
+#.#
+#.#
+#.#
+#.#
+ENDMAP
+
+name: vert_hall_med
+size: 3x8
+MAP
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+ENDMAP
+
+name: vert_hall_long
+size: 3x12
+MAP
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+#.#
+ENDMAP
+
+### Junctions ###
+
+name: small2
+size: 3x3
+MAP
+#.#
+#..
+###
+ENDMAP
+
+MAP
+name: small3
+size: 3x3
+#.#
+...
+###
+ENDMAP
+
+MAP
+name: small4
+size: 3x3
+#.#
+...
+#.#
+ENDMAP
