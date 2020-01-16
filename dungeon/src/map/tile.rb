@@ -3,7 +3,7 @@ class Tile
                 :bevel_nw, :bevel_ne, :bevel_se, :bevel_sw
 
   def initialize
-    @blocked, @explore, @walkable = true, false, false
+    @blocked, @explored, @walkable = true, false, false
     @entities = []
     @beveled_nw = false
     @beveled_ne = false

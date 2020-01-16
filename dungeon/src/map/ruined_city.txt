@@ -1,141 +1,154 @@
+### Landing ###
+
+name: landing1
+size: 15x7
+MAP
+###############
+#.............#
+#.............#
+#......@......+
+#.............#
+#.............#
+###############
+ENDMAP
+
 ### Rooms ###
 
-# Index #
-# b: bedroom
-# k: kitchen
-# l: living room
-# s: storage
-# t: bathroom
-
-name: apartment1
-size: 5x4
+name: living1
+size: 4x4
 MAP
-##+##
-#t.b#
-+.bb#
-#####
+#+##
+#..#
+#..#
+####
 ENDMAP
 
-name: apartment2
-size: 10x7
+name: living2
+size: 6x4
 MAP
-###+######
-#bb...+.t#
-#bb.bb#tt#
-+...bb####
-#bb.bb#kk#
-#bb...+.k#
-###+######
+#+####
+#....#
+#....#
+######
 ENDMAP
 
-name: apartment3
-size: 15x8
+name: living3
+size: 7x5
 MAP
-#######+#######
-#bbb....b#llll#
-#bbb.bb.b#llll#
-#bbb.bb..+...l#
-#b...##+####+##
-+..bb#t.t#k..k#
-#bbbb#t.t#kkkk#
-###############
+###+###
+#...#.#
+#...#.#
+#...+.#
+#######
+ENDMAP
+
+name: commercial1
+size: 7x5
+MAP
+#######
+#.....#
+#...###
++.....#
+#######
+ENDMAP
+
+name: commercial2
+size: 8x6
+MAP
+##+#####
+#...#..#
+#...#..#
+#...#..#
+#...+..#
+########
+ENDMAP
+
+name: commercial3
+size: 9x7
+MAP
+#######+#
+#..#....#
+#..#....#
+#..+....#
+#..#....#
+#..#....#
+#######+#
 ENDMAP
 
 name: storage1
 size: 3x3
 MAP
 #+#
-#s#
+#.#
 ###
 ENDMAP
 
 name: storage2
-size: 6x4
+size: 4x4
 MAP
-##+###
-#s.ss#
-+.sss#
-######
+#+#
+#.##
+#..#
+####
 ENDMAP
 
 name: storage3
-size: 7x5
+size: 5x4
+MAP
+##+##
+#...#
+#...#
+#####
+ENDMAP
+
+name: med1
+size: 7x7
+MAP
+  #+#  
+ #...#
+#.....#
++..#..#
+#.....#
+ #...#
+  ###  
+ENDMAP
+
+name: med2
+size: 7x7
 MAP
 ###+###
-+...ss#
-#sssss#
-#sssss#
-#######
+#.....#
+#.....#
+#..#..#
+#.....#
+#.....#
+###+###
 ENDMAP
 
-### Hallways ###
-
-name: hor_hall_short
-size: 5x3
+name: security1
+size: 11x7
 MAP
-#####
-.....
-#####
+#####+#####
+#.........#
+#...#.#...#
++..#####..+
+#...#.#...#
+#.........#
+#####+#####
 ENDMAP
 
-name: hor_hall_med
-size: 10x3
+name: security2
+size: 13x5
 MAP
-##########
-..........
-##########
-ENDMAP
-
-name: hor_hall_long
-size: 15x3
-MAP
-###############
-...............
-###############
-ENDMAP
-
-name: vert_hall_short
-size: 3x4
-MAP
-#.#
-#.#
-#.#
-#.#
-ENDMAP
-
-name: vert_hall_med
-size: 3x8
-MAP
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-ENDMAP
-
-name: vert_hall_long
-size: 3x12
-MAP
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-#.#
-ENDMAP
+######+######
+#.#.#...#.#.#
++...........+
+#.#.#...#.#.#
+######+######
 
 ### Junctions ###
 
-name: small2
+name: small_2way
 size: 3x3
 MAP
 #.#
@@ -144,7 +157,7 @@ MAP
 ENDMAP
 
 MAP
-name: small3
+name: small_3way
 size: 3x3
 #.#
 ...
@@ -152,7 +165,7 @@ size: 3x3
 ENDMAP
 
 MAP
-name: small4
+name: small_4way
 size: 3x3
 #.#
 ...
