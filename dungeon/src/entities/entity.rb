@@ -6,7 +6,7 @@ class Entity
     @entities = entities
     @entities << self
     @x, @y = x, y
-    @char, @name, @blocks = char, name, blocks
+    @char, @name = char, name
     @color = BLT.color_from_name(color)
   end
 

@@ -2,6 +2,7 @@ require './lib/BearLibTerminal/BearLibTerminal.rb'
 require './config/config.rb'
 require './src/entities/entity.rb'
 require './src/entities/components/component.rb'
+require './src/map/tile.rb'
 ROOT = "#{File.dirname(__FILE__)}/src"
 Dir["#{ROOT}/*.rb"].each { |file| require file }
 Dir["#{ROOT}/systems/*.rb"].each { |file| require file }
@@ -238,7 +239,7 @@ class Game
     results = []
     @entities.each do |entity|
       if entity.ai
-        results.push(entity.ai.take_turn(@map, @player, @gui))
+        results.push(entity.ai.take_turn(@map, @player))
       end
     end
     @game_states << :player_turn
@@ -248,7 +249,7 @@ class Game
   def new_game
     @entities = []
     create_player
-    @map = Map.new(3712)
+    @map = Map.new
     @map.new_level(@entities, @player)
     @gui = GUI.new(@player)
     @viewport = Viewport.new(@map, @entities, @player)

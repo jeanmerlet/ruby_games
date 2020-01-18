@@ -15,16 +15,16 @@ class Map
   end
 
   def new_level(entities, player)
-    place_landing(player)
+    place_landing(entities, player)
     #create_level
     #populate_rooms
     bevel_tiles
   end
 
-  def place_landing(player)
+  def place_landing(entities, player)
     landings = read_prefabs("ruined_city", "landing")
     landing = landings[rand(landings.length)]
-    place_prefab(landing)
+    place_prefab(landing, entities)
     x, y = *landing.key("@")
     @tiles[x][y].blocked = false
     @tiles[x][y].walkable = true
@@ -68,14 +68,20 @@ class Map
     prefab
   end
 
-  def place_prefab(prefab)
+  def place_prefab(prefab, entities)
     prefab.each_key do |xy|
+      x, y = xy[0], xy[1]
       if prefab[xy] == "."
-        @tiles[xy[0]][xy[1]].blocked = false
-        @tiles[xy[0]][xy[1]].walkable = true
+        @tiles[x][y].blocked = false
+        @tiles[x][y].walkable = true
       end
       if prefab[xy] == "+"
-        @tiles[xy[0]][xy[1]].walkable = true
+        @tiles[x][y].walkable = true
+        door = Door.new(entities, x, y, "+", "door", "light_wall")
+        door.status = "closed."
+        door.desc = "It's a door."
+        door.ai = DoorAI.new(door)
+        @tiles[x][y].entities << door
       end
     end
   end

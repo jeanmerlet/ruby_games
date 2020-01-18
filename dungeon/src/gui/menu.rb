@@ -11,7 +11,7 @@ module Menu
     BLT.print(header_start_x, y, "[font=gui]#{header}")
     BLT.print(x, y+2, "[[Esc]] to close, [[a-z]] to select option:")
     options.each do |key, option|
-      BLT.print(x, y+4, "[font=gui]#{key.to_s}.[/font] #{option}")
+      BLT.print(x, y+4, "#{key.to_s}. #{option}")
       y += 1
     end
   end

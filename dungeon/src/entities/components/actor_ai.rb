@@ -1,12 +1,11 @@
 class ActorAI < Component
-  attr_accessor :take_turn
 
   def initialize(owner)
     super(owner)
     @chase_turns = 0
   end
 
-  def take_turn(map, player, gui)
+  def take_turn(map, player)
     player_x, player_y = player.x, player.y
     results = []
     if map.fov_tiles[@owner.x][@owner.y] == player.fov_id
