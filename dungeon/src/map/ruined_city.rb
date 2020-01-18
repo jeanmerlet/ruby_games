@@ -14,34 +14,69 @@ class Map
     p seed
   end
 
-  def new_level(player)
+  def new_level(entities, player)
     place_landing(player)
-    create_level
-    populate_rooms
-    place_player
+    #create_level
+    #populate_rooms
     bevel_tiles
   end
 
   def place_landing(player)
-    landing = read_prefab("ruined_city", "landing", [1, 1])
-    place_prefab(landing, [1, 1])
-    add_sockets(landing)
-    player.x, player.y = *landing['@']
+    landings = read_prefabs("ruined_city", "landing")
+    landing = landings[rand(landings.length)]
+    place_prefab(landing)
+    x, y = *landing.key("@")
+    @tiles[x][y].blocked = false
+    @tiles[x][y].walkable = true
+    player.x, player.y = x, y
+    @tiles[player.x][player.y].entities << player
+    #add_sockets(landing)
   end
 
-  # read_prefab creates a prefab hash from .txt file with tile type for keys
-  # and coordinates for values e.g. '#' => [[1, 1], [1, 2], ...]
-
-  def read_prefab(level_name, prefab_type, xy)
-  end
-
-  def place_prefab(prefab, xy)
-    prefab['.'].each do |xy|
-      @tiles[xy[0]][xy[1]].blocked = false
-      @tiles[xy[0]][xy[1]].walkable = true
+  def read_prefabs(level_name, prefab_type)
+    level_name = "./src/map/" + level_name + ".txt"
+    start, i = false, -1
+    raw_prefabs = []
+    File.foreach(level_name, chomp: true) do |line|
+      if start
+        raw_prefabs[i] << line
+        start = false if line =~ /ENDMAP/
+      end
+      if line =~ /^name: #{prefab_type}\d*$/
+        start = true
+        raw_prefabs << []
+        i += 1
+      end
     end
-    prefab['+'].each do |xy|
-      @tiles[xy[0]][xy[1]].walkable = true
+
+    prefabs = []
+    raw_prefabs.each do |raw_prefab|
+      prefabs << raw_prefab_to_tiles(raw_prefab, 1, 1)
+    end
+    prefabs
+  end
+
+  def raw_prefab_to_tiles(raw_prefab, x, y)
+    prefab = {}
+    tiles = raw_prefab[raw_prefab.index("MAP")+1..raw_prefab.index("ENDMAP")-1]
+    tiles.each.with_index do |tile_line, j|
+      tile_line.length.times do |i|
+        next if tile_line[i] == " "
+        prefab[[x+i, y+j]] = tile_line[i]
+      end
+    end
+    prefab
+  end
+
+  def place_prefab(prefab)
+    prefab.each_key do |xy|
+      if prefab[xy] == "."
+        @tiles[xy[0]][xy[1]].blocked = false
+        @tiles[xy[0]][xy[1]].walkable = true
+      end
+      if prefab[xy] == "+"
+        @tiles[xy[0]][xy[1]].walkable = true
+      end
     end
   end
 
@@ -88,5 +123,56 @@ class Map
   end
 
   def pick_room
+  end
+
+  def bevel_tiles
+    @tiles.each_with_index do |tile_line, x|
+      next if x == 0
+      break if x == @width - 1
+      tile_line.each_with_index do |tile, y|
+        next if y == 0 || !tile.blocked
+        break if y == @height - 1
+        neighbors = neighbor_block_values(x, y)
+        block_count = neighbors.count(true)
+        if block_count < 3
+          n, s, e, w = *neighbors
+          if block_count == 2
+            if !n && !w
+              tile.bevel_nw = true
+            elsif !n && !e
+              tile.bevel_ne = true
+            elsif !s && !e
+              tile.bevel_se = true
+            elsif !s && !w
+              tile.bevel_sw = true
+            end
+          elsif block_count == 1
+            if n
+              tile.bevel_sw, tile.bevel_se = true, true
+            elsif s
+              tile.bevel_nw, tile.bevel_ne = true, true
+            elsif e
+              tile.bevel_nw, tile.bevel_sw = true, true
+            else
+              tile.bevel_ne, tile.bevel_se = true, true
+            end
+          else
+            tile.bevel_nw = true
+            tile.bevel_ne = true
+            tile.bevel_sw = true
+            tile.bevel_se = true
+          end
+        end
+      end
+    end
+  end
+
+  def neighbor_block_values(x, y)
+    [@tiles[x][y-1].blocked, @tiles[x][y+1].blocked,
+     @tiles[x+1][y].blocked, @tiles[x-1][y].blocked]
+  end
+
+  def out_of_bounds?(x, y)
+    x < 0 || x >= @width || y < 0 || y >= @height
   end
 end
