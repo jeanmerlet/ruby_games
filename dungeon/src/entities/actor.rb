@@ -9,11 +9,11 @@ class Actor < Entity
   end
 
   def move(map, dx, dy)
-    map.tiles[@x][@y].walkable = true
+    map.tiles[@x][@y].passable = true
     map.tiles[@x][@y].remove_entity(self)
     @x += dx
     @y += dy
-    map.tiles[@x][@y].walkable = false
+    map.tiles[@x][@y].passable = false
     map.tiles[@x][@y].add_entity(self)
   end
 
@@ -30,11 +30,11 @@ class Actor < Entity
       move(map, dx, dy)
 
     # otherwise slide along walls towards target
-    elsif map.tiles[@x+dx][@y+dy].walkable
+    elsif map.tiles[@x+dx][@y+dy].passable
       move(map, dx, dy)
-    elsif map.tiles[@x+dx][@y].walkable
+    elsif map.tiles[@x+dx][@y].passable
       move(map, dx, 0)
-    elsif map.tiles[@x][@y+dy].walkable
+    elsif map.tiles[@x][@y+dy].passable
       move(map, 0, dy)
     end
   end

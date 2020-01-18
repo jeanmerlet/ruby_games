@@ -27,7 +27,7 @@ class Map
     place_prefab(landing, entities)
     x, y = *landing.key("@")
     @tiles[x][y].blocked = false
-    @tiles[x][y].walkable = true
+    @tiles[x][y].passable = true
     player.x, player.y = x, y
     @tiles[player.x][player.y].entities << player
     #add_sockets(landing)
@@ -73,10 +73,10 @@ class Map
       x, y = xy[0], xy[1]
       if prefab[xy] == "."
         @tiles[x][y].blocked = false
-        @tiles[x][y].walkable = true
+        @tiles[x][y].passable = true
       end
       if prefab[xy] == "+"
-        @tiles[x][y].walkable = true
+        @tiles[x][y].passable = true
         door = Door.new(entities, x, y, "+", "door", "light_wall")
         door.status = "closed."
         door.desc = "It's a door."
@@ -115,7 +115,7 @@ class Map
         place_hallway(xy)
       end
     else # convert unusable socket to a wall
-      @tiles[xy[0]][xy[1]].walkable = false
+      @tiles[xy[0]][xy[1]].passable = false
     end
     @sockets.shift
     create_level if !@sockets.empty?
