@@ -8,6 +8,7 @@ class Map
     @room_tries = 60
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
+    @rooms = []
     @sockets = []
     seed = rand(10000) if seed.nil?
     srand(seed)
@@ -30,7 +31,6 @@ class Map
     @tiles[x][y].passable = true
     player.x, player.y = x, y
     @tiles[player.x][player.y].entities << player
-    #add_sockets(landing)
   end
 
   def read_prefabs(level_name, prefab_type)
@@ -46,6 +46,7 @@ class Map
         start = true
         raw_prefabs << []
         i += 1
+        raw_prefabs[i] << line[6..-1]
       end
     end
 
@@ -58,6 +59,7 @@ class Map
 
   def raw_prefab_to_tiles(raw_prefab, x, y)
     prefab = {}
+    prefab[:name] = raw_prefab.first
     tiles = raw_prefab[raw_prefab.index("MAP")+1..raw_prefab.index("ENDMAP")-1]
     tiles.each.with_index do |tile_line, j|
       tile_line.length.times do |i|
@@ -69,6 +71,7 @@ class Map
   end
 
   def place_prefab(prefab, entities)
+    #@rooms << prefab[:name]
     prefab.each_key do |xy|
       x, y = xy[0], xy[1]
       if prefab[xy] == "."
@@ -82,17 +85,12 @@ class Map
         door.desc = "It's a door."
         door.ai = DoorAI.new(door)
         @tiles[x][y].entities << door
+        @sockets << [prefab[:name], [x, y]]
       end
     end
   end
 
   def place_hallway(xy)
-  end
-
-  # sockets are array pairs consisting of name then xy-coords for the socket
-
-  def add_sockets(prefab)
-    prefab['+'].each { |xy| @sockets << [prefab[:name], xy] }
   end
 
   def create_level

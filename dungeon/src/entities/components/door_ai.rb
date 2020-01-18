@@ -12,7 +12,7 @@ class DoorAI < Component
       @owner.blocks = false
       @owner.char = ""
       @owner.status = "open."
-    else
+    elsif !@owner.closed && !any_adjacent_actors?
       map.tiles[@owner.x][@owner.y].blocked = true
       @owner.closed = true
       @owner.blocks = true
