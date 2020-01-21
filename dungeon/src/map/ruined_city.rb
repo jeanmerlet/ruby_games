@@ -3,9 +3,8 @@ class Map
   attr_reader :width, :height
 
   def initialize(seed = nil)
-    @width, @height = 70, 50
+    @width, @height = 90, 45
     @monster_max, @item_max = 3, 2
-    @room_tries = 60
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
     @rooms = []
@@ -17,20 +16,40 @@ class Map
 
   def new_level(entities, player)
     place_landing(entities, player)
-    #create_level
+    create_level(entities)
     #populate_rooms
     bevel_tiles
   end
 
   def place_landing(entities, player)
-    landings = read_prefabs("ruined_city", "landing")
-    landing = landings[rand(landings.length)]
+    raw_landings = read_prefabs("ruined_city", "landing")
+    raw_landing = raw_landings[rand(raw_landings.length)]
+    landing = raw_prefab_to_tiles(raw_landing, 0, 0)
     place_prefab(landing, entities)
-    x, y = *landing.key("@")
-    @tiles[x][y].blocked = false
-    @tiles[x][y].passable = true
-    player.x, player.y = x, y
-    @tiles[player.x][player.y].entities << player
+    place_player(player, landing.key("@"))
+    #actually ends here
+    socket = @sockets.first
+    type, x, y, dir = socket[0], *socket[1], socket[2]
+  end
+
+  def create_level(entities)
+    socket = @sockets.first
+    type, x, y = socket[0], *socket[1]
+    if usable_socket?(x, y)
+      raw_blocks = read_prefabs("ruined_city", "living")
+      raw_block = raw_blocks[rand(raw_blocks.length)]
+      block = raw_prefab_to_tiles(raw_block, x, y-4)
+      place_prefab(block, entities)
+    else # convert unusable socket to a wall
+      @tiles[x][y].passable = false
+      @tiles[x][y].entities.shift
+    end
+    @sockets.shift
+    create_level(entities) if !@sockets.empty?
+  end
+
+  def usable_socket?(x, y)
+    true
   end
 
   def read_prefabs(level_name, prefab_type)
@@ -49,12 +68,7 @@ class Map
         raw_prefabs[i] << line[6..-1]
       end
     end
-
-    prefabs = []
-    raw_prefabs.each do |raw_prefab|
-      prefabs << raw_prefab_to_tiles(raw_prefab, 1, 1)
-    end
-    prefabs
+    raw_prefabs
   end
 
   def raw_prefab_to_tiles(raw_prefab, x, y)
@@ -90,43 +104,12 @@ class Map
     end
   end
 
-  def place_hallway(xy)
-  end
-
-  def create_level
-    socket = @sockets.first
-    type, xy = socket[0], socket[1]
-    if usable_socket?(xy)
-      if type == 'hallway_end'
-        if rand(2) == 0
-          prefab = pick_junction(xy)
-        else
-          prefab = pick_room(type, xy)
-        end
-        place_prefab(prefab, xy)
-        add_sockets(prefab)
-      elsif type == 'hallway_side'
-        prefab = pick_room(type, xy)
-        place_prefab(prefab, xy)
-        add_sockets(prefab)
-      else
-        place_hallway(xy)
-      end
-    else # convert unusable socket to a wall
-      @tiles[xy[0]][xy[1]].passable = false
-    end
-    @sockets.shift
-    create_level if !@sockets.empty?
-  end
-
-  def usable_socket?
-    true
-  end
-
-  def pick_junction
-  end
-
-  def pick_room
+  def place_player(player, xy)
+    x, y = *xy
+    @tiles[x][y].blocked = false
+    @tiles[x][y].passable = true
+    player.x, player.y = x, y
+    @tiles[player.x][player.y].entities << player
   end
 
   def bevel_tiles
