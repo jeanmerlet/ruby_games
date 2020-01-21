@@ -7,7 +7,7 @@ class Map
     @monster_max, @item_max = 3, 2
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
-    @rooms = []
+    @blocks = @width*@height/81
     @sockets = []
     seed = rand(10000) if seed.nil?
     srand(seed)
@@ -27,9 +27,7 @@ class Map
     landing = raw_prefab_to_tiles(raw_landing, 0, 0)
     place_prefab(landing, entities)
     place_player(player, landing.key("@"))
-    #actually ends here
-    socket = @sockets.first
-    type, x, y, dir = socket[0], *socket[1], socket[2]
+    @blocks -= landing[:size]
   end
 
   def create_level(entities)
@@ -45,7 +43,8 @@ class Map
       @tiles[x][y].entities.shift
     end
     @sockets.shift
-    create_level(entities) if !@sockets.empty?
+    p @sockets
+    #create_level(entities) if !@sockets.empty?
   end
 
   def usable_socket?(x, y)
@@ -73,7 +72,9 @@ class Map
 
   def raw_prefab_to_tiles(raw_prefab, x, y)
     prefab = {}
-    prefab[:name] = raw_prefab.first
+    prefab[:name] = raw_prefab[0]
+    size = raw_prefab[1][6..-1].split("x")
+    prefab[:size] = size[0].to_i * size[1].to_i
     tiles = raw_prefab[raw_prefab.index("MAP")+1..raw_prefab.index("ENDMAP")-1]
     tiles.each.with_index do |tile_line, j|
       tile_line.length.times do |i|
@@ -85,23 +86,33 @@ class Map
   end
 
   def place_prefab(prefab, entities)
-    #@rooms << prefab[:name]
     prefab.each_key do |xy|
       x, y = xy[0], xy[1]
       if prefab[xy] == "."
         @tiles[x][y].blocked = false
         @tiles[x][y].passable = true
-      end
-      if prefab[xy] == "+"
+      elsif prefab[xy] == "+" || prefab[xy] == "*"
         @tiles[x][y].passable = true
         door = Door.new(entities, x, y, "+", "door", "light_wall")
         door.status = "closed."
         door.desc = "It's a door."
         door.ai = DoorAI.new(door)
         @tiles[x][y].entities << door
-        @sockets << [prefab[:name], [x, y]]
+        add_socket(prefab, x, y) if prefab[xy] == "*"
       end
     end
+  end
+
+  def add_socket(prefab, x, y)
+    dir = [1, 0]
+    if prefab[[x, y+1]].nil?
+      dir = [0, 1]
+    elsif prefab[[x-1, y]].nil?
+      dir = [-1, 0]
+    else
+      dir = [0, -1]
+    end
+    @sockets[[x, y]] = [prefab[:name], dir] if @sockets[x, y].nil?
   end
 
   def place_player(player, xy)
