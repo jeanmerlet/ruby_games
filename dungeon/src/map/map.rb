@@ -3,12 +3,12 @@ class Map
   attr_reader :width, :height
 
   def initialize(seed = nil)
-    @width, @height = 90, 45
+    @width, @height = 97, 49
     @monster_max, @item_max = 3, 2
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
-    @blocks = @width*@height/81
-    @sockets = []
+    @sockets, @socket_index = [], 0
+    @door_count = 0
     seed = rand(10000) if seed.nil?
     srand(seed)
     p seed
@@ -24,31 +24,27 @@ class Map
   def place_landing(entities, player)
     raw_landings = read_prefabs("ruined_city", "landing")
     raw_landing = raw_landings[rand(raw_landings.length)]
-    landing = raw_prefab_to_tiles(raw_landing, 0, 0)
+    landing = raw_prefab_to_tiles(raw_landing, 0, 4, [1, 0])
     place_prefab(landing, entities)
     place_player(player, landing.key("@"))
-    @blocks -= landing[:size]
   end
 
   def create_level(entities)
-    socket = @sockets.first
-    type, x, y = socket[0], *socket[1]
-    if usable_socket?(x, y)
+    socket = @sockets[@socket_index]
+    x, y, dir = socket[0], socket[1], socket[2]
+    if usable_socket?(x, y, dir)
       raw_blocks = read_prefabs("ruined_city", "living")
       raw_block = raw_blocks[rand(raw_blocks.length)]
-      block = raw_prefab_to_tiles(raw_block, x, y-4)
+      block = raw_prefab_to_tiles(raw_block, x, y, dir)
+      block = rotate_block(block, x, y, dir)
       place_prefab(block, entities)
-    else # convert unusable socket to a wall
+    else
+      @tiles[x][y].blocked = true
       @tiles[x][y].passable = false
       @tiles[x][y].entities.shift
     end
-    @sockets.shift
-    p @sockets
-    #create_level(entities) if !@sockets.empty?
-  end
-
-  def usable_socket?(x, y)
-    true
+    @socket_index += 1
+    create_level(entities) if @socket_index != @sockets.size
   end
 
   def read_prefabs(level_name, prefab_type)
@@ -70,19 +66,40 @@ class Map
     raw_prefabs
   end
 
-  def raw_prefab_to_tiles(raw_prefab, x, y)
+  def raw_prefab_to_tiles(raw_prefab, x, y, dir)
     prefab = {}
     prefab[:name] = raw_prefab[0]
-    size = raw_prefab[1][6..-1].split("x")
-    prefab[:size] = size[0].to_i * size[1].to_i
+    #size = raw_prefab[1][6..-1].split("x")
+    #prefab[:size] = size[0].to_i * size[1].to_i
+    prefab[:rotations] = raw_prefab[2][-1]
+    p prefab[:rotations]
+    a, b = dir[0], dir[1]
+    y -= 4 if a != 0
+    x -= 8 if a == -1
+    x -= 4 if b != 0
+    y -= 8 if b == -1
     tiles = raw_prefab[raw_prefab.index("MAP")+1..raw_prefab.index("ENDMAP")-1]
     tiles.each.with_index do |tile_line, j|
       tile_line.length.times do |i|
-        next if tile_line[i] == " "
         prefab[[x+i, y+j]] = tile_line[i]
+        prefab[:rotations].times do
+          
+        end
       end
     end
     prefab
+  end
+
+  def rotate_block(block, x, y, dir)
+    blocks = [block]
+    new_block = {}
+    block[:rotations].times do |i|
+      9.times do |a|
+        9.times do |b|
+          new_block[[a, b]] = 
+        end
+      end
+    end
   end
 
   def place_prefab(prefab, entities)
@@ -91,28 +108,35 @@ class Map
       if prefab[xy] == "."
         @tiles[x][y].blocked = false
         @tiles[x][y].passable = true
-      elsif prefab[xy] == "+" || prefab[xy] == "*"
+      elsif prefab[xy] == "+"
         @tiles[x][y].passable = true
         door = Door.new(entities, x, y, "+", "door", "light_wall")
         door.status = "closed."
         door.desc = "It's a door."
         door.ai = DoorAI.new(door)
         @tiles[x][y].entities << door
-        add_socket(prefab, x, y) if prefab[xy] == "*"
+        @door_count += 1
+      elsif prefab[xy] == "*"
+        add_socket(prefab, x, y)
+        @tiles[x][y].blocked = false
+        @tiles[x][y].passable = true
       end
     end
   end
 
   def add_socket(prefab, x, y)
-    dir = [1, 0]
-    if prefab[[x, y+1]].nil?
+    if prefab[[x+1, y]].nil?
+      dir = [1, 0]
+    elsif prefab[[x, y+1]].nil?
       dir = [0, 1]
     elsif prefab[[x-1, y]].nil?
       dir = [-1, 0]
-    else
+    elsif prefab[[x, y-1]].nil?
       dir = [0, -1]
     end
-    @sockets[[x, y]] = [prefab[:name], dir] if @sockets[x, y].nil?
+    if !@tiles[x][y].passable
+      @sockets << [x, y, dir]
+    end
   end
 
   def place_player(player, xy)
@@ -172,5 +196,11 @@ class Map
 
   def out_of_bounds?(x, y)
     x < 0 || x >= @width || y < 0 || y >= @height
+  end
+
+  def usable_socket?(x, y, dir)
+    x += dir[0]
+    y += dir[1]
+    !out_of_bounds?(x, y)
   end
 end
