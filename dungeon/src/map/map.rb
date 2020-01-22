@@ -2,92 +2,80 @@ class Map
   attr_accessor :tiles, :fov_tiles
   attr_reader :width, :height
 
-  def initialize(seed = nil)
-    @width, @height = 97, 49
-    @monster_max, @item_max = 3, 2
+  def initialize(level_type = "ruined_city", seed = nil)
+    @width, @height = 101, 51
     @tiles = Array.new(@width) { Array.new(@height) { Tile.new } }
     @fov_tiles = Array.new(@width) { Array.new(@height) { 0 } }
     @sockets, @socket_index = [], 0
-    @door_count = 0
+    @level_type = level_type
     seed = rand(10000) if seed.nil?
     srand(seed)
     p seed
   end
 
-  def new_level(entities, player)
-    place_landing(entities, player)
-    create_level(entities)
+  def new_level(level_type, entities, player)
+    raw_blocks = read_blocks(level_type)
+    @blocks = parse_raw_blocks(raw_blocks)
+    generate_block_order
+    create_level(entities, player)
     #populate_rooms
     bevel_tiles
   end
 
+  def generate_block_order
+    @block_order, names = [], []
+    @blocks.each do |block|
+      
+    end
+  end
+
   def place_landing(entities, player)
-    raw_landings = read_prefabs("ruined_city", "landing")
-    raw_landing = raw_landings[rand(raw_landings.length)]
-    landing = raw_prefab_to_tiles(raw_landing, 0, 4, [1, 0])
-    place_prefab(landing, entities)
+    raw_landings = read_blocks("ruined_city", "landing")
+    landing = raw_landings[rand(raw_landings.length)]
+    landing = parse_raw_block(raw_landing, 0, 4, [1, 0])
+    place_block(landing, entities)
     place_player(player, landing.key("@"))
   end
 
   def create_level(entities)
-    socket = @sockets[@socket_index]
-    x, y, dir = socket[0], socket[1], socket[2]
-    if usable_socket?(x, y, dir)
-      raw_blocks = read_prefabs("ruined_city", "living")
-      raw_block = raw_blocks[rand(raw_blocks.length)]
-      block = raw_prefab_to_tiles(raw_block, x, y, dir)
-      block = rotate_block(block, x, y, dir)
-      place_prefab(block, entities)
-    else
-      @tiles[x][y].blocked = true
-      @tiles[x][y].passable = false
-      @tiles[x][y].entities.shift
-    end
+    x, y = *@sockets.first
+    raw_block = raw_blocks[rand(raw_blocks.length)]
+    block = parse_raw_block(raw_block, x, y)
+    place_block(x, y, block, entities)
     @socket_index += 1
     create_level(entities) if @socket_index != @sockets.size
   end
 
-  def read_prefabs(level_name, prefab_type)
+  def read_blocks(level_name)
     level_name = "./src/map/" + level_name + ".txt"
     start, i = false, -1
-    raw_prefabs = []
+    raw_blocks = []
     File.foreach(level_name, chomp: true) do |line|
       if start
-        raw_prefabs[i] << line
+        raw_blocks[i] << line
         start = false if line =~ /ENDMAP/
       end
-      if line =~ /^name: #{prefab_type}\d*$/
+      if line =~ /^name:/
         start = true
-        raw_prefabs << []
+        raw_blocks << []
         i += 1
-        raw_prefabs[i] << line[6..-1]
       end
     end
-    raw_prefabs
+    raw_blocks
   end
 
-  def raw_prefab_to_tiles(raw_prefab, x, y, dir)
-    prefab = {}
-    prefab[:name] = raw_prefab[0]
-    #size = raw_prefab[1][6..-1].split("x")
-    #prefab[:size] = size[0].to_i * size[1].to_i
-    prefab[:rotations] = raw_prefab[2][-1]
-    p prefab[:rotations]
-    a, b = dir[0], dir[1]
-    y -= 4 if a != 0
-    x -= 8 if a == -1
-    x -= 4 if b != 0
-    y -= 8 if b == -1
-    tiles = raw_prefab[raw_prefab.index("MAP")+1..raw_prefab.index("ENDMAP")-1]
+  def parse_raw_block(raw_block, x, y, dir)
+    block = {}
+    block[:name] = raw_block[0][6..-1]
+    block[:rotations] = raw_block[2][-1]
+    block[:tiles] = []
+    tiles = raw_block[raw_block.index("MAP")+1..raw_block.index("ENDMAP")-1]
     tiles.each.with_index do |tile_line, j|
       tile_line.length.times do |i|
-        prefab[[x+i, y+j]] = tile_line[i]
-        prefab[:rotations].times do
-          
-        end
+        block[[x+i, y+j]] = tile_line[i]
       end
     end
-    prefab
+    block
   end
 
   def rotate_block(block, x, y, dir)
@@ -96,19 +84,19 @@ class Map
     block[:rotations].times do |i|
       9.times do |a|
         9.times do |b|
-          new_block[[a, b]] = 
+          #new_block[[a, b]] = 
         end
       end
     end
   end
 
-  def place_prefab(prefab, entities)
-    prefab.each_key do |xy|
+  def place_block(block, entities)
+    block.each_key do |xy|
       x, y = xy[0], xy[1]
-      if prefab[xy] == "."
+      if block[xy] == "."
         @tiles[x][y].blocked = false
         @tiles[x][y].passable = true
-      elsif prefab[xy] == "+"
+      elsif block[xy] == "+"
         @tiles[x][y].passable = true
         door = Door.new(entities, x, y, "+", "door", "light_wall")
         door.status = "closed."
@@ -116,26 +104,29 @@ class Map
         door.ai = DoorAI.new(door)
         @tiles[x][y].entities << door
         @door_count += 1
-      elsif prefab[xy] == "*"
-        add_socket(prefab, x, y)
-        @tiles[x][y].blocked = false
-        @tiles[x][y].passable = true
+      elsif block[xy] == "*"
+        add_socket(block, x, y)
       end
     end
   end
 
-  def add_socket(prefab, x, y)
-    if prefab[[x+1, y]].nil?
+  def add_socket(block, x, y)
+    if block[[x+1, y]].nil?
       dir = [1, 0]
-    elsif prefab[[x, y+1]].nil?
+    elsif block[[x, y+1]].nil?
       dir = [0, 1]
-    elsif prefab[[x-1, y]].nil?
+    elsif block[[x-1, y]].nil?
       dir = [-1, 0]
-    elsif prefab[[x, y-1]].nil?
+    elsif block[[x, y-1]].nil?
       dir = [0, -1]
     end
-    if !@tiles[x][y].passable
-      @sockets << [x, y, dir]
+    if socket_usable?(x, y, dir) && !@tiles[x][y].passable
+      @tiles[x][y].blocked = false
+      @tiles[x][y].passable = true
+      a, b = *get_xy_offset(*dir)
+      x += a
+      y += b
+      @sockets << [x, y]
     end
   end
 
@@ -198,9 +189,17 @@ class Map
     x < 0 || x >= @width || y < 0 || y >= @height
   end
 
-  def usable_socket?(x, y, dir)
+  def socket_usable?(x, y, dir)
     x += dir[0]
     y += dir[1]
     !out_of_bounds?(x, y)
+  end
+
+  def get_xy_offset(x_dir, y_dir)
+    b = -5 if x_dir != 0
+    a = -10 if x_dir == -1
+    a = -5 if y_dir != 0
+    b = -10 if y_dir == -1
+    [a, b]
   end
 end
